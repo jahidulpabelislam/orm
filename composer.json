@@ -1,0 +1,21 @@
+{
+    "name": "jpi/orm",
+    "license": "GPL-3.0-only",
+    "authors": [
+        {
+            "name": "Jahidul Pabel Islam",
+            "email": "me@jahidulpabelislam.com"
+        }
+    ],
+    "keywords": [],
+    "require": {
+        "php" : "^7.1",
+        "jpi/database": "^1",
+        "jpi/query": "^1",
+    },
+    "autoload": {
+        "psr-4": {
+            "JPI\\ORM\\": "src/"
+        }
+    }
+}
