@@ -9,7 +9,7 @@
     ],
     "keywords": [],
     "require": {
-        "php" : "^7.1",
+        "php": "^7.1",
         "jpi/database": "^1",
         "jpi/query": "^1"
     },
