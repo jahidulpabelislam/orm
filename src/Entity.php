@@ -16,11 +16,6 @@ use JPI\ORM\Entity\Collection;
 abstract class Entity {
 
     /**
-     * @var \JPI\Database\Connection
-     */
-    protected static $db;
-
-    /**
      * @var string
      */
     protected static $tableName = "";
