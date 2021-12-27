@@ -16,11 +16,6 @@ use JPI\ORM\Entity\Collection;
 abstract class Entity {
 
     /**
-     * @var string
-     */
-    protected static $tableName = "";
-
-    /**
      * @var int|null
      */
     protected $identifier = null;
@@ -29,6 +24,11 @@ abstract class Entity {
      * @var array
      */
     protected $columns;
+
+    /**
+     * @var string
+     */
+    protected static $table = "";
 
     /**
      * @var array
@@ -107,7 +107,7 @@ abstract class Entity {
      * @return \JPI\Database\Query
      */
     public static function getQuery(): Query {
-        return new Query(static::getDB(), static::$tableName);
+        return new Query(static::getDB(), static::$table);
     }
 
     /**
