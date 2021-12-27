@@ -7,6 +7,8 @@
 [![License](https://poser.pugx.org/jpi/orm/license)](https://packagist.org/packages/jpi/orm)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jahidulpabelislam/orm/master.svg?label=last%20activity)
 
+A super simple & lightweight ORM.
+
 ## Installation
 
 Use [Composer](https://getcomposer.org/)
