@@ -6,7 +6,6 @@ use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use JPI\Database\Exception;
 use JPI\ORM\Entity;
 
 class Collection implements ArrayAccess, Countable, IteratorAggregate {
