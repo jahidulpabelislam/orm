@@ -397,15 +397,11 @@ abstract class Entity {
     /**
      * Load Entity(ies) from the Database where Id column equals/in $id.
      *
-     * @param $id int|string|array
+     * @param $id int[]|int
      * @return \JPI\ORM\Entity\Collection|static|null
      */
     public static function getById($id) {
-        if (is_numeric($id) || is_array($id)) {
-            return static::getByColumn("id", $id, is_numeric($id) ? 1 : null);
-        }
-
-        return null;
+        return static::getByColumn("id", $id, is_numeric($id) ? 1 : null);
     }
 
     /**
