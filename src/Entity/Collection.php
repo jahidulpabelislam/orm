@@ -5,6 +5,7 @@ namespace JPI\ORM\Entity;
 use ArrayAccess;
 use ArrayIterator;
 use Countable;
+use Exception;
 use IteratorAggregate;
 use JPI\ORM\Entity;
 
