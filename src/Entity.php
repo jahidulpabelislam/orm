@@ -101,13 +101,13 @@ abstract class Entity {
     /**
      * @return \JPI\Database\Connection
      */
-    abstract public static function getDB(): Connection;
+    abstract public static function getDatabaseConnection(): Connection;
 
     /**
      * @return \JPI\Database\Query
      */
     public static function getQuery(): Query {
-        return new Query(static::getDB(), static::$table);
+        return new Query(static::getDatabaseConnection(), static::$table);
     }
 
     /**
