@@ -51,13 +51,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @return \JPI\ORM\Entity[]
-     */
-    public function getItems(): array {
-        return $this->entities;
-    }
-
-    /**
      * @param $index string
      * @return bool
      */
