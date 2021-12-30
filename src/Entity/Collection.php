@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Collection class for entities - mainly to hold additional meta data such as pagination limit & page value.
+ *
+ * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
+ * @copyright 2012-2022 JPI
+ */
+
 namespace JPI\ORM\Entity;
 
 use ArrayAccess;

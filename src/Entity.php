@@ -1,7 +1,10 @@
 <?php
 
 /**
- * The base Entity object class for database tables.
+ * The base Entity class for database tables with the core ORM logic.
+ *
+ * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
+ * @copyright 2012-2022 JPI
  */
 
 namespace JPI\ORM;
@@ -31,6 +34,8 @@ abstract class Entity {
     protected static $table = "";
 
     /**
+     * Mapping of database column to default value.
+     *
      * @var array
      */
     protected static $defaultColumns = [];
@@ -111,13 +116,15 @@ abstract class Entity {
     }
 
     /**
+     * Select row(s) from the database.
+     *
      * @param $columns string[]|string|null
      * @param $where string[]|string|int|null
      * @param $params array|null
      * @param $orderBy string[]|string|null
      * @param $limit int|null
      * @param $page int|string|null
-     * @return \JPI\Database\Collection|array|null
+     * @return \JPI\Database\Collection|array|null Collection if paginated/limited, array if not or if limit 1 and null if limit 1 but not found
      */
     public static function select(
         $columns = "*",
@@ -131,7 +138,7 @@ abstract class Entity {
     }
 
     /**
-     * Used to get a total count of Entities using a where clause
+     * Used to get a total count of rows using a where clause.
      *
      * @param $where string[]|string|null
      * @param $params array|null
@@ -257,6 +264,8 @@ abstract class Entity {
     }
 
     /**
+     * Simple factory method to create a new entity instance and optionally set the values.
+     *
      * @param $data array|null
      * @return static
      */
@@ -296,8 +305,7 @@ abstract class Entity {
     }
 
     /**
-     * Get the limit to use for a SQL query
-     * Can specify a limit and it will make sure it is not above the max/default
+     * Get the LIMIT to use for the SELECT query.
      *
      * @param $limit int|string|null
      * @return int|null
@@ -313,6 +321,8 @@ abstract class Entity {
     }
 
     /**
+     * Get the ORDER BY to use for the SELECT query.
+     *
      * @return string[]
      */
     protected static function getOrderBy(): array {
@@ -330,6 +340,8 @@ abstract class Entity {
     }
 
     /**
+     * Load row(s) from the database and load into entity instance(s).
+     *
      * @param $where string[]|string|int|null
      * @param $params array|null
      * @param $limit int|string|null
@@ -365,8 +377,6 @@ abstract class Entity {
     }
 
     /**
-     * Get Entities from the Database where a column ($column) = a value ($value)
-     *
      * @param $column string
      * @param $value string|int|array
      * @param $limit int|string|null
@@ -395,8 +405,6 @@ abstract class Entity {
     }
 
     /**
-     * Load Entity(ies) from the Database where Id column equals/in $id.
-     *
      * @param $id int[]|int
      * @return \JPI\ORM\Entity\Collection|static|null
      */
@@ -420,6 +428,8 @@ abstract class Entity {
     }
 
     /**
+     * Transform the entity values for database query.
+     *
      * @return array
      */
     protected function getValuesToSave(): array {
@@ -448,10 +458,10 @@ abstract class Entity {
     }
 
     /**
-     * Save values to the Entity Table in the Database
-     * Will either be a new insert or a update to an existing Entity
+     * Save the current values to the database.
+     * Either a new insert a new row or a update to an existing row.
      *
-     * @return bool
+     * @return bool Whether the save was successful.
      */
     public function save(): bool {
         if ($this->isLoaded()) {
@@ -470,10 +480,12 @@ abstract class Entity {
     }
 
     /**
-     * @param $data array|null
+     * Create a new entity with passed column values and save to the database.
+     *
+     * @param $data array
      * @return static
      */
-    public static function insert(array $data = null): Entity {
+    public static function insert(array $data): Entity {
         $entity = static::factory($data);
         $entity->save();
 
@@ -481,9 +493,9 @@ abstract class Entity {
     }
 
     /**
-     * Delete an Entity from the Database
+     * Delete this entity/row from the database.
      *
-     * @return bool Whether or not deletion was successful
+     * @return bool Whether or not deletion was successful.
      */
     public function delete(): bool {
         if ($this->isLoaded()) {
