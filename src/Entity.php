@@ -346,7 +346,7 @@ abstract class Entity {
      * @param $params array|null
      * @param $limit int|string|null
      * @param $page int|string|null
-     * @return \JPI\ORM\Entity\Collection|static|null
+     * @return \JPI\ORM\Entity\Collection|array|static|null
      */
     public static function get($where = null, ?array $params = null, $limit = null, $page = null) {
         $orderBy = static::getOrderBy();
@@ -364,16 +364,11 @@ abstract class Entity {
 
         $entities = static::populateEntitiesFromDB($rows);
 
-        $total = null;
-        $limit = null;
-        $page = null;
-        if ($rows instanceof DBCollection) {
-            $total = $rows->getTotalCount();
-            $limit = $rows->getLimit();
-            $page = $rows->getPage();
+        if (!$rows instanceof DBCollection) {
+            return $entities;
         }
 
-        return new Collection($entities, $total, $limit, $page);
+        return new Collection($entities, $rows->getTotalCount(), $rows->getLimit(), $rows->getPage());
     }
 
     /**
