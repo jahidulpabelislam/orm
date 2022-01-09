@@ -111,7 +111,7 @@ abstract class Entity {
     /**
      * @return \JPI\Database\Query
      */
-    public static function getQuery(): Query {
+    public static function newQuery(): Query {
         return new Query(static::getDatabaseConnection(), static::$table);
     }
 
@@ -134,7 +134,7 @@ abstract class Entity {
         ?int $limit = null,
         $page = null
     ) {
-        return static::getQuery()->select($columns, $where, $params, $orderBy, $limit, $page);
+        return static::newQuery()->select($columns, $where, $params, $orderBy, $limit, $page);
     }
 
     /**
@@ -145,7 +145,7 @@ abstract class Entity {
      * @return int
      */
     public static function getCount($where = null, ?array $params = null): int {
-        return static::getQuery()->count($where, $params);
+        return static::newQuery()->count($where, $params);
     }
 
     /**
@@ -460,14 +460,14 @@ abstract class Entity {
      */
     public function save(): bool {
         if ($this->isLoaded()) {
-            $rowsAffected = static::getQuery()->update($this->getValuesToSave(), $this->getId());
+            $rowsAffected = static::newQuery()->update($this->getValuesToSave(), $this->getId());
             if ($rowsAffected === 0) {
                 // Updating failed so reset id
                 $this->setId(null);
             }
         }
         else {
-            $newId = static::getQuery()->insert($this->getValuesToSave());
+            $newId = static::newQuery()->insert($this->getValuesToSave());
             $this->setId($newId);
         }
 
@@ -494,7 +494,7 @@ abstract class Entity {
      */
     public function delete(): bool {
         if ($this->isLoaded()) {
-            $rowsAffected = static::getQuery()->delete($this->getId());
+            $rowsAffected = static::newQuery()->delete($this->getId());
             return $rowsAffected > 0;
         }
 
