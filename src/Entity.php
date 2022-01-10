@@ -76,6 +76,13 @@ abstract class Entity {
     protected static $orderByASC = true;
 
     /**
+     * @return string
+     */
+    public static function getTable(): string {
+        return static::$table;
+    }
+
+    /**
      * @return string[]
      */
     public static function getIntColumns(): array {
@@ -112,7 +119,7 @@ abstract class Entity {
      * @return \JPI\Database\Query
      */
     public static function newQuery(): Query {
-        return new Query(static::getDatabaseConnection(), static::$table);
+        return new Query(static::getDatabaseConnection(), static::getTable());
     }
 
     /**
