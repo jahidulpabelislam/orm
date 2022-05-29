@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/jpi/orm/downloads)](https://packagist.org/packages/jpi/orm)
 [![Latest Unstable Version](https://poser.pugx.org/jpi/orm/v/unstable)](https://packagist.org/packages/jpi/orm)
 [![License](https://poser.pugx.org/jpi/orm/license)](https://packagist.org/packages/jpi/orm)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jahidulpabelislam/orm/master.svg?label=last%20activity)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jahidulpabelislam/orm/1.x.svg?label=last%20activity)
 
 A super simple & lightweight ORM.
 
