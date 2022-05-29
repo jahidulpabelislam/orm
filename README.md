@@ -15,6 +15,15 @@ I would advise against using this on real world/live applications...but feel fre
 
 SO TO BE VERY CLEAR USE AT YOUR OWN RISK!
 
+## Dependencies
+
+- PHP 7.1+
+- Composer
+- PHP PDO
+- MySQL 5+
+- [jpi/database](https://packagist.org/packages/jpi/database)
+- [jpi/query](https://packagist.org/packages/jpi/query)
+
 ## Installation
 
 Use [Composer](https://getcomposer.org/)
