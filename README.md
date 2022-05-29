@@ -9,6 +9,12 @@
 
 A super simple & lightweight ORM.
 
+This has been kept very simple stupid (KISS), there is no validation, it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
+
+I would advise against using this on real world/live applications...but feel free to use in your own demo/experimental projects.
+
+SO TO BE VERY CLEAR USE AT YOUR OWN RISK!
+
 ## Installation
 
 Use [Composer](https://getcomposer.org/)
