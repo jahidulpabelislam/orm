@@ -276,6 +276,15 @@ abstract class Entity {
     }
 
     /**
+     * Whether this item has been deleted from the database.
+     *
+     * @return bool
+     */
+    public function isDeleted(): bool {
+        return $this->deleted;
+    }
+
+    /**
      * Simple factory method to create a new entity instance and optionally set the values.
      *
      * @param $data array|null
@@ -431,15 +440,17 @@ abstract class Entity {
      * @return void
      */
     public function reload(): void {
-        if ($this->isLoaded()) {
-            $row = static::select("*", $this->getId());
-            if ($row) {
-                $this->setValues($row, true);
-                return;
-            }
-
-            $this->setId(null);
+        if (!$this->isLoaded() || $this->isDeleted()) {
+            return;
         }
+
+        $row = static::select("*", $this->getId());
+        if ($row) {
+            $this->setValues($row, true);
+            return;
+        }
+
+        $this->setId(null);
     }
 
     /**
@@ -480,6 +491,10 @@ abstract class Entity {
      */
     public function save(): bool {
         if ($this->isLoaded()) {
+            if ($this->isDeleted()) {
+                return false;
+            }
+
             $rowsAffected = static::newQuery()->update($this->getValuesToSave(), $this->getId());
             if ($rowsAffected === 0) {
                 // Updating failed so reset id
@@ -508,21 +523,12 @@ abstract class Entity {
     }
 
     /**
-     * Whether this item has been deleted from the database.
-     *
-     * @return bool
-     */
-    public function isDeleted(): bool {
-        return $this->deleted;
-    }
-
-    /**
      * Delete this entity/row from the database.
      *
      * @return bool Whether or not deletion was successful.
      */
     public function delete(): bool {
-        if ($this->isLoaded()) {
+        if ($this->isLoaded() && !$this->isDeleted()) {
             $rowsAffected = static::newQuery()->delete($this->getId());
             $this->deleted = $rowsAffected > 0;
         }
