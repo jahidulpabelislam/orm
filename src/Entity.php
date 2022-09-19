@@ -384,6 +384,8 @@ abstract class Entity {
     }
 
     /**
+     * Load Entity(ies) from the Database where a column equals/in $value.
+     *
      * @param $column string
      * @param $value string|int|array
      * @param $limit int|string|null
@@ -412,7 +414,9 @@ abstract class Entity {
     }
 
     /**
-     * @param $id int[]|int
+     * Load Entity(ies) from the Database where Id column equals/in $id.
+     *
+     * @param $id int[]|string[]|int|string
      * @return \JPI\ORM\Entity\Collection|static|null
      */
     public static function getById($id) {
