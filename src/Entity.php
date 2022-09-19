@@ -29,6 +29,11 @@ abstract class Entity {
     protected $columns;
 
     /**
+     * @var bool
+     */
+    protected $deleted = false;
+
+    /**
      * @var string
      */
     protected static $table = "";
@@ -499,6 +504,15 @@ abstract class Entity {
     }
 
     /**
+     * Whether this item has been deleted from the database.
+     *
+     * @return bool
+     */
+    public function isDeleted(): bool {
+        return $this->deleted;
+    }
+
+    /**
      * Delete this entity/row from the database.
      *
      * @return bool Whether or not deletion was successful.
@@ -506,9 +520,9 @@ abstract class Entity {
     public function delete(): bool {
         if ($this->isLoaded()) {
             $rowsAffected = static::newQuery()->delete($this->getId());
-            return $rowsAffected > 0;
+            $this->deleted = $rowsAffected > 0;
         }
 
-        return false;
+        return $this->deleted;
     }
 }
