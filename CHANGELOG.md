@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2022-01-{}
+## [1.0.1] - 2022-09-20
+
+### Updated
+
+- updated getById so limit of 1 is set if value isn't an array
+
+## [1.0.0] - 2022-09-07
 
 First release! :fire:
 
-[unreleased]: https://github.com/jahidulpabelislam/orm/compare/v1.0.0...HEAD
+[unreleased]: https://github.com/jahidulpabelislam/orm/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/jahidulpabelislam/orm/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jahidulpabelislam/orm/releases/tag/v1.0.0
