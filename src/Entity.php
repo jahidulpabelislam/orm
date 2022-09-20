@@ -411,7 +411,7 @@ abstract class Entity {
      * @return \JPI\ORM\Entity\Collection|static|null
      */
     public static function getById($id) {
-        return static::getByColumn("id", $id, is_numeric($id) ? 1 : null);
+        return static::getByColumn("id", $id, !is_array($id) ? 1 : null);
     }
 
     /**
