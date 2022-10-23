@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<ruleset name="JPI">
+    <file>src</file>
+    <rule ref="vendor/jpi/codestyles/codesniffer.config.xml" />
+
+    <arg name="basepath" value="." />
+    <arg name="extensions" value="php" />
+    <arg name="colors" />
+
+    <arg value="p" />
+</ruleset>

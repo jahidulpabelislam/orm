@@ -1,0 +1,6 @@
+exclude:
+  - vendor/*
+
+options:
+  - no-interaction
+  - fail-on-warnings

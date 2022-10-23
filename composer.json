@@ -8,11 +8,16 @@
             "email": "me@jahidulpabelislam.com"
         }
     ],
-    "keywords": [],
+    "keywords": [
+        "orm"
+    ],
     "require": {
-        "php": "^7.1",
-        "jpi/database": "^1",
-        "jpi/query": "^1"
+        "php": "^7.1 || ^8.0",
+        "jpi/database": "^1.0",
+        "jpi/query": "^1.0"
+    },
+    "require-dev": {
+        "jpi/codestyles": "^1.0.1"
     },
     "autoload": {
         "psr-4": {

@@ -1,12 +1,5 @@
 <?php
 
-/**
- * The base Entity class for database tables with the core ORM logic.
- *
- * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
- * @copyright 2012-2022 JPI
- */
-
 namespace JPI\ORM;
 
 use DateTime;
@@ -16,6 +9,12 @@ use JPI\Database\Connection;
 use JPI\Database\Query;
 use JPI\ORM\Entity\Collection;
 
+/**
+ * The base Entity class for database tables with the core ORM logic.
+ *
+ * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
+ * @copyright 2012-2022 JPI
+ */
 abstract class Entity {
 
     /**
@@ -130,12 +129,12 @@ abstract class Entity {
     /**
      * Select row(s) from the database.
      *
-     * @param $columns string[]|string|null
-     * @param $where string[]|string|int|null
-     * @param $params array|null
-     * @param $orderBy string[]|string|null
-     * @param $limit int|null
-     * @param $page int|string|null
+     * @param string[]|string|null $columns
+     * @param string[]|string|int|null $where
+     * @param array|null $params
+     * @param string[]|string|null $orderBy
+     * @param int|null $limit
+     * @param int|string|null $page
      * @return \JPI\Database\Collection|array|null Collection if paginated/limited, array if not or if limit 1 and null if limit 1 but not found
      */
     public static function select(
@@ -152,8 +151,8 @@ abstract class Entity {
     /**
      * Used to get a total count of rows using a where clause.
      *
-     * @param $where string[]|string|null
-     * @param $params array|null
+     * @param string[]|string|null $where
+     * @param array|null $params
      * @return int
      */
     public static function getCount($where = null, ?array $params = null): int {
@@ -161,10 +160,10 @@ abstract class Entity {
     }
 
     /**
-     * @param $id int|null
+     * @param int|null $id
      * @return void
      */
-    private function setId(?int $id): void {
+    private function setId(?int $id = null): void {
         $this->identifier = $id;
     }
 
@@ -176,9 +175,9 @@ abstract class Entity {
     }
 
     /**
-     * @param $column string
-     * @param $value mixed
-     * @param $fromDB bool
+     * @param string $column
+     * @param mixed $value
+     * @param bool $fromDB
      * @return void
      */
     protected function setValue(string $column, $value, bool $fromDB = false): void {
@@ -216,8 +215,8 @@ abstract class Entity {
     }
 
     /**
-     * @param $values array
-     * @param $fromDB bool
+     * @param array $values
+     * @param bool $fromDB
      * @return void
      */
     public function setValues(array $values, bool $fromDB = false): void {
@@ -230,8 +229,8 @@ abstract class Entity {
     }
 
     /**
-     * @param $column string
-     * @param $value mixed
+     * @param string $column
+     * @param mixed $value
      * @return void
      */
     public function __set(string $column, $value): void {
@@ -241,7 +240,7 @@ abstract class Entity {
     }
 
     /**
-     * @param $column string
+     * @param string $column
      * @return mixed
      */
     public function __get(string $column) {
@@ -253,7 +252,7 @@ abstract class Entity {
     }
 
     /**
-     * @param $column string
+     * @param string $column
      * @return bool
      */
     public function __isset(string $column): bool {
@@ -264,6 +263,9 @@ abstract class Entity {
         return isset($this->columns[$column]);
     }
 
+    /**
+     * Entity constructor.
+     */
     public function __construct() {
         $this->columns = static::$defaultColumns;
     }
@@ -287,8 +289,8 @@ abstract class Entity {
     /**
      * Simple factory method to create a new entity instance and optionally set the values.
      *
-     * @param $data array|null
-     * @return static
+     * @param array|null $data
+     * @return Entity
      */
     public static function factory(?array $data = null): Entity {
         $entity = new static();
@@ -301,8 +303,8 @@ abstract class Entity {
     }
 
     /**
-     * @param $row array
-     * @return static
+     * @param array $row
+     * @return Entity
      */
     private static function populateFromDB(array $row): Entity {
         $entity = new static();
@@ -312,7 +314,7 @@ abstract class Entity {
     }
 
     /**
-     * @param $rows \JPI\Database\Collection|array
+     * @param \JPI\Database\Collection|array $rows
      * @return static[]
      */
     private static function populateEntitiesFromDB($rows): array {
@@ -328,7 +330,7 @@ abstract class Entity {
     /**
      * Get the LIMIT to use for the SELECT query.
      *
-     * @param $limit int|string|null
+     * @param int|string|null $limit
      * @return int|null
      */
     protected static function getLimit($limit = null): ?int {
@@ -363,10 +365,10 @@ abstract class Entity {
     /**
      * Load row(s) from the database and load into entity instance(s).
      *
-     * @param $where string[]|string|int|null
-     * @param $params array|null
-     * @param $limit int|string|null
-     * @param $page int|string|null
+     * @param string[]|string|int|null $where
+     * @param array|null $params
+     * @param int|string|null $limit
+     * @param int|string|null $page
      * @return \JPI\ORM\Entity\Collection|array|static|null
      */
     public static function get($where = null, ?array $params = null, $limit = null, $page = null) {
@@ -395,10 +397,10 @@ abstract class Entity {
     /**
      * Load Entity(ies) from the Database where a column equals/in $value.
      *
-     * @param $column string
-     * @param $value string|int|array
-     * @param $limit int|string|null
-     * @param $page int|string|null
+     * @param string $column
+     * @param string|int|array $value
+     * @param int|string|null $limit
+     * @param int|string|null $page
      * @return \JPI\ORM\Entity\Collection|static|null
      */
     public static function getByColumn(string $column, $value, $limit = null, $page = null) {
@@ -425,7 +427,7 @@ abstract class Entity {
     /**
      * Load Entity(ies) from the Database where Id column equals/in $id.
      *
-     * @param $id int[]|string[]|int|string
+     * @param int[]|string[]|int|string $id
      * @return \JPI\ORM\Entity\Collection|static|null
      */
     public static function getById($id) {
@@ -512,8 +514,8 @@ abstract class Entity {
     /**
      * Create a new entity with passed column values and save to the database.
      *
-     * @param $data array
-     * @return static
+     * @param array $data
+     * @return Entity
      */
     public static function insert(array $data): Entity {
         $entity = static::factory($data);
