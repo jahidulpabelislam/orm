@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Collection class for entities - mainly to hold additional meta data such as pagination limit & page value.
- *
- * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
- * @copyright 2012-2022 JPI
- */
-
 namespace JPI\ORM\Entity;
 
 use ArrayAccess;
@@ -16,6 +9,12 @@ use Exception;
 use IteratorAggregate;
 use JPI\ORM\Entity;
 
+/**
+ * Collection class for entities - mainly to hold additional meta data such as pagination limit & page value.
+ *
+ * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
+ * @copyright 2012-2022 JPI
+ */
 class Collection implements ArrayAccess, Countable, IteratorAggregate {
 
     /**
@@ -44,10 +43,10 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     protected $page;
 
     /**
-     * @param $entities \JPI\ORM\Entity[]
-     * @param $totalCount int|null
-     * @param $limit int|null
-     * @param $page int|null
+     * @param \JPI\ORM\Entity[] $entities
+     * @param int|null $totalCount
+     * @param int|null $limit
+     * @param int|null $page
      */
     public function __construct(array $entities = [], int $totalCount = null, int $limit = null, int $page = null) {
         $this->entities = $entities;
@@ -58,7 +57,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @param $index string
+     * @param string $index
      * @return bool
      */
     protected function isset($index): bool {
@@ -66,7 +65,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @param $index string
+     * @param string $index
      * @return \JPI\ORM\Entity|null
      */
     public function get($index): ?Entity {
@@ -76,7 +75,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     // ArrayAccess //
 
     /**
-     * @param $index string
+     * @param string $index
      * @return bool
      */
     public function offsetExists($index): bool {
@@ -84,7 +83,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @param $index string
+     * @param string $index
      * @return \JPI\ORM\Entity|null
      */
     public function offsetGet($index) {
@@ -92,8 +91,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @param $index string
-     * @param $entity \JPI\ORM\Entity
+     * @param string $index
+     * @param \JPI\ORM\Entity $entity
+     * @return void
      * @throws \Exception
      */
     public function offsetSet($index, $entity): void {
@@ -101,7 +101,8 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
     }
 
     /**
-     * @param $index string
+     * @param string $index
+     * @return void
      * @throws \Exception
      */
     public function offsetUnset($index): void {
