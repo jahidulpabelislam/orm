@@ -8,7 +8,9 @@
             "email": "me@jahidulpabelislam.com"
         }
     ],
-    "keywords": [],
+    "keywords": [
+        "orm"
+    ],
     "require": {
         "php": "^7.1 || ^8.0",
         "jpi/database": "^1.0",
