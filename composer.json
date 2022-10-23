@@ -15,7 +15,7 @@
         "jpi/query": "^1.0"
     },
     "require-dev": {
-        "jpi/codestyles": "^1.0"
+        "jpi/codestyles": "^1.0.1"
     },
     "autoload": {
         "psr-4": {
