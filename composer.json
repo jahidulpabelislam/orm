@@ -10,9 +10,9 @@
     ],
     "keywords": [],
     "require": {
-        "php": "^7.1",
-        "jpi/database": "^1",
-        "jpi/query": "^1"
+        "php": "^7.1 || ^8.0",
+        "jpi/database": "^1.0",
+        "jpi/query": "^1.0"
     },
     "autoload": {
         "psr-4": {
