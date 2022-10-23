@@ -14,6 +14,9 @@
         "jpi/database": "^1.0",
         "jpi/query": "^1.0"
     },
+    "require-dev": {
+        "jpi/codestyles": "^1.0"
+    },
     "autoload": {
         "psr-4": {
             "JPI\\ORM\\": "src/"
