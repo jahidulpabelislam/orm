@@ -9,7 +9,13 @@
         }
     ],
     "keywords": [
-        "orm"
+        "orm",
+        "entity",
+        "model",
+        "query",
+        "sql",
+        "mysql",
+        "database"
     ],
     "require": {
         "php": "^7.1 || ^8.0",
