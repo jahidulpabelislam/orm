@@ -85,6 +85,13 @@ abstract class Entity {
     public static function getTable(): string {
         return static::$table;
     }
+    
+    /**
+     * @return string[]
+     */
+    public static function getColumns(): array {
+        return array_keys(static::$defaultColumns);
+    }
 
     /**
      * @return string[]
