@@ -85,7 +85,7 @@ abstract class Entity {
     public static function getTable(): string {
         return static::$table;
     }
-    
+
     /**
      * @return string[]
      */
