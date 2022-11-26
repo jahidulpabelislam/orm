@@ -86,7 +86,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate {
      * @param string $index
      * @return \JPI\ORM\Entity|null
      */
-    public function offsetGet($index) {
+    public function offsetGet($index): ?Entity {
         return $this->get($index);
     }
 
