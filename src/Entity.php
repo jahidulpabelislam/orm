@@ -5,7 +5,7 @@ namespace JPI\ORM;
 use DateTime;
 use Exception;
 use JPI\Database\Collection as DBCollection;
-use JPI\Database\Connection;
+use JPI\Database;
 use JPI\Database\Query;
 use JPI\ORM\Entity\Collection;
 
@@ -122,15 +122,15 @@ abstract class Entity {
     }
 
     /**
-     * @return \JPI\Database\Connection
+     * @return \JPI\Database
      */
-    abstract public static function getDatabaseConnection(): Connection;
+    abstract public static function getDatabase(): Database;
 
     /**
      * @return \JPI\Database\Query
      */
     public static function newQuery(): Query {
-        return new Query(static::getDatabaseConnection(), static::getTable());
+        return new Query(static::getDatabase(), static::getTable());
     }
 
     /**
