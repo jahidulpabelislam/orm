@@ -138,7 +138,7 @@ abstract class Entity {
      *
      * @param string[]|string|null $columns
      * @param string[]|string|int|null $where
-     * @param array|null $params
+     * @param array $params
      * @param string[]|string|null $orderBy
      * @param int|null $limit
      * @param int|string|null $page
@@ -147,7 +147,7 @@ abstract class Entity {
     public static function select(
         $columns = "*",
         $where = null,
-        ?array $params = null,
+        array $params = [],
         $orderBy = null,
         ?int $limit = null,
         $page = null
@@ -159,10 +159,10 @@ abstract class Entity {
      * Used to get a total count of rows using a where clause.
      *
      * @param string[]|string|null $where
-     * @param array|null $params
+     * @param array $params
      * @return int
      */
-    public static function getCount($where = null, ?array $params = null): int {
+    public static function getCount($where = null, array $params = []): int {
         return static::newQuery()->count($where, $params);
     }
 
@@ -373,12 +373,12 @@ abstract class Entity {
      * Load row(s) from the database and load into entity instance(s).
      *
      * @param string[]|string|int|null $where
-     * @param array|null $params
+     * @param array $params
      * @param int|string|null $limit
      * @param int|string|null $page
      * @return \JPI\ORM\Entity\Collection|array|static|null
      */
-    public static function get($where = null, ?array $params = null, $limit = null, $page = null) {
+    public static function get($where = null, array $params = [], $limit = null, $page = null) {
         $orderBy = static::getOrderBy();
         $limit = static::getLimit($limit);
 
