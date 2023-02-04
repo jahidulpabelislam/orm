@@ -19,8 +19,8 @@
     ],
     "require": {
         "php": "^7.1 || ^8.0",
-        "jpi/database": "^1.0",
-        "jpi/query": "^1.0"
+        "jpi/database": "2.x-dev as 2.0",
+        "jpi/query": "2.x-dev as 2.0"
     },
     "require-dev": {
         "jpi/codestyles": "^1.0.1"
