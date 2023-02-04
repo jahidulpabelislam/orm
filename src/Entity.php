@@ -4,8 +4,8 @@ namespace JPI\ORM;
 
 use DateTime;
 use Exception;
-use JPI\Database\Collection as DBCollection;
 use JPI\Database;
+use JPI\Database\Collection as DBCollection;
 use JPI\Database\Query;
 use JPI\ORM\Entity\Collection;
 
