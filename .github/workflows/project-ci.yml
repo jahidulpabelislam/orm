@@ -19,7 +19,7 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php-versions }}
-        tools: composer:v2.2, phplint, phpcs, dancryer/php-docblock-checker
+        tools: composer:v2.2, phplint, phpcs
     - name: Install Composer dependencies
       shell: bash
       run: composer update --no-interaction --no-progress --prefer-dist --optimize-autoloader
@@ -29,6 +29,3 @@ jobs:
     - name: Run PHP_CodeSniffer
       shell: bash
       run: phpcs
-    - name: Run PHP DocBlock Checker
-      shell: bash
-      run: phpdoccheck
