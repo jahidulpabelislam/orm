@@ -5,9 +5,10 @@ namespace JPI\ORM;
 use DateTime;
 use Exception;
 use JPI\Database;
-use JPI\Database\Collection as DBCollection;
+use JPI\Database\PaginatedCollection as PaginatedDBCollection;
 use JPI\Database\Query;
 use JPI\ORM\Entity\Collection;
+use JPI\ORM\Entity\PaginatedCollection;
 
 /**
  * The base Entity class for database tables with the core ORM logic.
@@ -376,7 +377,7 @@ abstract class Entity {
      * @param array $params
      * @param int|string|null $limit
      * @param int|string|null $page
-     * @return \JPI\ORM\Entity\Collection|array|static|null
+     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
      */
     public static function get($where = null, array $params = [], $limit = null, $page = null) {
         $orderBy = static::getOrderBy();
@@ -394,11 +395,11 @@ abstract class Entity {
 
         $entities = static::populateEntitiesFromDB($rows);
 
-        if (!$rows instanceof DBCollection) {
-            return $entities;
+        if (!$rows instanceof PaginatedDBCollection) {
+            return new Collection($entities);
         }
 
-        return new Collection($entities, $rows->getTotalCount(), $rows->getLimit(), $rows->getPage());
+        return new PaginatedCollection($entities, $rows->getTotalCount(), $rows->getLimit(), $rows->getPage());
     }
 
     /**
@@ -408,7 +409,7 @@ abstract class Entity {
      * @param string|int|array $value
      * @param int|string|null $limit
      * @param int|string|null $page
-     * @return \JPI\ORM\Entity\Collection|static|null
+     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
      */
     public static function getByColumn(string $column, $value, $limit = null, $page = null) {
         if (is_array($value)) {
@@ -435,7 +436,7 @@ abstract class Entity {
      * Load Entity(ies) from the Database where Id column equals/in $id.
      *
      * @param int[]|string[]|int|string $id
-     * @return \JPI\ORM\Entity\Collection|static|null
+     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
      */
     public static function getById($id) {
         if (is_numeric($id) || is_array($id)) {
