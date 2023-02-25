@@ -26,6 +26,7 @@
     "require-dev": {
         "jpi/codestyles": "^1.0.1"
     },
+    "minimum-stability": "dev",
     "autoload": {
         "psr-4": {
             "JPI\\ORM\\": "src/"
