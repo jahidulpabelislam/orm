@@ -7,16 +7,10 @@ namespace JPI\ORM;
 use DateTime;
 use Exception;
 use JPI\Database;
-use JPI\Database\PaginatedCollection as PaginatedDBCollection;
-use JPI\Database\Query;
-use JPI\ORM\Entity\Collection;
-use JPI\ORM\Entity\PaginatedCollection;
+use JPI\ORM\Entity\QueryBuilder;
 
 /**
  * The base Entity class for database tables with the core ORM logic.
- *
- * @author Jahidul Pabel Islam <me@jahidulpabelislam.com>
- * @copyright 2012-2022 JPI
  */
 abstract class Entity {
 
@@ -75,12 +69,12 @@ abstract class Entity {
     /**
      * @var string
      */
-    protected static $orderByColumn = "id";
+    public static $defaultOrderByColumn = "id";
 
     /**
      * @var bool
      */
-    protected static $orderByASC = true;
+    public static $defaultOrderByASC = true;
 
     /**
      * @return string
@@ -130,43 +124,10 @@ abstract class Entity {
     abstract public static function getDatabase(): Database;
 
     /**
-     * @return \JPI\Database\Query
+     * @return QueryBuilder
      */
-    public static function newQuery(): Query {
-        return new Query(static::getDatabase(), static::getTable());
-    }
-
-    /**
-     * Select row(s) from the database.
-     *
-     * @param string[]|string|null $columns
-     * @param string[]|string|int|null $where
-     * @param array $params
-     * @param string[]|string|null $orderBy
-     * @param int|null $limit
-     * @param int|string|null $page
-     * @return \JPI\Database\Collection|array|null Collection if paginated/limited, array if not or if limit 1 and null if limit 1 but not found
-     */
-    public static function select(
-        $columns = "*",
-        $where = null,
-        array $params = [],
-        $orderBy = null,
-        ?int $limit = null,
-        $page = null
-    ) {
-        return static::newQuery()->select($columns, $where, $params, $orderBy, $limit, $page);
-    }
-
-    /**
-     * Used to get a total count of rows using a where clause.
-     *
-     * @param string[]|string|null $where
-     * @param array $params
-     * @return int
-     */
-    public static function getCount($where = null, array $params = []): int {
-        return static::newQuery()->count($where, $params);
+    public static function newQuery(): QueryBuilder {
+        return new QueryBuilder(static::getDatabase(), new static());
     }
 
     /**
@@ -316,7 +277,7 @@ abstract class Entity {
      * @param array $row
      * @return Entity
      */
-    private static function populateFromDB(array $row): Entity {
+    public static function populateFromDB(array $row): Entity {
         $entity = new static();
         $entity->setValues($row, true);
         $entity->setId($row["id"]);
@@ -327,7 +288,7 @@ abstract class Entity {
      * @param \JPI\Database\Collection|array $rows
      * @return static[]
      */
-    private static function populateEntitiesFromDB($rows): array {
+    public static function populateEntitiesFromDB($rows): array {
         $entities = [];
 
         foreach ($rows as $row) {
@@ -337,115 +298,8 @@ abstract class Entity {
         return $entities;
     }
 
-    /**
-     * Get the LIMIT to use for the SELECT query.
-     *
-     * @param int|string|null $limit
-     * @return int|null
-     */
-    protected static function getLimit($limit = null): ?int {
-        if (is_numeric($limit)) {
-            $limit = (int)$limit;
-        } else {
-            $limit = null;
-        }
-
-        return $limit;
-    }
-
-    /**
-     * Get the ORDER BY to use for the SELECT query.
-     *
-     * @return string[]
-     */
-    protected static function getOrderBy(): array {
-        $orderBys = [];
-        if (static::$orderByColumn) {
-            $orderBys[] = static::$orderByColumn . " " . (static::$orderByASC ? "ASC" : "DESC");
-        }
-
-        // Sort by id if not already to stop any randomness on rows with same value on above
-        if (static::$orderByColumn !== "id") {
-            $orderBys[] = "id ASC";
-        }
-
-        return $orderBys;
-    }
-
-    /**
-     * Load row(s) from the database and load into entity instance(s).
-     *
-     * @param string[]|string|int|null $where
-     * @param array $params
-     * @param int|string|null $limit
-     * @param int|string|null $page
-     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
-     */
-    public static function get($where = null, array $params = [], $limit = null, $page = null) {
-        $orderBy = static::getOrderBy();
-        $limit = static::getLimit($limit);
-
-        $rows = static::select("*", $where, $params, $orderBy, $limit, $page);
-
-        if (is_null($rows)) {
-            return null;
-        }
-
-        if (($where && is_numeric($where)) || $limit === 1) {
-            return static::populateFromDB($rows);
-        }
-
-        $entities = static::populateEntitiesFromDB($rows);
-
-        if (!$rows instanceof PaginatedDBCollection) {
-            return new Collection($entities);
-        }
-
-        return new PaginatedCollection($entities, $rows->getTotalCount(), $rows->getLimit(), $rows->getPage());
-    }
-
-    /**
-     * Load Entity(ies) from the Database where a column equals/in $value.
-     *
-     * @param string $column
-     * @param string|int|array $value
-     * @param int|string|null $limit
-     * @param int|string|null $page
-     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
-     */
-    public static function getByColumn(string $column, $value, $limit = null, $page = null) {
-        if (is_array($value)) {
-            $values = $value;
-            $params = [];
-            $ins = [];
-            foreach ($values as $i => $value) {
-                $key = "{$column}_" . ($i + 1);
-                $ins[] = ":$key";
-                $params[$key] = $value;
-            }
-
-            $where = "$column in (" . implode(", ", $ins) . ")";
-        }
-        else {
-            $where = "$column = :$column";
-            $params = [$column => $value];
-        }
-
-        return static::get($where, $params, $limit, $page);
-    }
-
-    /**
-     * Load Entity(ies) from the Database where Id column equals/in $id.
-     *
-     * @param int[]|string[]|int|string $id
-     * @return \JPI\ORM\Entity\Collection|\JPI\ORM\Entity\PaginatedCollection|static|null
-     */
-    public static function getById($id) {
-        if (is_numeric($id) || is_array($id)) {
-            return static::getByColumn("id", $id, !is_array($id) ? 1 : null);
-        }
-
-        return null;
+    public static function getById(int $id): ?Entity {
+        return static::newQuery()->where("id", "=", $id)->limit(1)->select();
     }
 
     /**
@@ -456,7 +310,12 @@ abstract class Entity {
             return;
         }
 
-        $row = static::select("*", $this->getId());
+        $rawQuery = (new \JPI\Database\Query\Builder(static::getDatabase(), static::getTable()))
+            ->where("id", "=", $this->getId())
+            ->limit(1)
+        ;
+
+        $row = $rawQuery->select();
         if ($row) {
             $this->setValues($row, true);
             return;
@@ -507,7 +366,7 @@ abstract class Entity {
                 return false;
             }
 
-            $rowsAffected = static::newQuery()->update($this->getValuesToSave(), $this->getId());
+            $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->update($this->getValuesToSave());
             if ($rowsAffected === 0) {
                 // Updating failed so reset id
                 $this->setId(null);
@@ -541,7 +400,7 @@ abstract class Entity {
      */
     public function delete(): bool {
         if ($this->isLoaded() && !$this->isDeleted()) {
-            $rowsAffected = static::newQuery()->delete($this->getId());
+            $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->delete();
             $this->deleted = $rowsAffected > 0;
         }
 
