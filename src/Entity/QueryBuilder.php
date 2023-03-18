@@ -10,12 +10,8 @@ use JPI\ORM\Entity;
 
 class QueryBuilder extends CoreQueryBuilder {
 
-    protected $entityInstance;
-
-    public function __construct(Database $database, Entity $entity) {
-        $this->entityInstance = $entity;
-
-        parent::__construct($database, $entity::getTable());
+    public function __construct(Database $database, protected Entity $entityInstance) {
+        parent::__construct($database, $this->entityInstance::getTable());
     }
 
     public function createCollectionFromResult(array $rows): Collection {

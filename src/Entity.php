@@ -14,133 +14,67 @@ use JPI\ORM\Entity\QueryBuilder;
  */
 abstract class Entity {
 
-    /**
-     * @var int|null
-     */
-    protected $identifier = null;
+    protected ?int $identifier = null;
 
-    /**
-     * @var array
-     */
-    protected $columns;
+    protected array $columns;
 
-    /**
-     * @var bool
-     */
-    protected $deleted = false;
+    protected bool $deleted = false;
 
-    /**
-     * @var string
-     */
-    protected static $table = "";
+    protected static string $table = "";
 
     /**
      * Mapping of database column to default value.
-     *
-     * @var array
      */
-    protected static $defaultColumns = [];
+    protected static array $defaultColumns = [];
 
-    /**
-     * @var string[]
-     */
-    protected static $intColumns = [];
+    protected static array $intColumns = [];
 
-    /**
-     * @var string[]
-     */
-    protected static $dateTimeColumns = [];
+    protected static array $dateTimeColumns = [];
 
-    /**
-     * @var string[]
-     */
-    protected static $dateColumns = [];
+    protected static array $dateColumns = [];
 
-    /**
-     * @var string[]
-     */
-    protected static $arrayColumns = [];
+    protected static array $arrayColumns = [];
 
-    /**
-     * @var string
-     */
-    protected static $arrayColumnSeparator = ",";
+    protected static string $arrayColumnSeparator = ",";
 
-    /**
-     * @var string
-     */
-    public static $defaultOrderByColumn = "id";
+    public static string $defaultOrderByColumn = "id";
 
-    /**
-     * @var bool
-     */
-    public static $defaultOrderByASC = true;
+    public static bool $defaultOrderByASC = true;
 
-    /**
-     * @return string
-     */
     public static function getTable(): string {
         return static::$table;
     }
 
-    /**
-     * @return string[]
-     */
     public static function getColumns(): array {
         return array_keys(static::$defaultColumns);
     }
 
-    /**
-     * @return string[]
-     */
     public static function getIntColumns(): array {
         return static::$intColumns;
     }
 
-    /**
-     * @return string[]
-     */
     public static function getDateTimeColumns(): array {
         return static::$dateTimeColumns;
     }
 
-    /**
-     * @return string[]
-     */
     public static function getDateColumns(): array {
         return static::$dateColumns;
     }
 
-    /**
-     * @return string[]
-     */
     public static function getArrayColumns(): array {
         return static::$arrayColumns;
     }
 
-    /**
-     * @return \JPI\Database
-     */
     abstract public static function getDatabase(): Database;
 
-    /**
-     * @return QueryBuilder
-     */
     public static function newQuery(): QueryBuilder {
         return new QueryBuilder(static::getDatabase(), new static());
     }
 
-    /**
-     * @param int|null $id
-     * @return void
-     */
     private function setId(?int $id = null): void {
         $this->identifier = $id;
     }
 
-    /**
-     * @return int|null
-     */
     public function getId(): ?int {
         return $this->identifier;
     }
@@ -185,11 +119,6 @@ abstract class Entity {
         $this->columns[$column] = $value;
     }
 
-    /**
-     * @param array $values
-     * @param bool $fromDB
-     * @return void
-     */
     public function setValues(array $values, bool $fromDB = false): void {
         $columns = array_keys($this->columns);
         foreach ($columns as $column) {
@@ -222,10 +151,6 @@ abstract class Entity {
         return $this->columns[$column] ?? null;
     }
 
-    /**
-     * @param string $column
-     * @return bool
-     */
     public function __isset(string $column): bool {
         if ($column === "id") {
             return isset($this->identifier);
@@ -234,24 +159,16 @@ abstract class Entity {
         return isset($this->columns[$column]);
     }
 
-    /**
-     * Entity constructor.
-     */
     public function __construct() {
         $this->columns = static::$defaultColumns;
     }
 
-    /**
-     * @return bool
-     */
     public function isLoaded(): bool {
         return !is_null($this->getId());
     }
 
     /**
      * Whether this item has been deleted from the database.
-     *
-     * @return bool
      */
     public function isDeleted(): bool {
         return $this->deleted;
@@ -259,9 +176,6 @@ abstract class Entity {
 
     /**
      * Simple factory method to create a new entity instance and optionally set the values.
-     *
-     * @param array|null $data
-     * @return Entity
      */
     public static function factory(?array $data = null): Entity {
         $entity = new static();
@@ -273,10 +187,6 @@ abstract class Entity {
         return $entity;
     }
 
-    /**
-     * @param array $row
-     * @return Entity
-     */
     public static function populateFromDB(array $row): Entity {
         $entity = new static();
         $entity->setValues($row, true);
@@ -302,9 +212,6 @@ abstract class Entity {
         return static::newQuery()->where("id", "=", $id)->limit(1)->select();
     }
 
-    /**
-     * @return void
-     */
     public function reload(): void {
         if (!$this->isLoaded() || $this->isDeleted()) {
             return;
@@ -326,8 +233,6 @@ abstract class Entity {
 
     /**
      * Transform the entity values for database query.
-     *
-     * @return array
      */
     protected function getValuesToSave(): array {
         $values = [];
@@ -382,9 +287,6 @@ abstract class Entity {
 
     /**
      * Create a new entity with passed column values and save to the database.
-     *
-     * @param array $data
-     * @return Entity
      */
     public static function insert(array $data): Entity {
         $entity = static::factory($data);
