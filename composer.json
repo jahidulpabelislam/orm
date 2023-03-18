@@ -18,7 +18,7 @@
         "database"
     ],
     "require": {
-        "php": "^7.1 || ^8.0",
+        "php": "^8.0",
         "jpi/utils": "^0.6",
         "jpi/database": "^2.0",
         "jpi/query": "^2.0"
