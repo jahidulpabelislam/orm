@@ -6,12 +6,37 @@ namespace JPI\ORM\Entity;
 
 use JPI\Database;
 use JPI\Database\Query\Builder as CoreQueryBuilder;
+use JPI\Database\Query\WhereableInterface;
 use JPI\ORM\Entity;
 
 class QueryBuilder extends CoreQueryBuilder {
 
     public function __construct(Database $database, protected Entity $entityInstance) {
         parent::__construct($database, $this->entityInstance::getTable());
+    }
+
+    public function column(string $column, ?string $alias = null): QueryBuilder {
+        if ($column !== "*" && $this->entityInstance::hasColumn($column)) {
+            $column = $this->entityInstance::getFullColumnName($column);
+        }
+
+        return parent::column($column, $alias);
+    }
+
+    public function where(string $whereOrColumn, ?string $expression = null, string|int|float|array $valueOrPlaceholder = null): WhereableInterface {
+        if ($expression !== null && $valueOrPlaceholder !== null && $this->entityInstance::hasColumn($whereOrColumn)) {
+            $whereOrColumn = $this->entityInstance::getFullColumnName($whereOrColumn);
+        }
+
+        return parent::where($whereOrColumn, $expression, $valueOrPlaceholder);
+    }
+
+    public function orderBy(string $column, bool $ascDirection = true): QueryBuilder {
+        if ($this->entityInstance::hasColumn($column)) {
+            $column = $this->entityInstance::getFullColumnName($column);
+        }
+
+        return parent::orderBy($column, $ascDirection);
     }
 
     public function createCollectionFromResult(array $rows): Collection {
@@ -41,5 +66,31 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         return $result;
+    }
+
+    public function insert(array $values): ?int {
+        $updatedValues = [];
+        foreach ($values as $column => $value) {
+            if ($this->entityInstance::hasColumn($column)) {
+                $column = $this->entityInstance::getFullColumnName($column);
+            }
+
+            $updatedValues[$column] = $value;
+        }
+
+        return parent::insert($updatedValues);
+    }
+
+    public function update(array $values): int {
+        $updatedValues = [];
+        foreach ($values as $column => $value) {
+            if ($this->entityInstance::hasColumn($column)) {
+                $column = $this->entityInstance::getFullColumnName($column);
+            }
+
+            $updatedValues[$column] = $value;
+        }
+
+        return parent::update($updatedValues);
     }
 }

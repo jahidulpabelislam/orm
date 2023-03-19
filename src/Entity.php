@@ -23,6 +23,15 @@ abstract class Entity {
     protected static string $table = "";
 
     /**
+     * Some database designers like to have their table columns with a prefix, this adds support for that.
+     *
+     * e.g `users` table will have column names like `user_id` & `user_email` instead of `id` & `email`
+     *
+     * Note: the first underscore is required.
+     */
+    protected static ?string $columnPrefix = null;
+
+    /**
      * Mapping of database column to default value.
      */
     protected static array $defaultColumns = [];
@@ -63,6 +72,14 @@ abstract class Entity {
 
     public static function getArrayColumns(): array {
         return static::$arrayColumns;
+    }
+
+    public static function hasColumn(string $column): bool {
+        return $column === "id" || in_array($column, static::getColumns());
+    }
+
+    public static function getFullColumnName(string $column): string {
+        return (static::$columnPrefix ?: "") . $column;
     }
 
     abstract public static function getDatabase(): Database;
@@ -122,9 +139,13 @@ abstract class Entity {
     public function setValues(array $values, bool $fromDB = false): void {
         $columns = array_keys($this->columns);
         foreach ($columns as $column) {
-            if (array_key_exists($column, $values)) {
-                $this->setValue($column, $values[$column], $fromDB);
+            if ($fromDB) {
+                $value = $values[static::getFullColumnName($column)];
+            } else {
+                $value = $values[$column];
             }
+
+            $this->setValue($column, $value, $fromDB);
         }
     }
 
@@ -190,7 +211,7 @@ abstract class Entity {
     public static function populateFromDB(array $row): Entity {
         $entity = new static();
         $entity->setValues($row, true);
-        $entity->setId((int)$row["id"]);
+        $entity->setId((int)$row[static::getFullColumnName("id")]);
         return $entity;
     }
 
@@ -253,7 +274,7 @@ abstract class Entity {
                     $value = $value->format("Y-m-d H:i:s");
                 }
             }
-            $values[$column] = $value;
+            $values[static::getFullColumnName($column)] = $value;
         }
 
         return $values;
