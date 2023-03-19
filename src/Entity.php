@@ -190,7 +190,7 @@ abstract class Entity {
     public static function populateFromDB(array $row): Entity {
         $entity = new static();
         $entity->setValues($row, true);
-        $entity->setId($row["id"]);
+        $entity->setId((int)$row["id"]);
         return $entity;
     }
 
