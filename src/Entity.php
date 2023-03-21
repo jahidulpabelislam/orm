@@ -16,7 +16,7 @@ abstract class Entity {
 
     protected ?int $identifier = null;
 
-    protected array $columns;
+    protected array $data;
 
     protected bool $deleted = false;
 
@@ -32,45 +32,108 @@ abstract class Entity {
     protected static ?string $columnPrefix = null;
 
     /**
-     * Mapping of database column to default value.
+     * Set up for data this entity should have.
+     * Key is the data/property name and value is an array with `type` and default_value` as keys.
+     *
+     * Allowed values for type are: `string`, `int`, `date_time`, `date` & `array`.
      */
-    protected static array $defaultColumns = [];
+    protected static array $dataMapping;
 
-    protected static array $intColumns = [];
+    protected static ?array $defaultData = null;
+    protected static ?array $columns = null;
 
-    protected static array $dateTimeColumns = [];
+    protected static ?array $intColumns = null;
 
-    protected static array $dateColumns = [];
+    protected static ?array $dateTimeColumns = null;
 
-    protected static array $arrayColumns = [];
+    protected static ?array $dateColumns = [];
 
+    protected static ?array $arrayColumns = null;
     protected static string $arrayColumnSeparator = ",";
 
     public static string $defaultOrderByColumn = "id";
-
     public static bool $defaultOrderByASC = true;
 
     public static function getTable(): string {
         return static::$table;
     }
 
+    public static function getDefaultData(): array {
+        if (static::$defaultData === null) {
+            static::$defaultData = [];
+
+            foreach (static::$dataMapping as $key => $mapping) {
+                static::$defaultData[$key] = $mapping["default_value"];
+            }
+        }
+        return static::$defaultData;
+    }
+
     public static function getColumns(): array {
-        return array_keys(static::$defaultColumns);
+        if (static::$columns === null) {
+            static::$columns = [];
+
+            foreach (static::$defaultData as $key => $datum) {
+                // Currently all types are in db
+                static::$columns[] = $key;
+            }
+        }
+        return static::$columns;
     }
 
     public static function getIntColumns(): array {
+        if (static::$intColumns === null) {
+            static::$intColumns = [];
+
+            foreach (static::$dataMapping as $key => $mapping) {
+                if ($mapping["type"] === "int") {
+                    static::$intColumns[] = $key;
+                }
+            }
+        }
+
         return static::$intColumns;
     }
 
     public static function getDateTimeColumns(): array {
+        if (static::$dateTimeColumns === null) {
+            static::$dateTimeColumns = [];
+
+            foreach (static::$dataMapping as $key => $mapping) {
+                if ($mapping["type"] === "date_time") {
+                    static::$dateTimeColumns[] = $key;
+                }
+            }
+        }
+
         return static::$dateTimeColumns;
     }
 
     public static function getDateColumns(): array {
+        if (static::$dateColumns === null) {
+            static::$dateColumns = [];
+
+            foreach (static::$dataMapping as $key => $mapping) {
+                if ($mapping["type"] === "date") {
+                    static::$dateColumns[] = $key;
+                }
+            }
+        }
+
         return static::$dateColumns;
     }
 
     public static function getArrayColumns(): array {
+        if (static::$arrayColumns === null) {
+            static::$arrayColumns = [];
+
+            foreach (static::$dataMapping as $key => $mapping) {
+                if ($mapping["type"] === "array") {
+                    static::$arrayColumns[] = $key;
+                }
+            }
+        }
+
         return static::$arrayColumns;
     }
 
@@ -96,8 +159,8 @@ abstract class Entity {
         return $this->identifier;
     }
 
-    protected function setValue(string $column, mixed $value, bool $fromDB = false): void {
-        if (in_array($column, static::getIntColumns())) {
+    protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
+        if (in_array($key, static::getIntColumns())) {
             if (is_numeric($value) && $value == (int)$value) {
                 $value = (int)$value;
             }
@@ -105,7 +168,7 @@ abstract class Entity {
                 $value = null;
             }
         }
-        else if (in_array($column, static::getArrayColumns())) {
+        else if (in_array($key, static::getArrayColumns())) {
             if ($fromDB && is_string($value)) {
                 $value = explode(static::$arrayColumnSeparator, $value);
             }
@@ -113,7 +176,7 @@ abstract class Entity {
                 $value = null;
             }
         }
-        else if (in_array($column, static::getDateColumns()) || in_array($column, static::getDateTimeColumns())) {
+        else if (in_array($key, static::getDateColumns()) || in_array($key, static::getDateTimeColumns())) {
             if (!empty($value) && (is_string($value) || is_numeric($value))) {
                 try {
                     $value = new DateTime($value);
@@ -127,48 +190,48 @@ abstract class Entity {
             }
         }
 
-        $this->columns[$column] = $value;
+        $this->data[$key] = $value;
     }
 
     public function setValues(array $values, bool $fromDB = false): void {
-        $columns = array_keys($this->columns);
-        foreach ($columns as $column) {
+        $data = array_keys($this->data);
+        foreach ($data as $key) {
             if ($fromDB) {
-                $key = static::getFullColumnName($column);
+                $valueKey = static::getFullColumnName($key);
             } else {
-                $key = $column;
+                $valueKey = $key;
             }
 
-            if (array_key_exists($key, $values)) {
-                $this->setValue($column, $values[$key], $fromDB);
+            if (array_key_exists($valueKey, $values)) {
+                $this->setValue($key, $values[$valueKey], $fromDB);
             }
         }
     }
 
-    public function __set(string $column, mixed $value): void {
-        if (array_key_exists($column, $this->columns)) {
-            $this->setValue($column, $value);
+    public function __set(string $key, mixed $value): void {
+        if (array_key_exists($key, $this->data)) {
+            $this->setValue($key, $value);
         }
     }
 
-    public function __get(string $column): mixed {
-        if ($column === "id") {
+    public function __get(string $key): mixed {
+        if ($key === "id") {
             return $this->getId();
         }
 
-        return $this->columns[$column] ?? null;
+        return $this->data[$key] ?? null;
     }
 
-    public function __isset(string $column): bool {
-        if ($column === "id") {
+    public function __isset(string $key): bool {
+        if ($key === "id") {
             return isset($this->identifier);
         }
 
-        return isset($this->columns[$column]);
+        return isset($this->data[$key]);
     }
 
     public function __construct() {
-        $this->columns = static::$defaultColumns;
+        $this->data = static::getDefaultData();
     }
 
     public function isLoaded(): bool {
@@ -248,19 +311,19 @@ abstract class Entity {
         $dateColumns = static::getDateColumns();
         $dateTimeColumns = static::getDateTimeColumns();
 
-        foreach ($this->columns as $column => $value) {
-            if (in_array($column, $arrayColumns)) {
+        foreach ($this->data as $key => $value) {
+            if (in_array($key, $arrayColumns)) {
                 $value = implode(static::$arrayColumnSeparator, $value);
             }
             else if ($value instanceof DateTime) {
-                if (in_array($column, $dateColumns)) {
+                if (in_array($key, $dateColumns)) {
                     $value = $value->format("Y-m-d");
                 }
-                else if (in_array($column, $dateTimeColumns)) {
+                else if (in_array($key, $dateTimeColumns)) {
                     $value = $value->format("Y-m-d H:i:s");
                 }
             }
-            $values[static::getFullColumnName($column)] = $value;
+            $values[static::getFullColumnName($key)] = $value;
         }
 
         return $values;
