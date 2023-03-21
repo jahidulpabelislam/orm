@@ -8,4 +8,14 @@ use JPI\Database\Query\Result\CollectionInterface;
 use JPI\Utils\Collection as BaseCollection;
 
 class Collection extends BaseCollection implements CollectionInterface {
+
+    public function toArray(int $depth = 1): array {
+        $array = [];
+
+        foreach ($this->items as $key => $item) {
+            $array[$key] = $item->toArray($depth);
+        }
+
+        return $array;
+    }
 }
