@@ -20,7 +20,7 @@ abstract class Entity {
 
     protected bool $deleted = false;
 
-    protected static string $table = "";
+    protected static string $table;
 
     /**
      * Some database designers like to have their table columns with a prefix, this adds support for that.
