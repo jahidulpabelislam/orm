@@ -7,6 +7,7 @@ namespace JPI\ORM;
 use DateTime;
 use Exception;
 use JPI\Database;
+use JPI\ORM\Entity\Collection;
 use JPI\ORM\Entity\QueryBuilder;
 
 /**
@@ -35,20 +36,10 @@ abstract class Entity {
      * Set up for data this entity should have.
      * Key is the data/property name and value is an array with `type` and default_value` as keys.
      *
-     * Allowed values for type are: `string`, `int`, `date_time`, `date` & `array`.
+     * Allowed values for type are: `string`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
      */
     protected static array $dataMapping;
 
-    protected static ?array $defaultData = null;
-    protected static ?array $columns = null;
-
-    protected static ?array $intColumns = null;
-
-    protected static ?array $dateTimeColumns = null;
-
-    protected static ?array $dateColumns = [];
-
-    protected static ?array $arrayColumns = null;
     protected static string $arrayColumnSeparator = ",";
 
     public static string $defaultOrderByColumn = "id";
@@ -58,83 +49,29 @@ abstract class Entity {
         return static::$table;
     }
 
-    public static function getDefaultData(): array {
-        if (static::$defaultData === null) {
-            static::$defaultData = [];
-
-            foreach (static::$dataMapping as $key => $mapping) {
-                static::$defaultData[$key] = $mapping["default_value"];
-            }
-        }
-        return static::$defaultData;
+    public static function getRelationTypes(): array {
+        return [
+            "belongs_to",
+            "has_many",
+            "has_one",
+        ];
     }
 
     public static function getColumns(): array {
-        if (static::$columns === null) {
-            static::$columns = [];
+        $columns = [];
 
-            foreach (static::$defaultData as $key => $datum) {
-                // Currently all types are in db
-                static::$columns[] = $key;
+        $relationTypes = static::getRelationTypes();
+
+        foreach (static::$dataMapping as $key => $mapping) {
+            if (!in_array($key, $relationTypes)) {
+                $columns[] = $key;
             }
-        }
-        return static::$columns;
-    }
-
-    public static function getIntColumns(): array {
-        if (static::$intColumns === null) {
-            static::$intColumns = [];
-
-            foreach (static::$dataMapping as $key => $mapping) {
-                if ($mapping["type"] === "int") {
-                    static::$intColumns[] = $key;
-                }
+            else if ($mapping["type"] === "belongs_to") {
+                $columns[] = $mapping["column"] ?? $key;
             }
         }
 
-        return static::$intColumns;
-    }
-
-    public static function getDateTimeColumns(): array {
-        if (static::$dateTimeColumns === null) {
-            static::$dateTimeColumns = [];
-
-            foreach (static::$dataMapping as $key => $mapping) {
-                if ($mapping["type"] === "date_time") {
-                    static::$dateTimeColumns[] = $key;
-                }
-            }
-        }
-
-        return static::$dateTimeColumns;
-    }
-
-    public static function getDateColumns(): array {
-        if (static::$dateColumns === null) {
-            static::$dateColumns = [];
-
-            foreach (static::$dataMapping as $key => $mapping) {
-                if ($mapping["type"] === "date") {
-                    static::$dateColumns[] = $key;
-                }
-            }
-        }
-
-        return static::$dateColumns;
-    }
-
-    public static function getArrayColumns(): array {
-        if (static::$arrayColumns === null) {
-            static::$arrayColumns = [];
-
-            foreach (static::$dataMapping as $key => $mapping) {
-                if ($mapping["type"] === "array") {
-                    static::$arrayColumns[] = $key;
-                }
-            }
-        }
-
-        return static::$arrayColumns;
+        return $columns;
     }
 
     public static function hasColumn(string $column): bool {
@@ -160,37 +97,95 @@ abstract class Entity {
     }
 
     protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
-        if (in_array($key, static::getIntColumns())) {
+        $mapping = static::$dataMapping[$key];
+        $type = $mapping["type"];
+
+        if ($type === "int") {
             if (is_numeric($value) && $value == (int)$value) {
                 $value = (int)$value;
             }
-            else if (!is_null($value)) {
-                $value = null;
+
+            if (is_int($value) || $value === null) {
+                $this->data[$key]["value"] = $value;
             }
         }
-        else if (in_array($key, static::getArrayColumns())) {
+        else if ($type === "array") {
             if ($fromDB && is_string($value)) {
-                $value = explode(static::$arrayColumnSeparator, $value);
+                $this->data[$key]["value"] = explode(static::$arrayColumnSeparator, $value);
             }
-            else if (!is_array($value) && !is_null($value)) {
-                $value = null;
+            else if (is_array($value) || $value === null) {
+                $this->data[$key]["value"] = $value;
             }
         }
-        else if (in_array($key, static::getDateColumns()) || in_array($key, static::getDateTimeColumns())) {
+        else if (in_array($type, ["date_time", "date"])) {
             if (!empty($value) && (is_string($value) || is_numeric($value))) {
                 try {
-                    $value = new DateTime($value);
+                    $this->data[$key]["value"] = new DateTime($value);
                 }
                 catch (Exception $exception) {
-                    $value = null;
                 }
             }
-            else if (!($value instanceof DateTime) && !is_null($value)) {
-                $value = null;
+            else if ($value instanceof DateTime || $value === null) {
+                $this->data[$key]["value"] = $value;
             }
         }
+        else if ($type === "belongs_to") {
+            if ($value instanceof Entity) {
+                $this->data[$key]["value"] = $value;
+                $this->data[$key]["database_value"] = $value->getId();
+            }
+            else {
+                if (is_numeric($value) && $value == (int)$value) {
+                    $value = (int)$value;
+                }
 
-        $this->data[$key] = $value;
+                if (is_int($value) || $value === null) {
+                    $this->data[$key]["value"] = null;
+                    $this->data[$key]["database_value"] = $value;
+                }
+            }
+        }
+        else if ($type === "has_many") {
+            if (is_array($value) || is_null($value)) {
+                $value = new Collection(is_null($value) ? [] : $value);
+            }
+
+            if ($value instanceof Collection) {
+                foreach ($value as $linkedEntity) {
+                     $linkedEntity->{$mapping["column"]} = $this;
+                }
+
+                $this->data[$key]["value"] = $value;
+            }
+        } else if ($type === "has_one") {
+            if (is_numeric($value) && $value == (int)$value) {
+                $id = (int)$value;
+
+                $entity = $mapping["entity"]::newQuery()
+                    ->where("id", "=", $id)
+                    ->limit(1)
+                    ->select()
+                ;
+
+                $entity->{$mapping["column"]} = $this;
+                $this->data[$key]["value"] = $entity;
+            }
+            else if ($value === null) {
+                $entity = $this->$key;
+
+                if ($entity) {
+                    $entity->{$mapping["column"]} = null;
+                }
+                $this->data[$key]["value"] = null;
+            }
+            else if ($value instanceof Entity) {
+                $value->{$mapping["column"]} = $this;
+                $this->data[$key]["value"] = $value;
+            }
+        }
+        else if ($type === "string") {
+            $this->data[$key]["value"] = $value;
+        }
     }
 
     public function setValues(array $values, bool $fromDB = false): void {
@@ -214,12 +209,57 @@ abstract class Entity {
         }
     }
 
+    protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
+        $mapping = static::$dataMapping[$key];
+
+        if (
+            $this->isLoaded()
+            && $mapping["type"] === "has_many"
+            && (!array_key_exists("value", $this->data[$key]) || $refresh)
+        ) {
+            $this->{$key} = $mapping["entity"]::newQuery()
+                ->where($mapping["column"], "=", $this->getId())
+                ->select()
+            ;
+        }
+
+        if (
+            $this->isLoaded()
+            && $mapping["type"] === "has_one"
+            && (!array_key_exists("value", $this->data[$key]) || $refresh)
+        ) {
+            $this->{$key} = $mapping["entity"]::newQuery()
+                ->where($mapping["column"], "=", $this->getId())
+                ->limit(1)
+                ->select()
+            ;
+        }
+
+        if (
+            $mapping["type"] === "belongs_to"
+            && $this->data[$key]["database_value"]
+            && (!array_key_exists("value", $this->data[$key]) || $refresh)
+        ) {
+            $this->{$key} = $mapping["entity"]::newQuery()
+                ->where("id", "=", $this->data[$key]["database_value"])
+                ->limit(1)
+                ->select()
+            ;
+        }
+    }
+
     public function __get(string $key): mixed {
         if ($key === "id") {
             return $this->getId();
         }
 
-        return $this->data[$key] ?? null;
+        if (!array_key_exists($key, $this->data)) {
+            return null;
+        }
+
+        $this->lazyLoadRelationshipData($key);
+
+        return $this->data[$key]["value"] ?? null;
     }
 
     public function __isset(string $key): bool {
@@ -227,11 +267,24 @@ abstract class Entity {
             return isset($this->identifier);
         }
 
-        return isset($this->data[$key]);
+        return isset($this->data[$key]["value"]);
     }
 
     public function __construct() {
-        $this->data = static::getDefaultData();
+        $this->data = [];
+
+        $relationTypes = static::getRelationTypes();
+
+        foreach (static::$dataMapping as $key => $mapping) {
+            $this->data[$key] = [];
+
+            if (!in_array($mapping["type"], $relationTypes)) {
+                $this->data[$key]["value"] = $mapping["default_value"] ?? null;
+            }
+            else if ($mapping["type"] === "belongs_to") {
+                $this->data[$key]["database_value"] = $mapping["default_value"] ?? null;
+            }
+        }
     }
 
     public function isLoaded(): bool {
@@ -293,12 +346,29 @@ abstract class Entity {
             ->limit(1)
             ->select();
 
-        if ($row) {
-            $this->setValues($row, true);
+        if (!$row) {
+            $this->setId(null);
             return;
         }
 
-        $this->setId(null);
+        $dataBefore = $this->data;
+
+        $this->setValues($row, true);
+
+        $relationTypes = static::getRelationTypes();
+
+        foreach ($dataBefore as $key => $data) {
+            $type = static::$dataMapping[$key]["type"];
+
+            if (
+                !in_array($type, $relationTypes)
+                || !array_key_exists("value", $data)
+            ) {
+                continue;
+            }
+
+            $this->lazyLoadRelationshipData($key, true);
+        }
     }
 
     /**
@@ -307,22 +377,24 @@ abstract class Entity {
     protected function getValuesToSave(): array {
         $values = [];
 
-        $arrayColumns = static::getArrayColumns();
-        $dateColumns = static::getDateColumns();
-        $dateTimeColumns = static::getDateTimeColumns();
+        $relationTypes = static::getRelationTypes();
 
-        foreach ($this->data as $key => $value) {
-            if (in_array($key, $arrayColumns)) {
+        foreach ($this->data as $key => $data) {
+            $type = static::$dataMapping[$key]["type"];
+
+            if (in_array($type, $relationTypes) && $type !== "belongs_to") {
+                continue;
+            }
+
+            $value = $type === "belongs_to" ? $data["database_value"] : $data["value"];
+
+            if ($type === "array") {
                 $value = implode(static::$arrayColumnSeparator, $value);
             }
             else if ($value instanceof DateTime) {
-                if (in_array($key, $dateColumns)) {
-                    $value = $value->format("Y-m-d");
-                }
-                else if (in_array($key, $dateTimeColumns)) {
-                    $value = $value->format("Y-m-d H:i:s");
-                }
+                $value = $value->format($type === "date_time" ? "Y-m-d H:i:s" : "Y-m-d");
             }
+
             $values[static::getFullColumnName($key)] = $value;
         }
 
