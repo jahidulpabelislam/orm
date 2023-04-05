@@ -239,7 +239,7 @@ abstract class Entity {
         }
 
         $rawQuery = (new \JPI\Database\Query\Builder(static::getDatabase(), static::getTable()))
-            ->where("id", "=", $this->getId())
+            ->where(static::getFullColumnName("id"), "=", $this->getId())
             ->limit(1)
         ;
 
