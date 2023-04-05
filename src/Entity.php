@@ -35,7 +35,7 @@ abstract class Entity {
      * Set up for data this entity should have.
      * Key is the data/property name and value is an array with `type` and default_value` as keys.
      *
-     * Allowed values for type are: `string`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
+     * Allowed values for type are: `string`, `float`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
      */
     protected static array $dataMapping;
 
@@ -110,6 +110,15 @@ abstract class Entity {
             }
 
             if (is_int($value) || $value === null) {
+                $this->data[$key]["value"] = $value;
+            }
+        }
+        elseif ($type === "float") {
+            if (is_numeric($value) && $value == (float)$value) {
+                $value = (float)$value;
+            }
+
+            if (is_float($value) || $value === null) {
                 $this->data[$key]["value"] = $value;
             }
         }
