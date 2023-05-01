@@ -293,15 +293,11 @@ abstract class Entity {
             }
 
             $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->update($this->getValuesToSave());
-            if ($rowsAffected === 0) {
-                // Updating failed so reset id
-                $this->setId(null);
-            }
+            return $rowsAffected > 0;
         }
-        else {
-            $newId = static::newQuery()->insert($this->getValuesToSave());
-            $this->setId($newId);
-        }
+
+        $newId = static::newQuery()->insert($this->getValuesToSave());
+        $this->setId($newId);
 
         return $this->isLoaded();
     }
