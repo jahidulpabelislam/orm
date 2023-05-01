@@ -140,7 +140,10 @@ abstract class Entity {
                 }
 
                 if (is_int($value) || $value === null) {
-                    $this->data[$key]["value"] = null;
+                    if ($value === null) {
+                        $this->data[$key]["value"] = null;
+                    }
+
                     $this->data[$key]["database_value"] = $value;
                 }
             }
