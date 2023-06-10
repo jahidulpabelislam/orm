@@ -8,6 +8,8 @@ use JPI\Database;
 use JPI\Database\Query\Builder as CoreQueryBuilder;
 use JPI\Database\Query\WhereableInterface;
 use JPI\ORM\Entity;
+use JPI\Utils\CollectionInterface;
+use JPI\Utils\Collection\PaginatedInterface as PaginatedCollectionInterface;
 
 class QueryBuilder extends CoreQueryBuilder {
 
@@ -39,18 +41,18 @@ class QueryBuilder extends CoreQueryBuilder {
         return parent::orderBy($column, $ascDirection);
     }
 
-    public function createCollectionFromResult(array $rows): Collection {
+    public function createCollectionFromResult(array $rows): CollectionInterface {
         $entities = $this->entityInstance::populateEntitiesFromDB($rows);
 
         return new Collection($entities);
     }
 
-    public function createPaginatedCollectionFromResult(array $rows, int $totalCount, int $limit, int $page): PaginatedCollection {
+    public function createPaginatedCollectionFromResult(array $rows, int $totalCount, int $limit, int $page): PaginatedCollectionInterface {
         $entities = $this->entityInstance::populateEntitiesFromDB($rows);
         return new PaginatedCollection($entities, $totalCount, $limit, $page);
     }
 
-    public function select() {
+    public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Make sure we at least have a consistent order
         if (!count($this->orderBy)) {
             $this->orderBy(
