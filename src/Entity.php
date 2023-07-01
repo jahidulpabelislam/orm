@@ -418,6 +418,21 @@ abstract class Entity {
     }
 
     public function save(): bool {
+        // Need to insert all belongs_to entities first to use ids in the insert/update query.
+        foreach ($this->data as $key => $data) {
+            $mapping = static::$dataMapping[$key];
+
+            if (
+                $mapping["type"] !== "belongs_to"
+                || !array_key_exists("value", $data)
+                || $data["value"]->isLoaded()
+            ) {
+                continue;
+            }
+
+            $data["value"]->save(); // todo this currently means it saves this current entity twice
+        }
+
         if ($this->isLoaded()) {
             if ($this->isDeleted()) {
                 return false;
@@ -426,13 +441,33 @@ abstract class Entity {
             $rowsAffected = static::newQuery()
                 ->where("id", "=", $this)
                 ->update($this->getValuesToSave());
-            return $rowsAffected > 0;
+            $saved = $rowsAffected > 0;
+        } else {
+            $newId = static::newQuery()->insert($this->getValuesToSave());
+            $this->setId($newId);
+
+            $saved = $this->isLoaded();
         }
 
-        $newId = static::newQuery()->insert($this->getValuesToSave());
-        $this->setId($newId);
+        if ($this->isLoaded()) {
+            foreach ($this->data as $key => $data) {
+                $mapping = static::$dataMapping[$key];
+                $type = $mapping["type"];
 
-        return $this->isLoaded();
+                if ($type === "has_one" && array_key_exists("value", $data)) {
+                    $data["value"]->{$mapping["column"]} = $this;
+                    $data["value"]->save();
+                }
+                else if ($type === "has_many" && array_key_exists("value", $data)) {
+                    foreach ($data["value"] as $linkedEntity) {
+                        $linkedEntity->{$mapping["column"]} = $this;
+                        $linkedEntity->save();
+                    }
+                }
+            }
+        }
+
+        return $saved;
     }
 
     public static function insert(array $data): static {
