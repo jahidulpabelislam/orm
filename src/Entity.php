@@ -467,7 +467,40 @@ abstract class Entity implements DatabaseResultInterface {
         return $values;
     }
 
+    protected function cascadeSave(): void {
+        foreach ($this->data as $key => $data) {
+            $mapping = static::getDataMapping()[$key];
+            $type = $mapping["type"];
+
+            if ($type === "has_one" && array_key_exists("value", $data)) {
+                $data["value"]->{$mapping["column"]} = $this;
+                $data["value"]->save();
+            }
+            else if ($type === "has_many" && array_key_exists("value", $data)) {
+                foreach ($data["value"] as $linkedEntity) {
+                    $linkedEntity->{$mapping["column"]} = $this;
+                    $linkedEntity->save();
+                }
+            }
+        }
+    }
+
     public function save(): bool {
+        // Need to insert all belongs_to entities first to use ids in the insert/update query.
+        $mapping = static::getDataMapping();
+        foreach ($this->data as $key => $data) {
+            if (
+                $mapping[$key]["type"] !== "belongs_to"
+                || !array_key_exists("value", $data)
+                || $data["value"]->isLoaded()
+            ) {
+                continue;
+            }
+
+            $data["value"]->save();
+            $this->data[$key]["database_value"] = $data["value"]->getId();
+        }
+
         if ($this->isLoaded()) {
             if ($this->isDeleted()) {
                 return false;
@@ -476,17 +509,24 @@ abstract class Entity implements DatabaseResultInterface {
             $rowsAffected = static::newQuery()
                 ->where("id", "=", $this)
                 ->update($this->getValuesToSave());
-            return $rowsAffected > 0;
+            $saved = $rowsAffected > 0;
+        }
+        else {
+            $newId = static::newQuery()->insert($this->getValuesToSave());
+            $this->setId($newId);
+
+            $saved = $this->isLoaded();
+
+            if ($newId) {
+                static::$registry[static::class . $newId] = $this;
+            }
         }
 
-        $newId = static::newQuery()->insert($this->getValuesToSave());
-        $this->setId($newId);
-
-        if ($newId) {
-             static::$registry[static::class . $newId] = $this;
+        if ($this->isLoaded()) {
+            $this->cascadeSave();
         }
 
-        return $this->isLoaded();
+        return $saved;
     }
 
     public static function insert(array $data): static {
