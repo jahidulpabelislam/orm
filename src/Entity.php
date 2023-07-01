@@ -140,12 +140,14 @@ abstract class Entity {
         $columns = array_keys($this->columns);
         foreach ($columns as $column) {
             if ($fromDB) {
-                $value = $values[static::getFullColumnName($column)];
+                $key = static::getFullColumnName($column);
             } else {
-                $value = $values[$column];
+                $key = $column;
             }
 
-            $this->setValue($column, $value, $fromDB);
+            if (array_key_exists($key, $values)) {
+                $this->setValue($column, $values[$key], $fromDB);
+            }
         }
     }
 
