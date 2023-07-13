@@ -478,11 +478,33 @@ abstract class Entity {
     }
 
     public function delete(): bool {
-        if ($this->isLoaded() && !$this->isDeleted()) {
-            $rowsAffected = static::newQuery()
-                ->where("id", "=", $this)
-                ->delete();
-            $this->deleted = $rowsAffected > 0;
+        if (!$this->isLoaded() || $this->isDeleted()) {
+            return false;
+        }
+
+        $rowsAffected = static::newQuery()
+            ->where("id", "=", $this)
+            ->delete();
+        $this->deleted = $rowsAffected > 0;
+
+        if ($this->isDeleted()) {
+            foreach ($this->data as $key => $data) {
+                $mapping = static::$dataMapping[$key];
+                $type = $mapping["type"];
+
+                if (!($mapping["cascade_delete"] ?? false)) {
+                    continue;
+                }
+
+                if ($type === "has_one" && $this->{$key}) {
+                    $this->{$key}->delete();
+                }
+                else if ($type === "has_many" && $this->{$key}) {
+                    foreach ($this->{$key} as $linkedEntity) {
+                        $linkedEntity->delete();
+                    }
+                }
+            }
         }
 
         return $this->deleted;
