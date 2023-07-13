@@ -536,12 +536,38 @@ abstract class Entity implements DatabaseResultInterface {
         return $entity;
     }
 
+    protected function cascadeDelete(): void {
+        $mappings = static::getDataMapping();
+        foreach ($mappings as $key => $mapping) {
+            if (!($mapping["cascade_delete"] ?? false) || !$this->{$key}) {
+                continue;
+            }
+
+            $type = $mapping["type"];
+
+            if ($type === "has_one") {
+                $this->{$key}->delete();
+            }
+            else if ($type === "has_many") {
+                foreach ($this->{$key} as $linkedEntity) {
+                    $linkedEntity->delete();
+                }
+            }
+        }
+    }
+
     public function delete(): bool {
-        if ($this->isLoaded() && !$this->isDeleted()) {
-            $rowsAffected = static::newQuery()
-                ->where("id", "=", $this)
-                ->delete();
-            $this->deleted = $rowsAffected > 0;
+        if (!$this->isLoaded() || $this->isDeleted()) {
+            return false;
+        }
+
+        $rowsAffected = static::newQuery()
+            ->where("id", "=", $this)
+            ->delete();
+        $this->deleted = $rowsAffected > 0;
+
+        if ($this->isDeleted()) {
+            $this->cascadeDelete();
         }
 
         return $this->deleted;
