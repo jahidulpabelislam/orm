@@ -156,6 +156,13 @@ abstract class Entity {
             }
 
             if ($value instanceof Collection) {
+                $oldLinkedEntities = $this->$key;
+                if ($oldLinkedEntities) {
+                    foreach ($oldLinkedEntities as $oldLinkedEntity) {
+                        $oldLinkedEntity->{$mapping["column"]} = null;
+                    }
+                }
+
                 foreach ($value as $linkedEntity) {
                      $linkedEntity->{$mapping["column"]} = $this;
                 }
@@ -164,6 +171,11 @@ abstract class Entity {
             }
         } else if ($type === "has_one") {
             if (is_numeric($value) && $value == (int)$value) {
+                $entity = $this->$key;
+                if ($entity) {
+                    $entity->{$mapping["column"]} = null;
+                }
+
                 $id = (int)$value;
 
                 $entity = $mapping["entity"]::newQuery()
@@ -177,13 +189,17 @@ abstract class Entity {
             }
             else if ($value === null) {
                 $entity = $this->$key;
-
                 if ($entity) {
                     $entity->{$mapping["column"]} = null;
                 }
                 $this->data[$key]["value"] = null;
             }
             else if ($value instanceof Entity) {
+                $entity = $this->$key;
+                if ($entity) {
+                    $entity->{$mapping["column"]} = null;
+                }
+
                 $value->{$mapping["column"]} = $this;
                 $this->data[$key]["value"] = $value;
             }
