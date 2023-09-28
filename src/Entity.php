@@ -200,7 +200,7 @@ abstract class Entity {
     /**
      * Simple factory method to create a new entity instance and optionally set the values.
      */
-    public static function factory(?array $data = null): Entity {
+    public static function factory(?array $data = null): static {
         $entity = new static();
 
         if (!empty($data)) {
@@ -210,7 +210,7 @@ abstract class Entity {
         return $entity;
     }
 
-    public static function populateFromDB(array $row): Entity {
+    public static function populateFromDB(array $row): static {
         $entity = new static();
         $entity->setValues($row, true);
         $entity->setId((int)$row[static::getFullColumnName("id")]);
@@ -231,7 +231,7 @@ abstract class Entity {
         return $entities;
     }
 
-    public static function getById(int $id): ?Entity {
+    public static function getById(int $id): ?static {
         return static::newQuery()->where("id", "=", $id)->limit(1)->select();
     }
 
@@ -307,7 +307,7 @@ abstract class Entity {
     /**
      * Create a new entity with passed column values and save to the database.
      */
-    public static function insert(array $data): Entity {
+    public static function insert(array $data): static {
         $entity = static::factory($data);
         $entity->save();
 

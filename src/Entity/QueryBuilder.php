@@ -6,18 +6,20 @@ namespace JPI\ORM\Entity;
 
 use JPI\Database;
 use JPI\Database\Query\Builder as CoreQueryBuilder;
-use JPI\Database\Query\WhereableInterface;
 use JPI\ORM\Entity;
 use JPI\Utils\CollectionInterface;
 use JPI\Utils\Collection\PaginatedInterface as PaginatedCollectionInterface;
 
 class QueryBuilder extends CoreQueryBuilder {
 
-    public function __construct(Database $database, protected Entity $entityInstance) {
+    public function __construct(
+        Database $database,
+        protected Entity $entityInstance
+    ) {
         parent::__construct($database, $this->entityInstance::getTable());
     }
 
-    public function column(string $column, ?string $alias = null): QueryBuilder {
+    public function column(string $column, ?string $alias = null): static {
         if ($column !== "*" && $this->entityInstance::hasColumn($column)) {
             $column = $this->entityInstance::getFullColumnName($column);
         }
@@ -25,7 +27,11 @@ class QueryBuilder extends CoreQueryBuilder {
         return parent::column($column, $alias);
     }
 
-    public function where(string $whereOrColumn, ?string $expression = null, string|int|float|array $valueOrPlaceholder = null): WhereableInterface {
+    public function where(
+        string $whereOrColumn,
+        ?string $expression = null,
+        string|int|float|array $valueOrPlaceholder = null
+    ): static {
         if ($expression !== null && $valueOrPlaceholder !== null && $this->entityInstance::hasColumn($whereOrColumn)) {
             $whereOrColumn = $this->entityInstance::getFullColumnName($whereOrColumn);
         }
@@ -33,7 +39,7 @@ class QueryBuilder extends CoreQueryBuilder {
         return parent::where($whereOrColumn, $expression, $valueOrPlaceholder);
     }
 
-    public function orderBy(string $column, bool $ascDirection = true): QueryBuilder {
+    public function orderBy(string $column, bool $ascDirection = true): static {
         if ($this->entityInstance::hasColumn($column)) {
             $column = $this->entityInstance::getFullColumnName($column);
         }
