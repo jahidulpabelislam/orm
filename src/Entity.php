@@ -218,7 +218,7 @@ abstract class Entity {
     }
 
     /**
-     * @param \JPI\Database\Collection|array $rows
+     * @param \JPI\Database\Query\Result|array $rows
      * @return static[]
      */
     public static function populateEntitiesFromDB($rows): array {
