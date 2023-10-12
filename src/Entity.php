@@ -96,13 +96,7 @@ abstract class Entity {
         return $this->identifier;
     }
 
-    /**
-     * @param string $column
-     * @param mixed $value
-     * @param bool $fromDB
-     * @return void
-     */
-    protected function setValue(string $column, $value, bool $fromDB = false): void {
+    protected function setValue(string $column, mixed $value, bool $fromDB = false): void {
         if (in_array($column, static::getIntColumns())) {
             if (is_numeric($value) && $value == (int)$value) {
                 $value = (int)$value;
@@ -151,22 +145,13 @@ abstract class Entity {
         }
     }
 
-    /**
-     * @param string $column
-     * @param mixed $value
-     * @return void
-     */
-    public function __set(string $column, $value): void {
+    public function __set(string $column, mixed $value): void {
         if (array_key_exists($column, $this->columns)) {
             $this->setValue($column, $value);
         }
     }
 
-    /**
-     * @param string $column
-     * @return mixed
-     */
-    public function __get(string $column) {
+    public function __get(string $column): mixed {
         if ($column === "id") {
             return $this->getId();
         }
@@ -190,9 +175,6 @@ abstract class Entity {
         return !is_null($this->getId());
     }
 
-    /**
-     * Whether this item has been deleted from the database.
-     */
     public function isDeleted(): bool {
         return $this->deleted;
     }
@@ -221,7 +203,7 @@ abstract class Entity {
      * @param \JPI\Database\Query\Result|array $rows
      * @return static[]
      */
-    public static function populateEntitiesFromDB($rows): array {
+    public static function populateEntitiesFromDB(Database\Query\Result|array $rows): array {
         $entities = [];
 
         foreach ($rows as $row) {
@@ -282,12 +264,6 @@ abstract class Entity {
         return $values;
     }
 
-    /**
-     * Save the current values to the database.
-     * Either a new insert a new row or a update to an existing row.
-     *
-     * @return bool Whether the save was successful.
-     */
     public function save(): bool {
         if ($this->isLoaded()) {
             if ($this->isDeleted()) {
@@ -304,9 +280,6 @@ abstract class Entity {
         return $this->isLoaded();
     }
 
-    /**
-     * Create a new entity with passed column values and save to the database.
-     */
     public static function insert(array $data): static {
         $entity = static::factory($data);
         $entity->save();
@@ -314,11 +287,6 @@ abstract class Entity {
         return $entity;
     }
 
-    /**
-     * Delete this entity/row from the database.
-     *
-     * @return bool Whether or not deletion was successful.
-     */
     public function delete(): bool {
         if ($this->isLoaded() && !$this->isDeleted()) {
             $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->delete();
