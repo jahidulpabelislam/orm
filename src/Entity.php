@@ -214,7 +214,10 @@ abstract class Entity {
     }
 
     public static function getById(int $id): ?static {
-        return static::newQuery()->where("id", "=", $id)->limit(1)->select();
+        return static::newQuery()
+            ->where("id", "=", $id)
+            ->limit(1)
+            ->select();
     }
 
     public function reload(): void {
@@ -222,12 +225,11 @@ abstract class Entity {
             return;
         }
 
-        $rawQuery = (new \JPI\Database\Query\Builder(static::getDatabase(), static::getTable()))
+        $row = (new \JPI\Database\Query\Builder(static::getDatabase(), static::getTable()))
             ->where(static::getFullColumnName("id"), "=", $this->getId())
             ->limit(1)
-        ;
+            ->select();
 
-        $row = $rawQuery->select();
         if ($row) {
             $this->setValues($row, true);
             return;
@@ -270,7 +272,9 @@ abstract class Entity {
                 return false;
             }
 
-            $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->update($this->getValuesToSave());
+            $rowsAffected = static::newQuery()
+                ->where("id", "=", $this->getId())
+                ->update($this->getValuesToSave());
             return $rowsAffected > 0;
         }
 
@@ -289,7 +293,9 @@ abstract class Entity {
 
     public function delete(): bool {
         if ($this->isLoaded() && !$this->isDeleted()) {
-            $rowsAffected = static::newQuery()->where("id", "=", $this->getId())->delete();
+            $rowsAffected = static::newQuery()
+                ->where("id", "=", $this->getId())
+                ->delete();
             $this->deleted = $rowsAffected > 0;
         }
 
