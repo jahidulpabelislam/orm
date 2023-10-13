@@ -50,6 +50,8 @@ abstract class Entity {
 
     public static bool $defaultOrderByASC = true;
 
+    public static array $registry = [];
+
     public static function getTable(): string {
         return static::$table;
     }
@@ -193,9 +195,20 @@ abstract class Entity {
     }
 
     public static function populateFromDB(array $row): static {
-        $entity = new static();
+        $id = (int)$row[static::getFullColumnName("id")];
+
+        $registryKey = static::class . $id;
+
+        if (!array_key_exists($registryKey, static::$registry)) {
+            $entity = new static();
+            $entity->setId($id);
+            static::$registry[$registryKey] = $entity;
+        } else {
+            $entity = static::$registry[$registryKey];
+        }
+
         $entity->setValues($row, true);
-        $entity->setId((int)$row[static::getFullColumnName("id")]);
+
         return $entity;
     }
 
