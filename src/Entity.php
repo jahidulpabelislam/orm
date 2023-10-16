@@ -156,10 +156,12 @@ abstract class Entity {
             }
 
             if ($value instanceof Collection) {
-                $oldLinkedEntities = $this->$key;
-                if ($oldLinkedEntities) {
-                    foreach ($oldLinkedEntities as $oldLinkedEntity) {
-                        $oldLinkedEntity->{$mapping["column"]} = null;
+                if (!$fromDB) {
+                    $oldLinkedEntities = $this->$key;
+                    if ($oldLinkedEntities) {
+                        foreach ($oldLinkedEntities as $oldLinkedEntity) {
+                            $oldLinkedEntity->{$mapping["column"]} = null;
+                        }
                     }
                 }
 
@@ -195,9 +197,11 @@ abstract class Entity {
                 $this->data[$key]["value"] = null;
             }
             else if ($value instanceof Entity) {
-                $entity = $this->$key;
-                if ($entity) {
-                    $entity->{$mapping["column"]} = null;
+                if (!$fromDB) {
+                    $entity = $this->$key;
+                    if ($entity) {
+                        $entity->{$mapping["column"]} = null;
+                    }
                 }
 
                 $value->{$mapping["column"]} = $this;
@@ -238,10 +242,13 @@ abstract class Entity {
             && $mapping["type"] === "has_many"
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->{$key} = $mapping["entity"]::newQuery()
-                ->where($mapping["column"], "=", $this->getId())
-                ->select()
-            ;
+            $this->setValue(
+                $key,
+                $mapping["entity"]::newQuery()
+                    ->where($mapping["column"], "=", $this->getId())
+                    ->select(),
+                true
+            );
         }
 
         if (
@@ -249,11 +256,14 @@ abstract class Entity {
             && $mapping["type"] === "has_one"
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->{$key} = $mapping["entity"]::newQuery()
-                ->where($mapping["column"], "=", $this->getId())
-                ->limit(1)
-                ->select()
-            ;
+            $this->setValue(
+                $key,
+                $mapping["entity"]::newQuery()
+                    ->where($mapping["column"], "=", $this->getId())
+                    ->limit(1)
+                    ->select(),
+                true
+            );
         }
 
         if (
@@ -261,11 +271,14 @@ abstract class Entity {
             && $this->data[$key]["database_value"]
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->{$key} = $mapping["entity"]::newQuery()
-                ->where("id", "=", $this->data[$key]["database_value"])
-                ->limit(1)
-                ->select()
-            ;
+            $this->setValue(
+                $key,
+                $mapping["entity"]::newQuery()
+                    ->where("id", "=", $this->data[$key]["database_value"])
+                    ->limit(1)
+                    ->select(),
+                true
+            );
         }
     }
 
