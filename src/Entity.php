@@ -273,7 +273,7 @@ abstract class Entity {
             }
 
             $rowsAffected = static::newQuery()
-                ->where("id", "=", $this->getId())
+                ->where("id", "=", $this)
                 ->update($this->getValuesToSave());
             return $rowsAffected > 0;
         }
@@ -294,7 +294,7 @@ abstract class Entity {
     public function delete(): bool {
         if ($this->isLoaded() && !$this->isDeleted()) {
             $rowsAffected = static::newQuery()
-                ->where("id", "=", $this->getId())
+                ->where("id", "=", $this)
                 ->delete();
             $this->deleted = $rowsAffected > 0;
         }
