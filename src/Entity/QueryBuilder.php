@@ -12,11 +12,17 @@ use JPI\Utils\Collection\PaginatedInterface as PaginatedCollectionInterface;
 
 class QueryBuilder extends CoreQueryBuilder {
 
+    use Entity\QueryBuilder\WhereableTrait;
+
     public function __construct(
         Database $database,
         protected Entity $entityInstance
     ) {
         parent::__construct($database, $this->entityInstance::getTable());
+    }
+
+    public function getEntityInstance(): Entity {
+        return $this->entityInstance;
     }
 
     public function column(string $column, ?string $alias = null): static {
@@ -25,22 +31,6 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         return parent::column($column, $alias);
-    }
-
-    public function where(
-        string $whereOrColumn,
-        ?string $expression = null,
-        Entity|string|int|float|array $valueOrPlaceholder = null
-    ): static {
-        if ($expression !== null && $valueOrPlaceholder !== null && $this->entityInstance::hasColumn($whereOrColumn)) {
-            $whereOrColumn = $this->entityInstance::getFullColumnName($whereOrColumn);
-        }
-
-        if ($valueOrPlaceholder instanceof Entity) {
-            $valueOrPlaceholder = $valueOrPlaceholder->getId();
-        }
-
-        return parent::where($whereOrColumn, $expression, $valueOrPlaceholder);
     }
 
     public function orderBy(string $column, bool $ascDirection = true): static {
