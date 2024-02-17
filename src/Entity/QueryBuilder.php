@@ -30,10 +30,14 @@ class QueryBuilder extends CoreQueryBuilder {
     public function where(
         string $whereOrColumn,
         ?string $expression = null,
-        string|int|float|array $valueOrPlaceholder = null
+        Entity|string|int|float|array $valueOrPlaceholder = null
     ): static {
         if ($expression !== null && $valueOrPlaceholder !== null && $this->entityInstance::hasColumn($whereOrColumn)) {
             $whereOrColumn = $this->entityInstance::getFullColumnName($whereOrColumn);
+        }
+
+        if ($valueOrPlaceholder instanceof Entity) {
+            $valueOrPlaceholder = $valueOrPlaceholder->getId();
         }
 
         return parent::where($whereOrColumn, $expression, $valueOrPlaceholder);
