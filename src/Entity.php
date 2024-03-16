@@ -459,7 +459,7 @@ abstract class Entity {
                 continue;
             }
 
-            $data["value"]->save(); // todo this currently means it saves this current entity twice
+            $data["value"]->save();
         }
 
         if ($this->isLoaded()) {
