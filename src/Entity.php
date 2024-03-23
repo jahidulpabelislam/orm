@@ -460,6 +460,7 @@ abstract class Entity {
             }
 
             $data["value"]->save();
+            $this->data[$key]["database_value"] = $data["value"]->getId();
         }
 
         if ($this->isLoaded()) {
