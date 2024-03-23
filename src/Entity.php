@@ -238,17 +238,22 @@ abstract class Entity {
         $mapping = static::$dataMapping[$key];
 
         if (
-            $this->isLoaded()
-            && $mapping["type"] === "has_many"
+            $mapping["type"] === "has_many"
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->setValue(
-                $key,
-                $mapping["entity"]::newQuery()
-                    ->where($mapping["column"], "=", $this->getId())
-                    ->select(),
-                true
-            );
+            if (
+                $this->isLoaded()
+            ) {
+                $this->setValue(
+                    $key,
+                    $mapping["entity"]::newQuery()
+                        ->where($mapping["column"], "=", $this->getId())
+                        ->select(),
+                    true
+                );
+            } else {
+                $this->setValue($key, [], true);
+            }
         }
 
         if (
