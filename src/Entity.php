@@ -227,6 +227,12 @@ abstract class Entity {
     }
 
     public static function getById(int $id): ?static {
+        $registryKey = static::class . $id;
+
+        if (array_key_exists($registryKey, static::$registry)) {
+            return static::$registry[$registryKey];
+        }
+
         return static::newQuery()
             ->where("id", "=", $id)
             ->limit(1)
