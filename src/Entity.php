@@ -300,6 +300,10 @@ abstract class Entity {
         $newId = static::newQuery()->insert($this->getValuesToSave());
         $this->setId($newId);
 
+        if ($newId) {
+             static::$registry[static::class . $newId] = $this;
+        }
+
         return $this->isLoaded();
     }
 
