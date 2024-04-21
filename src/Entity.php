@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace JPI\ORM;
 
+use ArrayIterator;
 use DateTime;
 use Exception;
 use JPI\Database;
+use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\QueryBuilder;
 
 /**
  * The base Entity class for database tables with the core ORM logic.
  */
-abstract class Entity {
+abstract class Entity implements DatabaseResultInterface {
 
     protected ?int $identifier = null;
 
@@ -153,12 +155,16 @@ abstract class Entity {
         }
     }
 
-    public function __get(string $column): mixed {
+    public function getValue(string $column): mixed {
         if ($column === "id") {
             return $this->getId();
         }
 
         return $this->columns[$column] ?? null;
+    }
+
+    public function __get(string $column): mixed {
+        return $this->getValue($column);
     }
 
     public function __isset(string $column): bool {
@@ -194,7 +200,7 @@ abstract class Entity {
         return $entity;
     }
 
-    public static function populateFromDB(array $row): static {
+    public static function loadFromDatabaseRow(array $row): static {
         $id = (int)$row[static::getFullColumnName("id")];
 
         $registryKey = static::class . $id;
@@ -210,20 +216,6 @@ abstract class Entity {
         $entity->setValues($row, true);
 
         return $entity;
-    }
-
-    /**
-     * @param \JPI\Database\Query\Result|array $rows
-     * @return static[]
-     */
-    public static function populateEntitiesFromDB(Database\Query\Result|array $rows): array {
-        $entities = [];
-
-        foreach ($rows as $row) {
-            $entities[] = static::populateFromDB($row);
-        }
-
-        return $entities;
     }
 
     public static function getById(int $id): ?static {
@@ -323,5 +315,14 @@ abstract class Entity {
         }
 
         return $this->deleted;
+    }
+
+    public function toArray(): array {
+        return array_merge(["id" => $this->getId()], $this->columns);
+    }
+
+    /** Iterate over the columns*/
+    public function getIterator(): ArrayIterator {
+        return new ArrayIterator($this->toArray());
     }
 }

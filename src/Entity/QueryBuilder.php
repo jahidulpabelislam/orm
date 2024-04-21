@@ -14,6 +14,12 @@ class QueryBuilder extends CoreQueryBuilder {
 
     use Entity\QueryBuilder\WhereableTrait;
 
+    /** @var class-string<CollectionInterface> */
+    protected static $collectionClass = Collection::class;
+
+    /** @var class-string<PaginatedCollectionInterface> */
+    protected static $paginatedCollectionClass = PaginatedCollection::class;
+
     public function __construct(
         Database $database,
         protected Entity $entityInstance
@@ -41,15 +47,8 @@ class QueryBuilder extends CoreQueryBuilder {
         return parent::orderBy($column, $ascDirection);
     }
 
-    public function createCollectionFromResult(array $rows): CollectionInterface {
-        $entities = $this->entityInstance::populateEntitiesFromDB($rows);
-
-        return new Collection($entities);
-    }
-
-    public function createPaginatedCollectionFromResult(array $rows, int $totalCount, int $limit, int $page): PaginatedCollectionInterface {
-        $entities = $this->entityInstance::populateEntitiesFromDB($rows);
-        return new PaginatedCollection($entities, $totalCount, $limit, $page);
+    public function getResultClass(): string {
+        return $this->entityInstance::class;
     }
 
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
@@ -61,13 +60,7 @@ class QueryBuilder extends CoreQueryBuilder {
             );
         }
 
-        $result = parent::select();
-
-        if ($this->limit === 1) {
-            return $result !== null ? $this->entityInstance::populateFromDB($result) : null;
-        }
-
-        return $result;
+        return parent::select();
     }
 
     public function insert(array $values): ?int {
