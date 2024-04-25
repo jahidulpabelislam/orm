@@ -6,9 +6,9 @@ namespace JPI\ORM\Entity;
 
 use JPI\Database;
 use JPI\Database\Query\Builder as CoreQueryBuilder;
+use JPI\Database\Query\Result\CollectionInterface;
+use JPI\Database\Query\Result\PaginatedCollectionInterface;
 use JPI\ORM\Entity;
-use JPI\Utils\CollectionInterface;
-use JPI\Utils\Collection\PaginatedInterface as PaginatedCollectionInterface;
 
 class QueryBuilder extends CoreQueryBuilder {
 
