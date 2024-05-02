@@ -242,7 +242,7 @@ abstract class Entity implements DatabaseResultInterface {
             ->select();
 
         if ($row) {
-            $this->setValues($row, true);
+            $this->setValues($row->toArray(), true);
             return;
         }
 
