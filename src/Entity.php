@@ -12,6 +12,7 @@ use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\Collection;
 use JPI\ORM\Entity\QueryBuilder;
 use JPI\ORM\Entity\InvalidValueException;
+use OutOfBoundsException;
 use Stringable;
 
 /**
@@ -284,9 +285,11 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public function __set(string $key, mixed $value): void {
-        if (array_key_exists($key, $this->data)) {
-            $this->setValue($key, $value);
+        if (!array_key_exists($key, $this->data)) {
+            throw new OutOfBoundsException("`$key` isn't valid.");
         }
+
+        $this->setValue($key, $value);
     }
 
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
@@ -355,7 +358,7 @@ abstract class Entity implements DatabaseResultInterface {
                 return $this->data[$mappingKey]["database_value"];
             }
 
-            return null;
+            throw new OutOfBoundsException("`$key` isn't valid.");
         }
 
         $this->lazyLoadRelationshipData($key);
