@@ -17,11 +17,11 @@ use JPI\ORM\Entity\QueryBuilder;
  */
 abstract class Entity implements DatabaseResultInterface {
 
-    protected ?int $identifier = null;
+    private ?int $identifier = null;
 
     protected array $data;
 
-    protected bool $deleted = false;
+    private bool $deleted = false;
 
     protected static string $table;
 
@@ -47,7 +47,7 @@ abstract class Entity implements DatabaseResultInterface {
     public static string $defaultOrderByColumn = "id";
     public static bool $defaultOrderByASC = true;
 
-    public static array $registry = [];
+    private static array $registry = [];
 
     public static function getTable(): string {
         return static::$table;
