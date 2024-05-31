@@ -250,10 +250,13 @@ abstract class Entity implements DatabaseResultInterface {
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
             if ($this->isLoaded()) {
+                $otherEntity = $mapping["entity"];
+                $otherEntityMap = $otherEntity::getDataMapping()[$mapping["column"]];
+
                 $this->setValue(
                     $key,
-                    $mapping["entity"]::newQuery()
-                        ->where($mapping["column"], "=", $this->getId())
+                    $otherEntity::newQuery()
+                        ->where($otherEntityMap["column"], "=", $this->getId())
                         ->select(),
                     true
                 );
