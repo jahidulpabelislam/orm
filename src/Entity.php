@@ -17,11 +17,11 @@ use JPI\ORM\Entity\QueryBuilder;
  */
 abstract class Entity implements DatabaseResultInterface {
 
-    protected ?int $identifier = null;
+    private ?int $identifier = null;
 
     protected array $data;
 
-    protected bool $deleted = false;
+    private bool $deleted = false;
 
     protected static string $table;
 
