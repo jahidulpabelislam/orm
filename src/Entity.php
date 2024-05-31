@@ -47,7 +47,7 @@ abstract class Entity implements DatabaseResultInterface {
     public static string $defaultOrderByColumn = "id";
     public static bool $defaultOrderByASC = true;
 
-    public static array $registry = [];
+    private static array $registry = [];
 
     public static function getTable(): string {
         return static::$table;
