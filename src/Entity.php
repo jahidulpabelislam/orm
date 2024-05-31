@@ -62,6 +62,12 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public static function getDataMapping(): array {
+        foreach (static::$dataMapping as $key => $mapping) {
+            if ($mapping["type"] === "belongs_to" && !isset($mapping["column"])) {
+                static::$dataMapping[$key]["column"] = $key . "_id";
+            }
+        }
+
         return static::$dataMapping;
     }
 
@@ -75,7 +81,7 @@ abstract class Entity implements DatabaseResultInterface {
                 $columns[] = $key;
             }
             else if ($mapping["type"] === "belongs_to") {
-                $columns[] = $mapping["column"] ?? ($key . "_id");
+                $columns[] = $mapping["column"];
             }
         }
 
@@ -218,7 +224,7 @@ abstract class Entity implements DatabaseResultInterface {
 
             if ($fromDB) {
                 if ($mapping["type"] === "belongs_to") {
-                    $valueKey = $mapping["column"] ?? ($key . "_id");
+                    $valueKey = $mapping["column"];
                 }
 
                 $valueKey = static::getFullColumnName($valueKey);
@@ -244,10 +250,13 @@ abstract class Entity implements DatabaseResultInterface {
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
             if ($this->isLoaded()) {
+                $otherEntity = $mapping["entity"];
+                $otherEntityMap = $otherEntity::getDataMapping()[$mapping["column"]];
+
                 $this->setValue(
                     $key,
-                    $mapping["entity"]::newQuery()
-                        ->where($mapping["column"], "=", $this->getId())
+                    $otherEntity::newQuery()
+                        ->where($otherEntityMap["column"], "=", $this->getId())
                         ->select(),
                     true
                 );
@@ -292,13 +301,7 @@ abstract class Entity implements DatabaseResultInterface {
 
         if (!array_key_exists($key, $this->data)) {
             foreach (static::getDataMapping() as $mappingKey => $mapping) {
-                if ($mapping["type"] !== "belongs_to") {
-                    continue;
-                }
-
-                $valueKey = $mapping["column"] ?? ($mappingKey . "_id");
-
-                if ($valueKey !== $key) {
+                if ($mapping["type"] !== "belongs_to" || $mapping["column"] !== $key) {
                     continue;
                 }
 
@@ -447,7 +450,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "belongs_to") {
-                $key = $mapping[$key]["column"] ?? ($key . "_id");
+                $key = $mapping[$key]["column"];
                 $value = $data["database_value"];
             }
             else {
