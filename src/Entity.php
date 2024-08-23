@@ -7,6 +7,7 @@ namespace JPI\ORM;
 use ArrayIterator;
 use DateTime;
 use Exception;
+use LogicException;
 use JPI\Database;
 use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\Collection;
@@ -381,15 +382,31 @@ abstract class Entity implements DatabaseResultInterface {
     public function __construct() {
         $this->data = [];
 
+        $validTypes = [
+            "string",
+            "int",
+            "array",
+            "date",
+            "date_time",
+            "belongs_to",
+            "has_many",
+            "has_one",
+        ];
+
         $relationTypes = static::getRelationTypes();
 
         foreach (static::getDataMapping() as $key => $mapping) {
+            $type = $mapping["type"];
+            if (!in_array($type, $validTypes)) {
+                throw new LogicException("Invalid type `$type` for `$key`.");
+            }
+
             $this->data[$key] = [];
 
-            if (!in_array($mapping["type"], $relationTypes)) {
+            if (!in_array($type, $relationTypes)) {
                 $this->data[$key]["value"] = $mapping["default_value"] ?? null;
             }
-            else if ($mapping["type"] === "belongs_to") {
+            else if ($type === "belongs_to") {
                 $this->data[$key]["database_value"] = $mapping["default_value"] ?? null;
             }
         }
