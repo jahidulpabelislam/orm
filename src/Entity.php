@@ -457,7 +457,7 @@ abstract class Entity implements DatabaseResultInterface {
                 $value = $data["value"];
             }
 
-            if ($type === "array") {
+            if ($type === "array" && $value !== null) {
                 $value = implode(static::$arrayColumnSeparator, $value);
             }
             else if ($value instanceof DateTime) {
