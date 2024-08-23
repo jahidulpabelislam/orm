@@ -42,7 +42,7 @@ abstract class Entity implements DatabaseResultInterface {
      * Set up for data this entity should have.
      * Key is the data/property name and value is an array with `type` and default_value` as keys.
      *
-     * Allowed values for type are: `string`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
+     * Allowed values for type are: `string`, `float`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
      */
     protected static array $dataMapping;
 
@@ -121,6 +121,18 @@ abstract class Entity implements DatabaseResultInterface {
 
         if (!is_int($value) && $value !== null) {
             throw new InvalidValueException("`$key` must be a integer or null.");
+        }
+
+        $this->data[$key]["value"] = $value;
+    }
+
+    private function setFloatValue(string $key, mixed $value): void {
+        if (is_numeric($value) && $value == (float)$value) {
+            $value = (float)$value;
+        }
+
+        if (!is_float($value) && $value !== null) {
+            throw new InvalidValueException("`$key` must be a float or null.");
         }
 
         $this->data[$key]["value"] = $value;
@@ -238,6 +250,9 @@ abstract class Entity implements DatabaseResultInterface {
 
         if ($type === "int") {
             $this->setIntValue($key, $value);
+        }
+        elseif ($type === "float") {
+            $this->setFloatValue($key, $value);
         }
         else if ($type === "array") {
             $this->setArrayValue($key, $value, $fromDB);
@@ -385,6 +400,7 @@ abstract class Entity implements DatabaseResultInterface {
         $validTypes = [
             "string",
             "int",
+            "float",
             "array",
             "date",
             "date_time",
