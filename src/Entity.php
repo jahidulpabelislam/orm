@@ -11,6 +11,9 @@ use JPI\Database;
 use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\Collection;
 use JPI\ORM\Entity\QueryBuilder;
+use JPI\ORM\Entity\InvalidValueException;
+use OutOfBoundsException;
+use Stringable;
 
 /**
  * The base Entity class for database tables with the core ORM logic.
@@ -110,110 +113,155 @@ abstract class Entity implements DatabaseResultInterface {
         return $this->identifier;
     }
 
+    private function setIntValue(string $key, mixed $value): void {
+        if (is_numeric($value) && $value == (int)$value) {
+            $value = (int)$value;
+        }
+
+        if (!is_int($value) && $value !== null) {
+            throw new InvalidValueException("`$key` must be a integer or null.");
+        }
+
+        $this->data[$key]["value"] = $value;
+    }
+
+    private function setArrayValue(string $key, mixed $value, bool $fromDB = false): void {
+        if ($fromDB && is_string($value)) {
+            $value = explode(static::$arrayColumnSeparator, $value);
+        }
+
+        if (!is_array($value) && $value !== null) {
+            throw new InvalidValueException("`$key` must be an array or null.");
+        }
+
+        $this->data[$key]["value"] = $value;
+    }
+
+    private function setDateValue(string $key, mixed $value): void {
+        if (!empty($value) && (is_string($value) || is_numeric($value))) {
+            try {
+                $value = new DateTime($value);
+            }
+            catch (Exception $exception) {
+            }
+        }
+
+        if (!$value instanceof DateTime && $value !== null) {
+            $mapping = static::getDataMapping()[$key];
+            throw new InvalidValueException("`$key` must be instance of \DateTime or valid format for creation or null.");
+        }
+
+        $this->data[$key]["value"] = $value;
+    }
+
+    private function setBelongsToValue(string $key, mixed $value): void {
+        $mapping = static::getDataMapping()[$key];
+
+        if ($value instanceof $mapping["entity"]) {
+            $this->data[$key]["value"] = $value;
+            $this->data[$key]["database_value"] = $value->getId();
+            return;
+        }
+
+        if (is_numeric($value) && $value == (int)$value) {
+            $value = (int)$value;
+        }
+
+        if (!is_int($value) && $value !== null) {
+            throw new InvalidValueException("`$key` must be a \\" . $mapping["entity"] . " instance, integer or null.");
+        }
+
+        unset($this->data[$key]["value"]);
+        $this->data[$key]["database_value"] = $value;
+    }
+
+    private function setHasManyValue(string $key, mixed $value, bool $fromDB): void {
+        if (is_array($value) || is_null($value)) {
+            $value = new Collection(is_null($value) ? [] : $value);
+        }
+
+        if (!$value instanceof Collection) {
+            throw new InvalidValueException("`$key` must be an array, EntityCollection or null.");
+        }
+
+        $mapping = static::getDataMapping()[$key];
+
+        $oldLinkedEntities = !$fromDB ? $this->$key : [];
+        foreach ($oldLinkedEntities as $oldLinkedEntity) {
+            $oldLinkedEntity->{$mapping["column"]} = null;
+        }
+
+        foreach ($value as $linkedEntity) {
+            $linkedEntity->{$mapping["column"]} = $this;
+        }
+
+        $this->data[$key]["value"] = $value;
+    }
+
+    private function setHasOneValue(string $key, mixed $value, bool $fromDB): void {
+        $mapping = static::getDataMapping()[$key];
+
+        if (is_numeric($value) && $value == (int)$value) {
+            $oldEntity = $this->$key;
+            if ($oldEntity) {
+                $oldEntity->{$mapping["column"]} = null;
+            }
+
+            $newEntity = $mapping["entity"]::getById((int)$value);
+
+            $newEntity->{$mapping["column"]} = $this;
+            $this->data[$key]["value"] = $newEntity;
+        }
+        else if ($value instanceof $mapping["entity"] || $value === null) {
+            $oldEntity = !$fromDB ? $this->$key : null;
+            if ($oldEntity) {
+                $oldEntity->{$mapping["column"]} = null;
+            }
+
+            if ($value instanceof self) {
+                $value->{$mapping["column"]} = $this;
+            }
+            $this->data[$key]["value"] = null;
+        }
+        else {
+            throw new InvalidValueException("`$key` must be a \\" . $mapping["entity"] . " instance , integer or null.");
+        }
+    }
+
+    /**
+     * @throws \JPI\ORM\Entity\InvalidValueException
+     */
     protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
         $mapping = static::getDataMapping()[$key];
         $type = $mapping["type"];
 
         if ($type === "int") {
-            if (is_numeric($value) && $value == (int)$value) {
-                $value = (int)$value;
-            }
-
-            if (is_int($value) || $value === null) {
-                $this->data[$key]["value"] = $value;
-            }
+            $this->setIntValue($key, $value);
         }
         else if ($type === "array") {
-            if ($fromDB && is_string($value)) {
-                $this->data[$key]["value"] = explode(static::$arrayColumnSeparator, $value);
-            }
-            else if (is_array($value) || $value === null) {
-                $this->data[$key]["value"] = $value;
-            }
+            $this->setArrayValue($key, $value, $fromDB);
         }
         else if (in_array($type, ["date_time", "date"])) {
-            if (!empty($value) && (is_string($value) || is_numeric($value))) {
-                try {
-                    $this->data[$key]["value"] = new DateTime($value);
-                }
-                catch (Exception $exception) {
-                }
-            }
-            else if ($value instanceof DateTime || $value === null) {
-                $this->data[$key]["value"] = $value;
-            }
+            $this->setDateValue($key, $value);
         }
         else if ($type === "belongs_to") {
-            if ($value instanceof self) {
-                $this->data[$key]["value"] = $value;
-                $this->data[$key]["database_value"] = $value->getId();
-            }
-            else {
-                if (is_numeric($value) && $value == (int)$value) {
-                    $value = (int)$value;
-                }
-
-                if (is_int($value) || $value === null) {
-                    if (array_key_exists("value", $this->data[$key])) {
-                        unset($this->data[$key]["value"]);
-                    }
-
-                    $this->data[$key]["database_value"] = $value;
-                }
-            }
+            $this->setBelongsToValue($key, $value);
         }
         else if ($type === "has_many") {
-            if (is_array($value) || is_null($value)) {
-                $value = new Collection(is_null($value) ? [] : $value);
-            }
-
-            if ($value instanceof Collection) {
-                $oldLinkedEntities = !$fromDB ? $this->$key : [];
-                if ($oldLinkedEntities) {
-                    foreach ($oldLinkedEntities as $oldLinkedEntity) {
-                        $oldLinkedEntity->{$mapping["column"]} = null;
-                    }
-                }
-
-                foreach ($value as $linkedEntity) {
-                    $linkedEntity->{$mapping["column"]} = $this;
-                }
-
-                $this->data[$key]["value"] = $value;
-            }
+            $this->setHasManyValue($key, $value, $fromDB);
         }
         else if ($type === "has_one") {
-            if (is_numeric($value) && $value == (int)$value) {
-                $entity = $this->$key;
-                if ($entity) {
-                    $entity->{$mapping["column"]} = null;
-                }
-
-                $id = (int)$value;
-
-                $entity = $mapping["entity"]::getById($id);
-
-                $entity->{$mapping["column"]} = $this;
-                $this->data[$key]["value"] = $entity;
-            }
-            else if ($value === null) {
-                $entity = !$fromDB ? $this->$key : null;
-                if ($entity) {
-                    $entity->{$mapping["column"]} = null;
-                }
-                $this->data[$key]["value"] = null;
-            }
-            else if ($value instanceof self) {
-                $entity = !$fromDB ? $this->$key : null;
-                if ($entity) {
-                    $entity->{$mapping["column"]} = null;
-                }
-
-                $value->{$mapping["column"]} = $this;
-                $this->data[$key]["value"] = $value;
-            }
+            $this->setHasOneValue($key, $value, $fromDB);
         }
         else if ($type === "string") {
+            if ($value instanceof Stringable) {
+                $value = (string)$value;
+            }
+
+            if (!is_string($value) && !is_null($value)) {
+                throw new InvalidValueException("`$key` must be a string or null.");
+            }
+
             $this->data[$key]["value"] = $value;
         }
     }
@@ -237,9 +285,11 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public function __set(string $key, mixed $value): void {
-        if (array_key_exists($key, $this->data)) {
-            $this->setValue($key, $value);
+        if (!array_key_exists($key, $this->data)) {
+            throw new OutOfBoundsException("`$key` isn't valid.");
         }
+
+        $this->setValue($key, $value);
     }
 
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
@@ -308,7 +358,7 @@ abstract class Entity implements DatabaseResultInterface {
                 return $this->data[$mappingKey]["database_value"];
             }
 
-            return null;
+            throw new OutOfBoundsException("`$key` isn't valid.");
         }
 
         $this->lazyLoadRelationshipData($key);
