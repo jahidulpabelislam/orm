@@ -9,9 +9,9 @@
 
 A super simple & lightweight ORM.
 
-This has been kept very simple stupid (KISS), there is no validation, it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
+This has been kept very simple stupid (KISS), there is no validation, and it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
 
-I would advise against using this on real world/live applications...but feel free to use in your own demo/experimental projects.
+I would advise against using this on real-world/live applications...but feel free to use in your own demo/experimental projects.
 
 SO TO BE VERY CLEAR USE AT YOUR OWN RISK!
 
@@ -34,9 +34,9 @@ $ composer require jpi/orm
 
 ## Support
 
-If you found this library interesting or useful please do spread the word of this library: share on your social's, star on GitHub, etc.
+If you found this library interesting or useful please spread the word about this library: share on your socials, star on GitHub, etc.
 
-If you find any issues or have any feature requests, you can open a [issue](https://github.com/jahidulpabelislam/orm/issues) or can email [me @ jahidulpabelislam.com](mailto:me@jahidulpabelislam.com) :smirk:.
+If you find any issues or have any feature requests, you can open a [issue](https://github.com/jahidulpabelislam/orm/issues) or email [me @ jahidulpabelislam.com](mailto:me@jahidulpabelislam.com) :smirk:.
 
 ## Authors
 
