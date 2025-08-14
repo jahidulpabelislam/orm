@@ -9,7 +9,7 @@
 
 A super simple & lightweight ORM.
 
-This has been kept very simple stupid (KISS), there is no validation, and it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
+This has been kept very simple stupid (KISS), there is little to no validation, and it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
 
 I would advise against using this on real-world/live applications...but feel free to use in your own demo/experimental projects.
 
@@ -21,8 +21,8 @@ SO TO BE VERY CLEAR USE AT YOUR OWN RISK!
 - Composer
 - PHP PDO
 - MySQL 5+
-- [jpi/database](https://packagist.org/packages/jpi/database)
-- [jpi/query](https://packagist.org/packages/jpi/query)
+- [jpi/database](https://packagist.org/packages/jpi/database) v2
+- [jpi/query](https://packagist.org/packages/jpi/query) v2
 
 ## Installation
 
@@ -31,6 +31,23 @@ Use [Composer](https://getcomposer.org/)
 ```bash
 $ composer require jpi/orm 
 ```
+
+## Usage
+
+- Extend `\JPI\ORM\Entity`
+- `$dataMapping`
+- implement `getDatabase`
+
+To create an instance, you will need an instance of `\JPI\Database` (if unfamiliar you can read about that [here](https://packagist.org/packages/jpi/database)) which is the first parameter, and the database table name as the second parameter. The same instance can be used multiple times as long as it's for the same database.
+
+- `$table`
+- `$columnPrefix`
+- `$arrayColumnSeparator`
+- `$defaultOrderByColumn`
+- `$defaultOrderByASC`
+
+### Query builder
+`newQuery` uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query)).
 
 ## Support
 
