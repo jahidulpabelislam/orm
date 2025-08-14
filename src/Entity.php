@@ -160,7 +160,6 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!$value instanceof DateTime && $value !== null) {
-            $mapping = static::getDataMapping()[$key];
             throw new InvalidValueException("`$key` must be instance of \DateTime or valid format for creation or null.");
         }
 
