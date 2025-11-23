@@ -15,10 +15,10 @@ class QueryBuilder extends CoreQueryBuilder {
     use Entity\QueryBuilder\WhereableTrait;
 
     /** @var class-string<CollectionInterface> */
-    protected static $collectionClass = Collection::class;
+    protected static string $collectionClass = Collection::class;
 
     /** @var class-string<PaginatedCollectionInterface> */
-    protected static $paginatedCollectionClass = PaginatedCollection::class;
+    protected static string $paginatedCollectionClass = PaginatedCollection::class;
 
     public function __construct(
         Database $database,
