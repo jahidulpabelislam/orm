@@ -9,11 +9,7 @@
 
 A super simple & lightweight ORM.
 
-This has been kept very simple stupid (KISS), there is little to no validation, and it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in the queries.
-
-I would advise against using this on real-world/live applications...but feel free to use in your own demo/experimental projects.
-
-SO TO BE VERY CLEAR USE AT YOUR OWN RISK!
+This has been kept very simple stupid (KISS), other than PHP type errors there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
 
 ## Dependencies
 
@@ -34,20 +30,33 @@ $ composer require jpi/orm
 
 ## Usage
 
-- Extend `\JPI\ORM\Entity`
-- `$dataMapping`
-- implement `getDatabase`
+You will need to extend `\JPI\ORM\Entity` and then define the following
 
-To create an instance, you will need an instance of `\JPI\Database` (if unfamiliar you can read about that [here](https://packagist.org/packages/jpi/database)) which is the first parameter, and the database table name as the second parameter. The same instance can be used multiple times as long as it's for the same database.
+#### `getDatabase`
 
-- `$table`
-- `$columnPrefix`
-- `$arrayColumnSeparator`
-- `$defaultOrderByColumn`
-- `$defaultOrderByASC`
+where you need to return an instance of `\JPI\Database` (which is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database)).
+
+#### `$table`
+
+#### `$columnPrefix`
+
+#### `$arrayColumnSeparator`
+
+#### `$defaultOrderByColumn`
+
+#### `$defaultOrderByASC`
+
+#### `$dataMapping`
+
+
 
 ### Query builder
+
 `newQuery` uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query)).
+
+### Query builder
+
+- `save`
 
 ## Support
 
@@ -57,7 +66,7 @@ If you find any issues or have any feature requests, you can open a [issue](http
 
 ## Authors
 
--   [Jahidul Pabel Islam](https://jahidulpabelislam.com/) [<me@jahidulpabelislam.com>](mailto:me@jahidulpabelislam.com)
+- [Jahidul Pabel Islam](https://jahidulpabelislam.com/) [<me@jahidulpabelislam.com>](mailto:me@jahidulpabelislam.com)
 
 ## Licence
 
