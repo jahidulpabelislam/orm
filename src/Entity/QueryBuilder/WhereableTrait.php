@@ -16,7 +16,7 @@ trait WhereableTrait {
     public function where(
         string $whereOrColumn,
         ?string $expression = null,
-        Entity|string|int|float|array $valueOrPlaceholder = null
+        Entity|string|int|float|array|null $valueOrPlaceholder = null
     ): static {
         if ($expression !== null && $valueOrPlaceholder !== null && $this->getEntityInstance()::hasColumn($whereOrColumn)) {
             $whereOrColumn = $this->getEntityInstance()::getFullColumnName($whereOrColumn);
