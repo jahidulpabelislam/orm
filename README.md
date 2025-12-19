@@ -30,15 +30,16 @@ $ composer require jpi/orm
 
 ## Usage
 
-You will need to extend `\JPI\ORM\Entity` and then define the following
+You will need to extend `\JPI\ORM\Entity` and then define the following:
 
-#### `getDatabase`
+#### `getDatabase(): \JPI\Database`
 
-where you need to return an instance of `\JPI\Database` (which is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database)).
-
+Here you provide the PDO instance for the connection to the database for this Entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 #### `$table`
 
-#### `$columnPrefix`
+The database table name for this entity.
+
+#### `$columnPrefix` (optional)
 
 #### `$arrayColumnSeparator`
 
@@ -47,8 +48,6 @@ where you need to return an instance of `\JPI\Database` (which is just an extens
 #### `$defaultOrderByASC`
 
 #### `$dataMapping`
-
-
 
 ### Query builder
 
