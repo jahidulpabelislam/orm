@@ -34,7 +34,7 @@ You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 ### Required Properties and Methods
 
-#### `getDatabase(): \JPI\Database` (required)
+#### `getDatabase(): \JPI\Database`
 
 This abstract method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 
@@ -44,7 +44,7 @@ public static function getDatabase(): \JPI\Database {
 }
 ```
 
-#### `$table` (required)
+#### `$table`
 
 The database table name for this entity.
 
@@ -52,7 +52,7 @@ The database table name for this entity.
 protected static string $table = "users";
 ```
 
-#### `$dataMapping` (required)
+#### `$dataMapping`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
 - `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
@@ -79,7 +79,7 @@ protected static array $dataMapping = [
 ];
 ```
 
-#### `$columnPrefix` (optional)
+#### `$columnPrefix`
 
 Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id`, `user_name` instead of `id`, `name`. Set this property to add that prefix automatically.
 
@@ -87,7 +87,7 @@ Some database designers like to prefix their table columns. For example, the `us
 protected static ?string $columnPrefix = "user_";
 ```
 
-#### `$arrayColumnSeparator` (optional)
+#### `$arrayColumnSeparator`
 
 When storing arrays in a database column as a delimited string, this defines the separator. Default is `","`.
 
@@ -95,7 +95,7 @@ When storing arrays in a database column as a delimited string, this defines the
 protected static string $arrayColumnSeparator = ",";
 ```
 
-#### `$defaultOrderByColumn` (optional)
+#### `$defaultOrderByColumn`
 
 The default column to order results by when using `select()`. Default is `"id"`.
 
@@ -103,7 +103,7 @@ The default column to order results by when using `select()`. Default is `"id"`.
 public static string $defaultOrderByColumn = "created_at";
 ```
 
-#### `$defaultOrderByASC` (optional)
+#### `$defaultOrderByASC`
 
 Whether the default ordering should be ascending. Default is `true`.
 
