@@ -32,7 +32,7 @@ abstract class Entity implements DatabaseResultInterface {
     /**
      * Some database designers like to have their table columns with a prefix, this adds support for that.
      *
-     * e.g `users` table will have column names like `user_id` & `user_email` instead of `id` & `email`
+     * e.g. `users` table will have column names like `user_id` & `user_email` instead of `id` & `email`
      *
      * Note: the first underscore is required.
      */
@@ -40,7 +40,7 @@ abstract class Entity implements DatabaseResultInterface {
 
     /**
      * Set up for data this entity should have.
-     * Key is the data/property name and value is an array with `type` and default_value` as keys.
+     * Key is the data/property name and value is an array with `type` & `default_value` as keys.
      *
      * Allowed values for type are: `string`, `float`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
      */
@@ -240,9 +240,6 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
-    /**
-     * @throws \JPI\ORM\Entity\InvalidValueException
-     */
     protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
         $mapping = static::getDataMapping()[$key];
         $type = $mapping["type"];
@@ -435,9 +432,6 @@ abstract class Entity implements DatabaseResultInterface {
         return $this->deleted;
     }
 
-    /**
-     * Simple factory method to create a new entity instance and optionally set the values.
-     */
     public static function factory(?array $data = null): static {
         $entity = new static();
 
@@ -515,9 +509,6 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
-    /**
-     * Transform the entity values for database query.
-     */
     protected function getValuesToSave(): array {
         $values = [];
 
@@ -658,7 +649,9 @@ abstract class Entity implements DatabaseResultInterface {
         return $this->deleted;
     }
 
-    /** Only returns if value was loaded */
+    /**
+     * Only returns values that were loaded.
+     */
     public function toArray(int $depth = 1): array {
         $array = [
             "id" => $this->getId(),
@@ -685,7 +678,6 @@ abstract class Entity implements DatabaseResultInterface {
         return $array;
     }
 
-    /** Iterate over the data */
     public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->toArray());
     }

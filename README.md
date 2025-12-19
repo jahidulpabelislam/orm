@@ -7,9 +7,9 @@
 [![License](https://poser.pugx.org/jpi/orm/license)](https://packagist.org/packages/jpi/orm)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jahidulpabelislam/orm/2.x.svg?label=last%20activity)
 
-A super simple & lightweight ORM.
+A simple & lightweight ORM.
 
-This has been kept very simple stupid (KISS), other than PHP type errors there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
+This has been kept very simple stupid (KISS), other than type errors from PHP there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
 
 ## Dependencies
 
@@ -55,11 +55,11 @@ protected static string $table = "users";
 #### `$dataMapping`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
-- `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
-- `default_value` (optional): Default value for the property
-- `entity` (required for relationships): The related entity class name
-- `column` (optional for `belongs_to`): The foreign key column name (defaults to `{property}_id`)
-- `cascade_delete` (optional): Whether to delete related entities when this entity is deleted
+- `type`: One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
+- `default_value`: Default value for the property
+- `entity`: The related entity class name (for relationships)
+- `column`: The foreign key column name for `belongs_to` (defaults to `{property}_id`)
+- `cascade_delete`: Whether to delete related entities when this entity is deleted
 
 ```php
 protected static array $dataMapping = [
@@ -81,7 +81,9 @@ protected static array $dataMapping = [
 
 #### `$columnPrefix`
 
-Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id`, `user_name` instead of `id`, `name`. Set this property to add that prefix automatically.
+Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id` & `user_name` instead of `id` & `name`. Set this property to add that prefix automatically.
+
+Note: the first underscore is required.
 
 ```php
 protected static ?string $columnPrefix = "user_";
@@ -147,7 +149,7 @@ class User extends Entity {
 
 #### Creating and Saving Entities
 
-**`factory(?array $data = null): static`** - Create a new entity instance
+**`factory(?array $data = null): static`** - Create a new entity instance.
 
 ```php
 $user = User::factory([
@@ -157,7 +159,7 @@ $user = User::factory([
 ]);
 ```
 
-**`save(): bool`** - Save (insert or update) the entity to the database
+**`save(): bool`** - Save (insert or update) the entity to the database.
 
 ```php
 $user = User::factory(["name" => "John Doe"]);
@@ -167,7 +169,7 @@ $user->name = "Jane Doe";
 $user->save(); // Updates the user
 ```
 
-**`insert(array $data): static`** - Create and save an entity in one call
+**`insert(array $data): static`** - Create and save an entity in one call.
 
 ```php
 $user = User::insert([
@@ -178,13 +180,13 @@ $user = User::insert([
 
 #### Retrieving Entities
 
-**`getById(int $id): ?static`** - Get an entity by its ID
+**`getById(int $id): ?static`** - Get an entity by its ID.
 
 ```php
 $user = User::getById(1);
 ```
 
-**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries
+**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries.
 
 ```php
 $users = User::newQuery()
@@ -193,7 +195,7 @@ $users = User::newQuery()
     ->select();
 ```
 
-**`reload(): void`** - Reload the entity from the database
+**`reload(): void`** - Reload the entity from the database.
 
 ```php
 $user->reload();
@@ -201,7 +203,7 @@ $user->reload();
 
 #### Deleting Entities
 
-**`delete(): bool`** - Delete the entity from the database
+**`delete(): bool`** - Delete the entity from the database.
 
 ```php
 $user = User::getById(1);
@@ -210,7 +212,7 @@ $user->delete();
 
 #### Utility Methods
 
-**`isLoaded(): bool`** - Check if the entity has been loaded from or saved to the database
+**`isLoaded(): bool`** - Check if the entity has been loaded from or saved to the database.
 
 ```php
 if ($user->isLoaded()) {
@@ -218,7 +220,7 @@ if ($user->isLoaded()) {
 }
 ```
 
-**`isDeleted(): bool`** - Check if the entity has been deleted
+**`isDeleted(): bool`** - Check if the entity has been deleted.
 
 ```php
 if ($user->isDeleted()) {
@@ -226,7 +228,7 @@ if ($user->isDeleted()) {
 }
 ```
 
-**`toArray(int $depth = 1): array`** - Convert the entity to an array
+**`toArray(int $depth = 1): array`** - Convert the entity to an array.
 
 ```php
 $data = $user->toArray();
@@ -296,7 +298,7 @@ class Post extends Entity {
         "author" => [
             "type" => "belongs_to",
             "entity" => User::class,
-            "column" => "user_id", // Optional, defaults to "author_id"
+            "column" => "user_id", // Defaults to "author_id" if not specified
         ],
     ];
 }
@@ -315,7 +317,7 @@ class User extends Entity {
             "type" => "has_many",
             "entity" => Post::class,
             "column" => "author", // The property name in Post that links back
-            "cascade_delete" => true, // Optional: delete posts when user is deleted
+            "cascade_delete" => true, // Delete posts when user is deleted
         ],
     ];
 }
@@ -355,4 +357,4 @@ If you find any issues or have any feature requests, you can open a [issue](http
 
 ## Licence
 
-This module is licenced under the General Public Licence - see the [licence](LICENSE.md) file for details
+This module is licensed under the General Public Licence - see the [licence](LICENSE.md) file for details
