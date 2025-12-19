@@ -84,7 +84,7 @@ abstract class Entity implements DatabaseResultInterface {
             if (!in_array($mapping["type"], $relationTypes)) {
                 $columns[] = $key;
             }
-            else if ($mapping["type"] === "belongs_to") {
+            elseif ($mapping["type"] === "belongs_to") {
                 $columns[] = $mapping["column"];
             }
         }
@@ -224,7 +224,7 @@ abstract class Entity implements DatabaseResultInterface {
             $newEntity->{$mapping["column"]} = $this;
             $this->data[$key]["value"] = $newEntity;
         }
-        else if ($value instanceof $mapping["entity"] || $value === null) {
+        elseif ($value instanceof $mapping["entity"] || $value === null) {
             $oldEntity = !$fromDB ? $this->$key : null;
             if ($oldEntity) {
                 $oldEntity->{$mapping["column"]} = null;
@@ -253,22 +253,22 @@ abstract class Entity implements DatabaseResultInterface {
         elseif ($type === "float") {
             $this->setFloatValue($key, $value);
         }
-        else if ($type === "array") {
+        elseif ($type === "array") {
             $this->setArrayValue($key, $value, $fromDB);
         }
-        else if (in_array($type, ["date_time", "date"])) {
+        elseif (in_array($type, ["date_time", "date"])) {
             $this->setDateValue($key, $value);
         }
-        else if ($type === "belongs_to") {
+        elseif ($type === "belongs_to") {
             $this->setBelongsToValue($key, $value);
         }
-        else if ($type === "has_many") {
+        elseif ($type === "has_many") {
             $this->setHasManyValue($key, $value, $fromDB);
         }
-        else if ($type === "has_one") {
+        elseif ($type === "has_one") {
             $this->setHasOneValue($key, $value, $fromDB);
         }
-        else if ($type === "string") {
+        elseif ($type === "string") {
             if ($value instanceof Stringable) {
                 $value = (string)$value;
             }
@@ -421,7 +421,7 @@ abstract class Entity implements DatabaseResultInterface {
             if (!in_array($type, $relationTypes)) {
                 $this->data[$key]["value"] = $mapping["default_value"] ?? null;
             }
-            else if ($type === "belongs_to") {
+            elseif ($type === "belongs_to") {
                 $this->data[$key]["database_value"] = $mapping["default_value"] ?? null;
             }
         }
@@ -542,7 +542,7 @@ abstract class Entity implements DatabaseResultInterface {
             if ($type === "array" && $value !== null) {
                 $value = implode(static::$arrayColumnSeparator, $value);
             }
-            else if ($value instanceof DateTime) {
+            elseif ($value instanceof DateTime) {
                 $value = $value->format($type === "date_time" ? "Y-m-d H:i:s" : "Y-m-d");
             }
 
@@ -561,7 +561,7 @@ abstract class Entity implements DatabaseResultInterface {
                 $data["value"]->{$mapping["column"]} = $this;
                 $data["value"]->save();
             }
-            else if ($type === "has_many" && array_key_exists("value", $data)) {
+            elseif ($type === "has_many" && array_key_exists("value", $data)) {
                 foreach ($data["value"] as $linkedEntity) {
                     $linkedEntity->{$mapping["column"]} = $this;
                     $linkedEntity->save();
@@ -633,7 +633,7 @@ abstract class Entity implements DatabaseResultInterface {
             if ($type === "has_one") {
                 $this->{$key}->delete();
             }
-            else if ($type === "has_many") {
+            elseif ($type === "has_many") {
                 foreach ($this->{$key} as $linkedEntity) {
                     $linkedEntity->delete();
                 }

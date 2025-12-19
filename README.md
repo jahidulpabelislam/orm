@@ -36,7 +36,7 @@ $ composer require jpi/orm
 
 If you found this library interesting or useful please spread the word about this library: share on your socials, star on GitHub, etc.
 
-If you find any issues or have any feature requests, you can open a [issue](https://github.com/jahidulpabelislam/orm/issues) or email [me @ jahidulpabelislam.com](mailto:me@jahidulpabelislam.com) :smirk:.
+If you find any issues or have any feature requests, you can open a [issue](https://github.com/jahidulpabelislam/orm/issues) or e-mail [me @ jahidulpabelislam.com](mailto:me@jahidulpabelislam.com) :smirk:.
 
 ## Authors
 
@@ -44,4 +44,4 @@ If you find any issues or have any feature requests, you can open a [issue](http
 
 ## Licence
 
-This module is licenced under the General Public Licence - see the [licence](LICENSE.md) file for details
+This module is licensed under the General Public Licence - see the [licence](LICENSE.md) file for details
