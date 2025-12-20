@@ -43,9 +43,6 @@ This abstract method must be implemented to provide the database connection for 
 
 The database table name for this entity.
 
-```php
-protected static string $table = "users";
-```
 
 #### `$dataMapping`
 
