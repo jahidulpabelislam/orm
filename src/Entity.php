@@ -237,7 +237,7 @@ abstract class Entity implements DatabaseResultInterface {
         if ($type === "int") {
             $this->setIntValue($key, $value);
         }
-        elseif ($type === "float") {
+        else if ($type === "float") {
             $this->setFloatValue($key, $value);
         }
         else if ($type === "array") {

@@ -38,13 +38,14 @@ You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 This abstract method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 
-
 #### `$table`
 
 The database table name for this entity.
+
 #### `$dataMapping`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
+
 - `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
 - `default_value`: Default value for the property
 - `entity`: The related entity class name (required for relationship types)

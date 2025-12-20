@@ -6,6 +6,5 @@ namespace JPI\ORM\Entity;
 
 use InvalidArgumentException;
 
-class InvalidValueException extends InvalidArgumentException
-{
+class InvalidValueException extends InvalidArgumentException {
 }
