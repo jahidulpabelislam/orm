@@ -38,11 +38,6 @@ You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 This abstract method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 
-```php
-public static function getDatabase(): \JPI\Database {
-    return new \JPI\Database("mysql:host=localhost;dbname=mydb", "username", "password");
-}
-```
 
 #### `$table`
 
