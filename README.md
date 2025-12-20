@@ -43,7 +43,6 @@ This abstract method must be implemented to provide the database connection for 
 
 The database table name for this entity.
 
-
 #### `$dataMapping`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
