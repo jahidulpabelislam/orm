@@ -509,6 +509,9 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
+    /**
+     * Transform the entity values for database query.
+     */
     protected function getValuesToSave(): array {
         $values = [];
 
