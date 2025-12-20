@@ -240,6 +240,9 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
+    /**
+     * @throws \JPI\ORM\Entity\InvalidValueException
+     */
     protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
         $mapping = static::getDataMapping()[$key];
         $type = $mapping["type"];
