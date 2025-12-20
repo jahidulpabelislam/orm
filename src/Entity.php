@@ -678,6 +678,7 @@ abstract class Entity implements DatabaseResultInterface {
         return $array;
     }
 
+    /** Iterate over the data */
     public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->toArray());
     }
