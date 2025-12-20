@@ -29,21 +29,8 @@ abstract class Entity implements DatabaseResultInterface {
 
     protected static string $table;
 
-    /**
-     * Some database designers like to have their table columns with a prefix, this adds support for that.
-     *
-     * e.g. `users` table will have column names like `user_id` & `user_email` instead of `id` & `email`
-     *
-     * Note: the first underscore is required.
-     */
     protected static ?string $columnPrefix = null;
 
-    /**
-     * Set up for data this entity should have.
-     * Key is the data/property name and value is an array with `type` & `default_value` as keys.
-     *
-     * Allowed values for type are: `string`, `float`, `int`, `date_time`, `date`, `array`, `belongs_to`, `has_many` & `has_one`
-     */
     protected static array $dataMapping;
 
     protected static string $arrayColumnSeparator = ",";
