@@ -42,13 +42,12 @@ This abstract method must be implemented to provide the database connection for 
 #### `$table`
 
 The database table name for this entity.
-
 #### `$dataMapping`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
 - `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
 - `default_value`: Default value for the property
-- `entity`: The related entity class name (required for relationships)
+- `entity`: The related entity class name (required for relationship types)
 - `column`: The foreign key column name for `belongs_to` (defaults to `{property}_id`)
 - `cascade_delete`: Whether to delete related entities when this entity is deleted
 
