@@ -159,14 +159,7 @@ $user = User::insert([
 $user = User::getById(1);
 ```
 
-**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries.
-
-```php
-$users = User::newQuery()
-    ->where("age", ">", 18)
-    ->orderBy("name")
-    ->select();
-```
+**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
 **`reload(): void`** - Reload the entity from the database.
 
