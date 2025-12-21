@@ -126,9 +126,11 @@ class User extends \JPI\ORM\Entity {
         ],
     ];
     
-    public static function getDatabase(): Database {
-        return new Database("mysql:host=localhost;dbname=mydb", "username", "password");
+    public static function getDatabase(): \JPI\Database {
+        return new \JPI\Database("mysql:host=localhost;dbname=mydb", "username", "password");
     }
+    
+    ...
 }
 ```
 
