@@ -76,33 +76,17 @@ Some database designers like to prefix their table columns. For example, the `us
 
 Note: the first underscore is required.
 
-```php
-protected static ?string $columnPrefix = "user_";
-```
-
 #### `$arrayColumnSeparator`
 
 When storing arrays in a database column as a delimited string, this defines the separator. Default is `","`.
-
-```php
-protected static string $arrayColumnSeparator = ",";
-```
 
 #### `$defaultOrderByColumn`
 
 The default column to order results by when using `select()`. Default is `"id"`.
 
-```php
-public static string $defaultOrderByColumn = "created_at";
-```
-
 #### `$defaultOrderByASC`
 
 Whether the default ordering should be ascending. Default is `true`.
-
-```php
-public static bool $defaultOrderByASC = false;
-```
 
 ### Complete Example
 
@@ -186,10 +170,6 @@ $users = User::newQuery()
 
 **`reload(): void`** - Reload the entity from the database.
 
-```php
-$user->reload();
-```
-
 #### Deleting Entities
 
 **`delete(): bool`** - Delete the entity from the database.
@@ -218,10 +198,6 @@ if ($user->isDeleted()) {
 ```
 
 **`toArray(int $depth = 1): array`** - Convert the entity to an array.
-
-```php
-$data = $user->toArray();
-```
 
 ### Query Builder
 
