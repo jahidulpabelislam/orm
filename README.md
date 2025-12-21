@@ -107,12 +107,8 @@ public static bool $defaultOrderByASC = false;
 ### Complete Example
 
 ```php
-namespace App\Models;
-
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class User extends Entity {
+...
+class User extends \JPI\ORM\Entity {
     protected static string $table = "users";
     
     protected static array $dataMapping = [
