@@ -38,11 +38,11 @@ You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 This method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 
-#### `$table`
+#### `$table: string`
 
 The database table name for this entity.
 
-#### `$dataMapping`
+#### `$dataMapping: array`
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
 
@@ -70,21 +70,21 @@ protected static array $dataMapping = [
 ];
 ```
 
-#### `$columnPrefix`
+#### `$columnPrefix: string` - optional
 
 Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id` & `user_name` instead of `id` & `name`. Set this property to add that prefix automatically.
 
 Note: the first underscore is required.
 
-#### `$arrayColumnSeparator`
+#### `$arrayColumnSeparator: string` - optional
 
 When storing arrays in a database column as a delimited string, this defines the separator. Default is `","`.
 
-#### `$defaultOrderByColumn`
+#### `$defaultOrderByColumn: string` - optional
 
 The default column to order results by when using `select()`. Default is `"id"`.
 
-#### `$defaultOrderByASC`
+#### `$defaultOrderByASC: bool` - optional
 
 Whether the default ordering should be ascending. Default is `true`.
 
@@ -94,7 +94,7 @@ Whether the default ordering should be ascending. Default is `true`.
 ...
 class User extends \JPI\ORM\Entity {
     protected static string $table = "users";
-    
+
     protected static array $dataMapping = [
         "name" => [
             "type" => "string",
@@ -109,11 +109,11 @@ class User extends \JPI\ORM\Entity {
             "type" => "date_time",
         ],
     ];
-    
+
     public static function getDatabase(): \JPI\Database {
         return new \JPI\Database("mysql:host=localhost;dbname=mydb", "username", "password");
     }
-    
+
     ...
 }
 ```
@@ -176,19 +176,7 @@ $user->delete();
 
 **`isLoaded(): bool`** - Check if the entity has been loaded from or saved to the database.
 
-```php
-if ($user->isLoaded()) {
-    // Entity exists in database
-}
-```
-
 **`isDeleted(): bool`** - Check if the entity has been deleted.
-
-```php
-if ($user->isDeleted()) {
-    // Entity was deleted
-}
-```
 
 **`toArray(int $depth = 1): array`** - Convert the entity to an array.
 
@@ -222,10 +210,6 @@ $users = User::newQuery()
 $users = User::newQuery()
     ->limit(10)
     ->select();
-
-// Pagination
-$users = User::newQuery()
-    ->paginate(1, 20); // page 1, 20 per page
 
 // Count
 $count = User::newQuery()
@@ -270,13 +254,14 @@ $author = $post->author; // Lazy loads the User entity
 ```php
 class User extends Entity {
     protected static array $dataMapping = [
-        "name" => ["type" => "string"],
+        ...
         "posts" => [
             "type" => "has_many",
             "entity" => Post::class,
             "column" => "author", // The property name in Post that links back
-            "cascade_delete" => true, // Delete posts when user is deleted
+            "cascade_delete" => true,
         ],
+        ...
     ];
 }
 
@@ -289,13 +274,14 @@ $posts = $user->posts; // Lazy loads a Collection of Post entities
 ```php
 class User extends Entity {
     protected static array $dataMapping = [
-        "name" => ["type" => "string"],
+        ...
         "profile" => [
             "type" => "has_one",
             "entity" => UserProfile::class,
             "column" => "user",
             "cascade_delete" => true,
         ],
+        ...
     ];
 }
 
