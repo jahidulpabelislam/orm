@@ -36,7 +36,7 @@ You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 #### `getDatabase(): \JPI\Database`
 
-This abstract method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
+This method must be implemented to provide the database connection for this entity. `\JPI\Database` is just an extension of `PDO` - you can find out more [here](https://packagist.org/packages/jpi/database).
 
 #### `$table`
 
