@@ -138,7 +138,7 @@ $user = User::factory([
 $user = User::factory(["name" => "John Doe"]);
 $user->save(); // Inserts the user
 
-$user->name = "Jane Doe";
+$user->age = 31;
 $user->save(); // Updates the user
 ```
 
