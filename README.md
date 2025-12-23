@@ -32,7 +32,7 @@ $ composer require jpi/orm
 
 You will need to extend `\JPI\ORM\Entity` and then define the following:
 
-### Required Properties and Methods
+### Properties and Methods for setup
 
 #### `getDatabase(): \JPI\Database`
 
@@ -46,11 +46,11 @@ The database table name for this entity.
 
 This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
 
-- `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_many`, `has_one`
-- `default_value`: Default value for the property
+- `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_one`, `has_many` 
+- `default_value`
 - `entity`: The related entity class name (required for relationship types)
 - `column`: The foreign key column name for `belongs_to` (defaults to `{property}_id`)
-- `cascade_delete`: Whether to delete related entities when this entity is deleted
+- `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
 
 ```php
 protected static array $dataMapping = [
@@ -93,6 +93,7 @@ Whether the default ordering should be ascending. Default is `true`.
 ```php
 ...
 class User extends \JPI\ORM\Entity {
+
     protected static string $table = "users";
 
     protected static array $dataMapping = [
@@ -119,6 +120,12 @@ class User extends \JPI\ORM\Entity {
 ```
 
 ### Available Methods
+
+#### Retrieving Entities
+
+**`getById(int $id): ?static`** - Get an entity by its ID.
+
+**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
 #### Creating and Saving Entities
 
@@ -150,12 +157,6 @@ $user = User::insert([
     "email" => "john@example.com",
 ]);
 ```
-
-#### Retrieving Entities
-
-**`getById(int $id): ?static`** - Get an entity by its ID.
-
-**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
 #### Deleting Entities
 
@@ -226,14 +227,18 @@ The ORM supports three types of relationships:
 
 ```php
 class Post extends Entity {
+    ...
     protected static array $dataMapping = [
+        ...
         "title" => ["type" => "string"],
         "author" => [
             "type" => "belongs_to",
             "entity" => User::class,
             "column" => "user_id", // Defaults to "author_id" if not specified
         ],
+        ...
     ];
+    ...
 }
 
 $post = Post::getById(1);
@@ -244,6 +249,7 @@ $author = $post->author; // Lazy loads the User entity
 
 ```php
 class User extends Entity {
+    ...
     protected static array $dataMapping = [
         ...
         "posts" => [
@@ -254,6 +260,7 @@ class User extends Entity {
         ],
         ...
     ];
+    ...
 }
 
 $user = User::getById(1);
@@ -264,6 +271,7 @@ $posts = $user->posts; // Lazy loads a Collection of Post entities
 
 ```php
 class User extends Entity {
+    ...
     protected static array $dataMapping = [
         ...
         "profile" => [
@@ -274,6 +282,7 @@ class User extends Entity {
         ],
         ...
     ];
+    ...
 }
 
 $user = User::getById(1);
