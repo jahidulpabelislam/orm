@@ -157,8 +157,6 @@ $user = User::insert([
 
 **`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
-**`reload(): void`** - Reload the entity from the database.
-
 #### Deleting Entities
 
 **`delete(): bool`** - Delete the entity from the database.
@@ -170,6 +168,8 @@ $user = User::insert([
 **`isDeleted(): bool`** - Check if the entity has been deleted.
 
 **`toArray(int $depth = 1): array`** - Convert the entity to an array.
+
+**`reload(): void`** - Reload the entity from the database.
 
 ### Query Builder
 
