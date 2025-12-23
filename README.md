@@ -155,10 +155,6 @@ $user = User::insert([
 
 **`getById(int $id): ?static`** - Get an entity by its ID.
 
-```php
-$user = User::getById(1);
-```
-
 **`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
 **`reload(): void`** - Reload the entity from the database.
@@ -166,11 +162,6 @@ $user = User::getById(1);
 #### Deleting Entities
 
 **`delete(): bool`** - Delete the entity from the database.
-
-```php
-$user = User::getById(1);
-$user->delete();
-```
 
 #### Utility Methods
 
