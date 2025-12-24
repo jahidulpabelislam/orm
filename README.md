@@ -119,6 +119,26 @@ class User extends \JPI\ORM\Entity {
 }
 ```
 
+### Working with Entity Data
+
+You can get and set entity property values using simple property access:
+
+```php
+// Getting values
+$user = User::getById(1);
+$name = $user->name;
+$email = $user->email;
+$age = $user->age;
+
+// Setting values
+$user->name = "Jane Doe";
+$user->email = "jane@example.com";
+$user->age = 25;
+$user->save(); // Persist changes to database
+```
+
+The entity uses PHP's magic methods (`__get` and `__set`) to provide this convenient syntax, which maps directly to the columns defined in your `$dataMapping`.
+
 ### Available Methods
 
 #### Retrieving Entities
