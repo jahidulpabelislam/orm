@@ -28,11 +28,9 @@ Use [Composer](https://getcomposer.org/)
 $ composer require jpi/orm 
 ```
 
-## Usage
-
 You will need to extend `\JPI\ORM\Entity` and then define the following:
 
-### Properties and Methods for setup
+## Properties and Methods for setup
 
 #### `getDatabase(): \JPI\Database`
 
@@ -88,7 +86,7 @@ The default column to order results by when using `select()`. Default is `"id"`.
 
 Whether the default ordering should be ascending. Default is `true`.
 
-### Complete Example
+## Complete Example
 
 ```php
 ...
@@ -119,7 +117,7 @@ class User extends \JPI\ORM\Entity {
 }
 ```
 
-### Available Methods
+## Usage
 
 #### Retrieving Entities
 
