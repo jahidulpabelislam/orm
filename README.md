@@ -189,7 +189,7 @@ $user = User::insert([
 
 ### Query Builder
 
-The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query). See the [jpi/query documentation](https://github.com/jahidulpabelislam/query) for full details on available query methods.
+The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query), see documentation there for full details on available query methods.
 
 ### Relationships
 
