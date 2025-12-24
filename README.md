@@ -189,50 +189,7 @@ $user = User::insert([
 
 ### Query Builder
 
-The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query).
-
-#### Common Query Methods
-
-```php
-// Select all users
-$users = User::newQuery()->select();
-
-// Select with conditions
-$adults = User::newQuery()
-    ->where("age", ">=", 18)
-    ->select();
-
-// Select with multiple conditions
-$users = User::newQuery()
-    ->where("age", ">", 18)
-    ->where("email", "LIKE", "%@example.com")
-    ->select();
-
-// Order results
-$users = User::newQuery()
-    ->orderBy("name", true) // true = ascending
-    ->select();
-
-// Limit results
-$users = User::newQuery()
-    ->limit(10)
-    ->select();
-
-// Count
-$count = User::newQuery()
-    ->where("age", ">", 18)
-    ->count();
-
-// Update records
-$affected = User::newQuery()
-    ->where("age", "<", 18)
-    ->update(["status" => "minor"]);
-
-// Delete records
-$affected = User::newQuery()
-    ->where("status", "=", "inactive")
-    ->delete();
-```
+The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query). See the [jpi/query documentation](https://github.com/jahidulpabelislam/query) for full details on available query methods.
 
 ### Relationships
 
