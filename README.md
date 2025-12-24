@@ -44,12 +44,12 @@ The database table name for this entity.
 
 #### `$dataMapping: array`
 
-This array defines the structure of your entity and maps to your database columns. Each key is a property name and the value is an array with:
+This array defines the structure of your entity and maps to your database columns. Each key is a column name and the value is an array with:
 
 - `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_one`, `has_many` 
 - `default_value`
 - `entity`: The related entity class name (required for relationship types)
-- `column`: The foreign key column name for `belongs_to` (defaults to `{property}_id`)
+- `column`: The foreign key column name for `belongs_to` (defaults to `{key}_id`)
 - `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
 
 ```php
@@ -255,7 +255,7 @@ class User extends Entity {
         "posts" => [
             "type" => "has_many",
             "entity" => Post::class,
-            "column" => "author", // The property name in Post that links back
+            "column" => "author", // The key in Post that links back
             "cascade_delete" => true,
         ],
         ...
