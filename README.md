@@ -142,10 +142,7 @@ $age = $user->age;
 $user->name = "Jane Doe";
 $user->email = "jane@example.com";
 $user->age = 25;
-$user->save(); // Persist changes to database
 ```
-
-The entity uses PHP's magic methods (`__get` and `__set`) to provide this convenient syntax, which maps directly to the columns defined in your `$dataMapping`.
 
 #### Creating and Saving Entities
 
