@@ -281,6 +281,9 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
+    /**
+     * @throws \JPI\ORM\Entity\InvalidValueException
+     */
     public function setValues(array $values, bool $fromDB = false): void {
         foreach (static::getDataMapping() as $key => $mapping) {
             $valueKey = $key;
@@ -359,6 +362,9 @@ abstract class Entity implements DatabaseResultInterface {
         }
     }
 
+    /**
+     * @throws OutOfBoundsException if $key isn't valid
+     */
     public function getValue(string $key): mixed {
         if ($key === "id") {
             return $this->getId();
@@ -393,6 +399,9 @@ abstract class Entity implements DatabaseResultInterface {
         return isset($this->data[$key]["value"]);
     }
 
+    /**
+     * @throws LogicException if $dataMapping isn't valid
+     */
     public function __construct() {
         $this->data = [];
 
@@ -658,7 +667,9 @@ abstract class Entity implements DatabaseResultInterface {
         return $this->deleted;
     }
 
-    /** Only returns if value was loaded */
+    /**
+     * Only returns values that were loaded.
+     */
     public function toArray(int $depth = 1): array {
         $array = [
             "id" => $this->getId(),
