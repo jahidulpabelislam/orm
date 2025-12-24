@@ -119,7 +119,15 @@ class User extends \JPI\ORM\Entity {
 }
 ```
 
-### Working with Entity Data
+### Available Methods
+
+#### Retrieving Entities
+
+**`getById(int $id): ?static`** - Get an entity by its ID.
+
+**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
+
+#### Accessing Entity Data
 
 You can get and set entity property values using simple property access:
 
@@ -138,14 +146,6 @@ $user->save(); // Persist changes to database
 ```
 
 The entity uses PHP's magic methods (`__get` and `__set`) to provide this convenient syntax, which maps directly to the columns defined in your `$dataMapping`.
-
-### Available Methods
-
-#### Retrieving Entities
-
-**`getById(int $id): ?static`** - Get an entity by its ID.
-
-**`newQuery(): QueryBuilder`** - Get a query builder instance for advanced queries. See [Query Builder](#query-builder) section for examples.
 
 #### Creating and Saving Entities
 
