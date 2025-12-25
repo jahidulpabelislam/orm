@@ -57,13 +57,13 @@ protected static array $dataMapping = [
         "type" => "string",
         "default_value" => null,
     ],
-    "email" => [
+    "sku" => [
         "type" => "string",
     ],
-    "age" => [
-        "type" => "int",
+    "price" => [
+        "type" => "float",
     ],
-    "tags" => [
+    "categories" => [
         "type" => "array",
         "separator" => ",", // Optional, defaults to ","
     ],
@@ -75,7 +75,7 @@ protected static array $dataMapping = [
 
 #### `$columnPrefix: string` - optional
 
-Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id` & `user_name` instead of `id` & `name`. Set this property to add that prefix automatically.
+Some database designers like to prefix their table columns. For example, the `products` table might have columns like `product_id` & `product_name` instead of `id` & `name`. Set this property to add that prefix automatically.
 
 Note: the first underscore is required.
 
@@ -91,18 +91,21 @@ Whether the default ordering should be ascending. Default is `true`.
 
 ```php
 ...
-class User extends \JPI\ORM\Entity {
+class Product extends \JPI\ORM\Entity {
 
-    protected static string $table = "users";
+    protected static string $table = "products";
 
     protected static array $dataMapping = [
         "name" => [
             "type" => "string",
         ],
-        "email" => [
+        "sku" => [
             "type" => "string",
         ],
-        "age" => [
+        "price" => [
+            "type" => "float",
+        ],
+        "stock_quantity" => [
             "type" => "int",
         ],
         "created_at" => [
@@ -111,7 +114,7 @@ class User extends \JPI\ORM\Entity {
     ];
 
     public static function getDatabase(): \JPI\Database {
-        return new \JPI\Database("mysql:host=localhost;dbname=mydb", "username", "password");
+        return new \JPI\Database("mysql:host=localhost;dbname=shop", "username", "password");
     }
 
     ...
@@ -163,35 +166,35 @@ The ORM supports three types of relationships:
 #### `belongs_to` - Many-to-One
 
 ```php
-class Post extends Entity {
+class Order extends Entity {
     ...
     protected static array $dataMapping = [
         ...
-        "author" => [
+        "customer" => [
             "type" => "belongs_to",
-            "entity" => User::class,
-            "column" => "user_id", // Defaults to "author_id" if not specified
+            "entity" => Customer::class,
+            "column" => "customer_id", // Defaults to "customer_id" if not specified
         ],
         ...
     ];
     ...
 }
 
-$post = Post::getById(1);
-$author = $post->author; // Lazy loads the User entity
+$order = Order::getById(1);
+$customer = $order->customer; // Lazy loads the Customer entity
 ```
 
 #### `has_many` - One-to-Many
 
 ```php
-class User extends Entity {
+class Order extends Entity {
     ...
     protected static array $dataMapping = [
         ...
-        "posts" => [
+        "items" => [
             "type" => "has_many",
-            "entity" => Post::class,
-            "column" => "author", // The key in Post that links back
+            "entity" => OrderItem::class,
+            "column" => "order", // The key in OrderItem that links back
             "cascade_delete" => true,
         ],
         ...
@@ -199,21 +202,21 @@ class User extends Entity {
     ...
 }
 
-$user = User::getById(1);
-$posts = $user->posts; // Lazy loads a Collection of Post entities
+$order = Order::getById(1);
+$items = $order->items; // Lazy loads a Collection of OrderItem entities
 ```
 
 #### `has_one` - One-to-One
 
 ```php
-class User extends Entity {
+class Order extends Entity {
     ...
     protected static array $dataMapping = [
         ...
-        "profile" => [
+        "payment" => [
             "type" => "has_one",
-            "entity" => UserProfile::class,
-            "column" => "user",
+            "entity" => Payment::class,
+            "column" => "order",
             "cascade_delete" => true,
         ],
         ...
@@ -221,8 +224,8 @@ class User extends Entity {
     ...
 }
 
-$user = User::getById(1);
-$profile = $user->profile; // Lazy loads the UserProfile entity
+$order = Order::getById(1);
+$payment = $order->payment; // Lazy loads the Payment entity
 ```
 
 ## Support
