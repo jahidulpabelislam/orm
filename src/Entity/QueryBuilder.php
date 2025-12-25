@@ -52,16 +52,17 @@ class QueryBuilder extends CoreQueryBuilder {
     }
 
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
-        // Make sure we at least have a consistent order
-        if (!count($this->orderBy)) {
-            $idColumn = $this->entityInstance::getFullColumnName("id");
-            // Skip adding when selecting a single record by ID
-            if (count($this->where) !== 1 || (string)$this->where[0] !== "$idColumn = :$idColumn") {
-                $this->orderBy(
-                    $this->entityInstance::$defaultOrderByColumn,
-                    $this->entityInstance::$defaultOrderByASC
-                );
-            }
+        // Force limit of 1 when selecting a single record by ID
+        $idColumn = $this->entityInstance::getFullColumnName("id");
+        if (count($this->where) === 1 && (string)$this->where[0] === "$idColumn = :$idColumn") {
+            $this->limit(1);
+        }
+        else if (!count($this->orderBy)) {
+            // Make sure we at least have a consistent order
+            $this->orderBy(
+                $this->entityInstance::$defaultOrderByColumn,
+                $this->entityInstance::$defaultOrderByASC
+            );
         }
 
         return parent::select();

@@ -481,7 +481,6 @@ abstract class Entity implements DatabaseResultInterface {
 
         return static::newQuery()
             ->where("id", "=", $id)
-            ->limit(1)
             ->select();
     }
 
