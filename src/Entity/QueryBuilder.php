@@ -51,9 +51,33 @@ class QueryBuilder extends CoreQueryBuilder {
         return $this->entityInstance::class;
     }
 
+    /**
+     * Check if we're selecting a single record by ID.
+     * This helps optimize queries by skipping unnecessary ORDER BY clauses.
+     */
+    protected function isSelectingSingleRecordById(): bool {
+        // Must have limit of 1
+        if ($this->limit !== 1) {
+            return false;
+        }
+
+        // Check if WHERE clause contains an equality filter on the ID column
+        $idColumn = $this->entityInstance::getFullColumnName("id");
+        $whereString = (string)$this->where;
+        
+        // Check if WHERE clause filters by ID with equality operator
+        // Pattern: "WHERE id = :id" or "WHERE (id = :id)" or "WHERE id = :id AND ..."
+        if (preg_match("/WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/", $whereString)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Make sure we at least have a consistent order
-        if (!count($this->orderBy)) {
+        // Skip default ORDER BY if selecting a single record by ID (optimization)
+        if (!count($this->orderBy) && !$this->isSelectingSingleRecordById()) {
             $this->orderBy(
                 $this->entityInstance::$defaultOrderByColumn,
                 $this->entityInstance::$defaultOrderByASC
