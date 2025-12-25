@@ -269,11 +269,7 @@ abstract class Entity implements DatabaseResultInterface {
             $this->setHasOneValue($key, $value, $fromDB);
         }
         else if ($type === "string") {
-            if ($value instanceof Stringable) {
-                $value = (string)$value;
-            }
-
-            if (!is_string($value) && !is_null($value)) {
+            if (!is_string($value) && !is_null($value) && !$value instanceof Stringable) {
                 throw new InvalidValueException("`$key` must be a string or null.");
             }
 
