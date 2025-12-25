@@ -65,13 +65,29 @@ class QueryBuilder extends CoreQueryBuilder {
         $idColumn = $this->entityInstance::getFullColumnName("id");
         $whereString = (string)$this->where;
         
-        // Check if WHERE clause filters by ID with equality operator
-        // Pattern: "WHERE id = :id" or "WHERE (id = :id)" or "WHERE id = :id AND ..."
-        if (preg_match("/WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/", $whereString)) {
-            return true;
+        // Skip if no WHERE clause
+        if (empty($whereString)) {
+            return false;
         }
-
-        return false;
+        
+        // Check if WHERE clause filters by ID with equality operator
+        // The pattern ensures:
+        // - Starts with WHERE keyword
+        // - Optionally has opening parenthesis (for simple grouped condition)
+        // - Followed by the ID column name
+        // - Followed by equals sign
+        // - Not preceded by OR (which would indicate complex logic)
+        // Pattern matches: "WHERE id = :id" or "WHERE (id = :id)" or "WHERE id = :id AND ..."
+        // But NOT: "WHERE ... OR id = ..." or other complex cases
+        $pattern = "/^WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/";
+        
+        // Also check that there's no OR operator in the WHERE clause
+        // which would indicate complex logic where ORDER BY might still be needed
+        if (stripos($whereString, ' OR ') !== false) {
+            return false;
+        }
+        
+        return (bool)preg_match($pattern, $whereString);
     }
 
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
