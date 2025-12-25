@@ -21,7 +21,7 @@
         "php": "^8.0",
         "jpi/utils": "^1.0",
         "jpi/database": "^2.0",
-        "jpi/query": "^2.1.1"
+        "jpi/query": "^2.2.2"
     },
     "require-dev": {
         "jpi/codestyles": "^1.0.1"
