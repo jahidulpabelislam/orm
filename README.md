@@ -76,7 +76,7 @@ Note: the first underscore is required.
 
 #### `$arrayColumnSeparator: string` - optional
 
-When storing arrays in a database column as a delimited string, this defines the separator. Default is `","`.
+Separator for `array` type columns when stored as delimited strings. Default is `","`.
 
 #### `$defaultOrderByColumn: string` - optional
 
