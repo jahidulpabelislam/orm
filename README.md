@@ -28,7 +28,7 @@ Use [Composer](https://getcomposer.org/)
 $ composer require jpi/orm 
 ```
 
-## Properties and Methods for setup
+### Properties and Methods for Setup
 
 You will need to extend `\JPI\ORM\Entity` and then define the following:
 
@@ -81,13 +81,13 @@ Note: the first underscore is required.
 
 #### `$defaultOrderByColumn: string` - optional
 
-The default column to order results by when `selecting` records and haven't specified a order. Default is `"id"`.
+The default column to order results by when selecting records and haven't specified an order. Default is `id`.
 
 #### `$defaultOrderByASC: bool` - optional
 
 Whether the default ordering should be ascending. Default is `true`.
 
-## Complete Example
+### Complete Example
 
 ```php
 ...
@@ -118,7 +118,7 @@ class User extends \JPI\ORM\Entity {
 }
 ```
 
-## Usage
+### Usage
 
 #### Retrieving Entities
 
@@ -130,49 +130,13 @@ class User extends \JPI\ORM\Entity {
 
 You can get and set entity values using simple property access, these are the keys from `$dataMapping`. When setting the value must be value for the type defined or null.
 
-```php
-// Getting values
-$user = User::getById(1);
-$name = $user->name;
-$email = $user->email;
-$age = $user->age;
-
-// Setting values
-$user->name = "Jane Doe";
-$user->email = "jane@example.com";
-$user->age = 25;
-```
-
 #### Creating and Saving Entities
 
-**`factory(?array $data = null): static`** - Create a new entity instance.
-
-```php
-$user = User::factory([
-    "name" => "John Doe",
-    "email" => "john@example.com",
-    "age" => 30,
-]);
-```
+**`factory(?array $data = null): static`** - Create a new entity instance, and optionally set initial data in one call.
 
 **`insert(array $data): static`** - Create and save an entity in one call.
 
-```php
-$user = User::insert([
-    "name" => "John Doe",
-    "email" => "john@example.com",
-]);
-```
-
 **`save(): bool`** - Save (insert or update) the entity to the database.
-
-```php
-$user = User::factory(["name" => "John Doe"]);
-$user->save(); // Inserts the user
-
-$user->age = 31;
-$user->save(); // Updates the user
-```
 
 #### Deleting Entities
 
@@ -203,7 +167,6 @@ class Post extends Entity {
     ...
     protected static array $dataMapping = [
         ...
-        "title" => ["type" => "string"],
         "author" => [
             "type" => "belongs_to",
             "entity" => User::class,
