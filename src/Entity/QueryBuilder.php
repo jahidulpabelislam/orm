@@ -51,38 +51,17 @@ class QueryBuilder extends CoreQueryBuilder {
         return $this->entityInstance::class;
     }
 
-    /**
-     * Check if we're selecting a single record by ID.
-     * This helps optimize queries by skipping unnecessary ORDER BY clauses.
-     * 
-     * @return bool True if selecting a single record by ID, false otherwise.
-     */
-    protected function isSelectingSingleRecordById(): bool {
-        // Must have limit of 1
-        if ($this->limit !== 1) {
-            return false;
-        }
-
-        // Check if WHERE clause has exactly one condition that filters by ID
-        if (count($this->where) !== 1) {
-            return false;
-        }
-        
-        $idColumn = $this->entityInstance::getFullColumnName("id");
-        $firstWhere = $this->where[0];
-        
-        // Check if the first (and only) WHERE condition is filtering by ID with equality
-        return $firstWhere === "$idColumn = :$idColumn";
-    }
-
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Make sure we at least have a consistent order
-        // Skip default ORDER BY if selecting a single record by ID (optimization)
-        if (!count($this->orderBy) && !$this->isSelectingSingleRecordById()) {
-            $this->orderBy(
-                $this->entityInstance::$defaultOrderByColumn,
-                $this->entityInstance::$defaultOrderByASC
-            );
+        if (!count($this->orderBy)) {
+            $idColumn = $this->entityInstance::getFullColumnName("id");
+            // Thought no need to add orderBy if only pulling out one record by Id
+            if (count($this->where) !== 1 || $this->where[0] !== "$idColumn = :$idColumn") {
+                $this->orderBy(
+                    $this->entityInstance::$defaultOrderByColumn,
+                    $this->entityInstance::$defaultOrderByASC
+                );
+            }
         }
 
         return parent::select();
