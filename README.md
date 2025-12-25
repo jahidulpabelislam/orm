@@ -46,6 +46,7 @@ This array defines the structure of your entity and maps to your database column
 
 - `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_one`, `has_many` 
 - `default_value`
+- `separator`: The separator for `array` type columns when stored as delimited strings (defaults to `","`)
 - `entity`: The related entity class name (required for relationship types)
 - `column`: The foreign key column name for `belongs_to` type (defaults to `{key}_id`)
 - `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
@@ -62,6 +63,10 @@ protected static array $dataMapping = [
     "age" => [
         "type" => "int",
     ],
+    "tags" => [
+        "type" => "array",
+        "separator" => ",", // Optional, defaults to ","
+    ],
     "created_at" => [
         "type" => "date_time",
     ],
@@ -73,10 +78,6 @@ protected static array $dataMapping = [
 Some database designers like to prefix their table columns. For example, the `users` table might have columns like `user_id` & `user_name` instead of `id` & `name`. Set this property to add that prefix automatically.
 
 Note: the first underscore is required.
-
-#### `$arrayColumnSeparator: string` - optional
-
-Separator for `array` type columns when stored as delimited strings. Default is `","`.
 
 #### `$defaultOrderByColumn: string` - optional
 
