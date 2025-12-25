@@ -30,7 +30,7 @@ $ composer require jpi/orm
 
 You will need to extend `\JPI\ORM\Entity` and then define the following:
 
-### Properties and Methods for setup
+## Properties and Methods for setup
 
 #### `getDatabase(): \JPI\Database`
 
@@ -86,7 +86,7 @@ The default column to order results by when `selecting` records and haven't spec
 
 Whether the default ordering should be ascending. Default is `true`.
 
-### Complete Example
+## Complete Example
 
 ```php
 ...
@@ -117,7 +117,7 @@ class User extends \JPI\ORM\Entity {
 }
 ```
 
-### Usage
+## Usage
 
 #### Retrieving Entities
 
@@ -187,11 +187,11 @@ $user->save(); // Updates the user
 
 **`reload(): void`** - Reload the entity from the database.
 
-### Query Builder
+## Query Builder
 
 The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query), see documentation there for full details on available query methods.
 
-### Relationships
+## Relationships
 
 The ORM supports three types of relationships:
 
