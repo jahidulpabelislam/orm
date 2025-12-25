@@ -44,7 +44,7 @@ The database table name for this entity.
 
 This array defines the structure of your entity and maps to your database columns. Each key is a column name and the value is an array with:
 
-- `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_one`, `has_many` 
+- `type` (required): One of: `string`, `int`, `float`, `array`, `date`, `date_time`, `belongs_to`, `has_one`, `has_many`
 - `default_value`
 - `separator`: The separator for `array` type columns when stored as delimited strings (defaults to `","`)
 - `entity`: The related entity class name (required for relationship types)
