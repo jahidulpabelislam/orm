@@ -28,9 +28,9 @@ Use [Composer](https://getcomposer.org/)
 $ composer require jpi/orm 
 ```
 
-You will need to extend `\JPI\ORM\Entity` and then define the following:
-
 ## Properties and Methods for setup
+
+You will need to extend `\JPI\ORM\Entity` and then define the following:
 
 #### `getDatabase(): \JPI\Database`
 
