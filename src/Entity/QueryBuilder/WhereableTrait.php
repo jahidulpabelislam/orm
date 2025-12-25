@@ -23,11 +23,11 @@ trait WhereableTrait {
             $whereOrColumn = $this->getEntityInstance()::getFullColumnName($whereOrColumn);
         }
 
-        if ($valueOrPlaceholder instanceof Entity) {
-            $valueOrPlaceholder = $valueOrPlaceholder->getId();
-        }
-        else if ($valueOrPlaceholder instanceof EntityCollection) {
+        if ($valueOrPlaceholder instanceof EntityCollection) {
             $valueOrPlaceholder = $valueOrPlaceholder->pluck("id")->toArray();
+        }
+        else if ($valueOrPlaceholder instanceof Entity) {
+            $valueOrPlaceholder = $valueOrPlaceholder->getId();
         }
 
         return parent::where($whereOrColumn, $expression, $valueOrPlaceholder);
