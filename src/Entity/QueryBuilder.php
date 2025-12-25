@@ -63,34 +63,16 @@ class QueryBuilder extends CoreQueryBuilder {
             return false;
         }
 
-        // Check if WHERE clause contains an equality filter on the ID column
+        // Check if WHERE clause has exactly one condition that filters by ID
+        if (count($this->where) !== 1) {
+            return false;
+        }
+        
         $idColumn = $this->entityInstance::getFullColumnName("id");
-        $whereString = (string)$this->where;
+        $firstWhere = $this->where[0];
         
-        // Skip if no WHERE clause
-        if (empty($whereString)) {
-            return false;
-        }
-        
-        // Check if WHERE clause filters by ID with equality operator
-        // The pattern ensures:
-        // - Starts with WHERE keyword (case-insensitive)
-        // - Optionally has opening parenthesis (for simple grouped condition)
-        // - Followed by the ID column name
-        // - Followed by equals sign
-        // - Not preceded by OR (which would indicate complex logic)
-        // Pattern matches: "WHERE id = :id" or "WHERE (id = :id)" or "WHERE id = :id AND ..."
-        // But NOT: "WHERE ... OR id = ..." or other complex cases
-        $pattern = "/^WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/i";
-        
-        // Also check that there's no OR operator in the WHERE clause
-        // which would indicate complex logic where ORDER BY might still be needed
-        // Use word boundary to match OR in various contexts (OR, (OR, )OR(, etc.)
-        if (preg_match('/\bOR\b/i', $whereString)) {
-            return false;
-        }
-        
-        return (bool)preg_match($pattern, $whereString);
+        // Check if the first (and only) WHERE condition is filtering by ID with equality
+        return $firstWhere === "$idColumn = :$idColumn";
     }
 
     public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
