@@ -80,7 +80,7 @@ Separator for `array` type columns when stored as delimited strings. Default is 
 
 #### `$defaultOrderByColumn: string` - optional
 
-The default column to order results by when using `select()`. Default is `"id"`.
+The default column to order results by when `selecting` records and haven't specified a order. Default is `"id"`.
 
 #### `$defaultOrderByASC: bool` - optional
 
