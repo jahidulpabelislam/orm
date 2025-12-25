@@ -55,7 +55,7 @@ class QueryBuilder extends CoreQueryBuilder {
         // Make sure we at least have a consistent order
         if (!count($this->orderBy)) {
             $idColumn = $this->entityInstance::getFullColumnName("id");
-            // Thought no need to add orderBy if only pulling out one record by Id
+            // Skip ORDER BY when selecting a single record by ID
             if (count($this->where) !== 1 || (string)$this->where[0] !== "$idColumn = :$idColumn") {
                 $this->orderBy(
                     $this->entityInstance::$defaultOrderByColumn,
