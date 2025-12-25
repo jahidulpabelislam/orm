@@ -33,8 +33,6 @@ abstract class Entity implements DatabaseResultInterface {
 
     protected static array $dataMapping;
 
-    protected static string $arrayColumnSeparator = ",";
-
     public static string $defaultOrderByColumn = "id";
     public static bool $defaultOrderByASC = true;
 
@@ -54,8 +52,12 @@ abstract class Entity implements DatabaseResultInterface {
 
     public static function getDataMapping(): array {
         foreach (static::$dataMapping as $key => $mapping) {
-            if ($mapping["type"] === "belongs_to" && !isset($mapping["column"])) {
+            $type = $mapping["type"];
+            if ($type === "belongs_to" && !isset($mapping["column"])) {
                 static::$dataMapping[$key]["column"] = $key . "_id";
+            }
+            else if ($type === "array" && !isset($mapping["separator"])) {
+                static::$dataMapping[$key]["separator"] = static::$arrayColumnSeparator ?? ",";
             }
         }
 
@@ -126,8 +128,10 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     private function setArrayValue(string $key, mixed $value, bool $fromDB = false): void {
+        $mapping = static::getDataMapping()[$key];
+
         if ($fromDB && is_string($value)) {
-            $value = explode(static::$arrayColumnSeparator, $value);
+            $value = explode($mapping["separator"], $value);
         }
 
         if (!is_array($value) && $value !== null) {
@@ -256,11 +260,7 @@ abstract class Entity implements DatabaseResultInterface {
             $this->setHasOneValue($key, $value, $fromDB);
         }
         else if ($type === "string") {
-            if ($value instanceof Stringable) {
-                $value = (string)$value;
-            }
-
-            if (!is_string($value) && !is_null($value)) {
+            if (!is_string($value) && !is_null($value) && !$value instanceof Stringable) {
                 throw new InvalidValueException("`$key` must be a string or null.");
             }
 
@@ -469,7 +469,6 @@ abstract class Entity implements DatabaseResultInterface {
 
         return static::newQuery()
             ->where("id", "=", $id)
-            ->limit(1)
             ->select();
     }
 
@@ -533,7 +532,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "array" && $value !== null) {
-                $value = implode(static::$arrayColumnSeparator, $value);
+                $value = implode($mapping[$key]["separator"], $value);
             }
             else if ($value instanceof DateTime) {
                 $value = $value->format($type === "date_time" ? "Y-m-d H:i:s" : "Y-m-d");
