@@ -127,7 +127,7 @@ class User extends \JPI\ORM\Entity {
 
 #### Accessing Entity Data
 
-You can get and set entity property values using simple property access:
+You can get and set entity values using simple property access, these are the keys from `$dataMapping`:
 
 ```php
 // Getting values
