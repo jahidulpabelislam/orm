@@ -54,6 +54,8 @@ class QueryBuilder extends CoreQueryBuilder {
     /**
      * Check if we're selecting a single record by ID.
      * This helps optimize queries by skipping unnecessary ORDER BY clauses.
+     * 
+     * @return bool True if selecting a single record by ID, false otherwise.
      */
     protected function isSelectingSingleRecordById(): bool {
         // Must have limit of 1
@@ -72,18 +74,19 @@ class QueryBuilder extends CoreQueryBuilder {
         
         // Check if WHERE clause filters by ID with equality operator
         // The pattern ensures:
-        // - Starts with WHERE keyword
+        // - Starts with WHERE keyword (case-insensitive)
         // - Optionally has opening parenthesis (for simple grouped condition)
         // - Followed by the ID column name
         // - Followed by equals sign
         // - Not preceded by OR (which would indicate complex logic)
         // Pattern matches: "WHERE id = :id" or "WHERE (id = :id)" or "WHERE id = :id AND ..."
         // But NOT: "WHERE ... OR id = ..." or other complex cases
-        $pattern = "/^WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/";
+        $pattern = "/^WHERE\s+\(?\s*" . preg_quote($idColumn, '/') . "\s*=\s*/i";
         
         // Also check that there's no OR operator in the WHERE clause
         // which would indicate complex logic where ORDER BY might still be needed
-        if (stripos($whereString, ' OR ') !== false) {
+        // Use word boundary to match OR in various contexts (OR, (OR, )OR(, etc.)
+        if (preg_match('/\bOR\b/i', $whereString)) {
             return false;
         }
         
