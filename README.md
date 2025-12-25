@@ -154,6 +154,15 @@ $user = User::factory([
 ]);
 ```
 
+**`insert(array $data): static`** - Create and save an entity in one call.
+
+```php
+$user = User::insert([
+    "name" => "John Doe",
+    "email" => "john@example.com",
+]);
+```
+
 **`save(): bool`** - Save (insert or update) the entity to the database.
 
 ```php
@@ -162,15 +171,6 @@ $user->save(); // Inserts the user
 
 $user->age = 31;
 $user->save(); // Updates the user
-```
-
-**`insert(array $data): static`** - Create and save an entity in one call.
-
-```php
-$user = User::insert([
-    "name" => "John Doe",
-    "email" => "john@example.com",
-]);
 ```
 
 #### Deleting Entities
