@@ -48,7 +48,9 @@ This array defines the structure of your entity and maps to your database column
 - `default_value`
 - `separator`: The separator for `array` type columns when stored as delimited strings (defaults to `","`)
 - `entity`: The related entity class name (required for relationship types)
-- `column`: The foreign key column name for `belongs_to` type (defaults to `{key}_id`)
+- `column`
+    - The database column behind this for `belongs_to` type (defaults to `{key}_id`)
+    - The key in related entity for `has_many` & `has_one` types that links back to this
 - `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
 
 ```php
