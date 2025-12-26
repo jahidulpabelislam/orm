@@ -11,6 +11,19 @@ A super simple & lightweight ORM.
 
 This has been kept very simple stupid (KISS), other than type errors from PHP there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
 
+## Features
+
+- Minimalistic and lightweight ORM for PHP (KISS: "Keep It Simple, Stupid")
+- Define entities by extending `\JPI\ORM\Entity` and mapping class properties to database columns
+- Fluent, chainable API for querying, creating, updating, and deleting records
+- Simple data mapping supporting scalar types, arrays, and date/time
+- Supports conventional and customizable table/column naming (including prefixes)
+- Relationship mapping: `belongs_to`, `has_one`, and `has_many` relationships, including lazy loading
+- Cascade delete for related entities on `has_one` & `has_many`
+- Built-in utility methods for hydration, array conversion, detecting load/delete state, and reloading data
+- Integrated query builder for composing complex queries, with methods inherited from jpi/query
+- Easily extensible for your project's entities
+
 ## Dependencies
 
 - PHP 8.0+
