@@ -55,13 +55,13 @@ This array defines the structure of your entity and maps to your database column
 protected static array $dataMapping = [
     "name" => [
         "type" => "string",
-        "default_value" => null,
     ],
     "sku" => [
         "type" => "string",
     ],
     "price" => [
         "type" => "float",
+        "default_value" => 0.00,
     ],
     "categories" => [
         "type" => "array",
@@ -105,7 +105,7 @@ class Product extends \JPI\ORM\Entity {
         "price" => [
             "type" => "float",
         ],
-        "stock_quantity" => [
+        "stock" => [
             "type" => "int",
         ],
         "created_at" => [
@@ -173,7 +173,7 @@ class Order extends Entity {
         "customer" => [
             "type" => "belongs_to",
             "entity" => Customer::class,
-            "column" => "customer_id", // Defaults to "customer_id" if not specified
+            "column" => "customer", // Defaults to "customer_id" if not specified
         ],
         ...
     ];
