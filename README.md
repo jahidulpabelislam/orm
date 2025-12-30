@@ -14,11 +14,10 @@ This has been kept very simple stupid (KISS), with minimal validation (PHP type 
 ## Features
 
 - Easily extensible for your project's entities
-- Fluent, chainable API for querying, creating, updating, and deleting records
+- Fluent, chainable API for querying, creating, updating, and deleting records, with integrated query builder inherited from [jpi/query](https://packagist.org/packages/jpi/query)
 - Simple data mapping supporting scalar types, arrays, and date/time
 - Supports conventional and customizable table/column naming (including prefixes)
 - Relationship mapping: `belongs_to`, `has_one`, and `has_many` relationships, including lazy loading
-- Integrated query builder for composing complex queries, with methods inherited from [jpi/query](https://packagist.org/packages/jpi/query)
 
 ## Dependencies
 
