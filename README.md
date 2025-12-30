@@ -9,7 +9,7 @@
 
 A super simple & lightweight ORM following the active record pattern.
 
-This has been kept very simple stupid (KISS), other than type errors from PHP there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
+This has been kept very simple stupid (KISS), with minimal validation (PHP type errors only) to reduce complexity in the library and maximize performance for consumer developers. Therefore, please make sure to add your own validation if using user inputs in any database queries.
 
 ## Features
 
