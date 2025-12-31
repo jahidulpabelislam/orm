@@ -7,12 +7,12 @@ namespace JPI\ORM;
 use ArrayIterator;
 use DateTime;
 use Exception;
-use LogicException;
 use JPI\Database;
 use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\Collection;
-use JPI\ORM\Entity\QueryBuilder;
 use JPI\ORM\Entity\InvalidValueException;
+use JPI\ORM\Entity\QueryBuilder;
+use LogicException;
 use OutOfBoundsException;
 use Stringable;
 
