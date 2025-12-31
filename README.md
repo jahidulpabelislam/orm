@@ -7,9 +7,15 @@
 [![License](https://poser.pugx.org/jpi/orm/license)](https://packagist.org/packages/jpi/orm)
 ![GitHub last commit (branch)](https://img.shields.io/github/last-commit/jahidulpabelislam/orm/2.x.svg?label=last%20activity)
 
-A super simple & lightweight ORM.
+A super simple & lightweight ORM following the active record pattern.
 
-This has been kept very simple stupid (KISS), other than type errors from PHP there is no validation (so use at your own risk), it will assume you are using it correctly. So please make sure to add your own validation if using user inputs in these queries.
+This has been kept very simple stupid (KISS), with minimal validation (PHP type errors only) to reduce complexity in the library and maximize performance for consumer developers. Therefore, please make sure to add your own validation if using user inputs in any database queries.
+
+## Features
+
+- Easy to configure for your project's entities
+- Supporting scalar types, array, and date/time and relationships `Many-to-One`, `One-to-Many` and `One-to-One`
+- Fluent, chainable API for CRUD operations, using integrated query builder from [jpi/query](https://packagist.org/packages/jpi/query)
 
 ## Dependencies
 
