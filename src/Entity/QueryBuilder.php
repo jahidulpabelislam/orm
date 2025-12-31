@@ -51,7 +51,7 @@ class QueryBuilder extends CoreQueryBuilder {
         return $this->entityInstance::class;
     }
 
-    public function select(): CollectionInterface|PaginatedCollectionInterface|Entity|null {
+    public function select(bool $withPagination = true): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Force limit of 1 when selecting a single record by ID
         $idColumn = $this->entityInstance::getFullColumnName("id");
         if (count($this->where) === 1 && (string)$this->where[0] === "$idColumn = :$idColumn") {
@@ -65,7 +65,7 @@ class QueryBuilder extends CoreQueryBuilder {
             );
         }
 
-        return parent::select();
+        return parent::select($withPagination);
     }
 
     public function insert(array $values): ?int {
