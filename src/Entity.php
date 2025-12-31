@@ -414,11 +414,8 @@ abstract class Entity implements DatabaseResultInterface {
 
             $this->data[$key] = [];
 
-            if (!in_array($type, $relationTypes)) {
-                $this->data[$key]["value"] = $mapping["default_value"] ?? null;
-            }
-            else if ($type === "belongs_to") {
-                $this->data[$key]["database_value"] = $mapping["default_value"] ?? null;
+            if (!in_array($type, $relationTypes) || $type === "belongs_to") {
+                $this->setValue($key, $mapping["default_value"] ?? null);
             }
         }
     }
