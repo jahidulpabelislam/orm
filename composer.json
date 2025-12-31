@@ -1,6 +1,6 @@
 {
     "name": "jpi/orm",
-    "description": "Simple & lightweight ORM",
+    "description": "A super simple & lightweight ORM following the active record pattern with support for relationships",
     "license": "GPL-3.0-only",
     "authors": [
         {
