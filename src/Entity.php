@@ -9,9 +9,10 @@ use DateTime;
 use Exception;
 use JPI\Database;
 use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
-use JPI\ORM\Entity\Collection;
+use JPI\ORM\Entity\Collection as EntityCollection;
 use JPI\ORM\Entity\InvalidValueException;
 use JPI\ORM\Entity\QueryBuilder;
+use JPI\Utils\Collection;
 use LogicException;
 use OutOfBoundsException;
 use Stringable;
@@ -134,8 +135,12 @@ abstract class Entity implements DatabaseResultInterface {
             $value = explode($mapping["separator"], $value);
         }
 
-        if (!is_array($value) && $value !== null) {
+        if (!is_array($value) && !$value instanceof Collection && $value !== null) {
             throw new InvalidValueException("`$key` must be an array or null.");
+        }
+
+        if (is_array($value)) {
+            $value = new Collection($value);
         }
 
         $this->data[$key]["value"] = $value;
@@ -180,10 +185,10 @@ abstract class Entity implements DatabaseResultInterface {
 
     private function setHasManyValue(string $key, mixed $value, bool $fromDB): void {
         if (is_array($value) || is_null($value)) {
-            $value = new Collection(is_null($value) ? [] : $value);
+            $value = new EntityCollection(is_null($value) ? [] : $value);
         }
 
-        if (!$value instanceof Collection) {
+        if (!$value instanceof EntityCollection) {
             throw new InvalidValueException("`$key` must be an array, EntityCollection or null.");
         }
 
@@ -529,7 +534,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "array" && $value !== null) {
-                $value = implode($mapping[$key]["separator"], $value);
+                $value = implode($mapping[$key]["separator"], $value->getItems());
             }
             else if ($value instanceof DateTime) {
                 $value = $value->format($type === "date_time" ? "Y-m-d H:i:s" : "Y-m-d");
@@ -662,7 +667,7 @@ abstract class Entity implements DatabaseResultInterface {
 
             $value = $data["value"];
 
-            if ($value instanceof self || $value instanceof Collection) {
+            if ($value instanceof self || $value instanceof EntityCollection) {
                 if ($depth > 2) {
                     continue;
                 }
