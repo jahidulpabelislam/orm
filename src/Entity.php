@@ -224,7 +224,7 @@ abstract class Entity implements DatabaseResultInterface {
             if ($value instanceof self) {
                 $value->{$mapping["column"]} = $this;
             }
-            $this->data[$key]["value"] = null;
+            $this->data[$key]["value"] = $value;
         }
         else {
             throw new InvalidValueException("`$key` must be a \\" . $mapping["entity"] . " instance , integer or null.");
