@@ -9,13 +9,16 @@
         }
     ],
     "keywords": [
+        "active record",
         "orm",
         "entity",
         "model",
         "query",
         "sql",
         "mysql",
-        "database"
+        "database",
+        "relationships",
+        "crud"
     ],
     "require": {
         "php": "^8.0",
