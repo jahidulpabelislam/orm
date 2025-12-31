@@ -14,7 +14,7 @@ This has been kept very simple stupid (KISS), with minimal validation (PHP type 
 ## Features
 
 - Easy to configure for your project's entities
-- Simple data mapping supporting scalar types, array, and date/time and relationships `Many-to-One`, `One-to-Many` and `One-to-One`
+- Supporting scalar types, array, and date/time and relationships `Many-to-One`, `One-to-Many` and `One-to-One`
 - Fluent, chainable API for querying, creating, updating, and deleting records, using integrated query builder from [jpi/query](https://packagist.org/packages/jpi/query)
 
 ## Dependencies
