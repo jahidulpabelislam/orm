@@ -14,7 +14,6 @@ This has been kept very simple stupid (KISS), with minimal validation (PHP type 
 ## Features
 
 - Easy to configure for your project's entities
-- Supports conventional and customizable table/column naming (including prefixes)
 - Simple data mapping supporting scalar types, arrays, and date/time and relationships `belongs_to`, `has_one`, and `has_many`
 - Fluent, chainable API for querying, creating, updating, and deleting records, using integrated query builder from [jpi/query](https://packagist.org/packages/jpi/query)
 
