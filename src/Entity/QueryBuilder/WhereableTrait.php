@@ -9,7 +9,7 @@ use JPI\ORM\Entity\Collection as EntityCollection;
 use Stringable;
 
 /**
- * Convert the column to full column name if it's a column name, and allow passing entity as value.
+ * Convert the column to full column name if it's a column name, and allow passing entity collection or entity as value.
  */
 trait WhereableTrait {
 
