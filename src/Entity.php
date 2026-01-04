@@ -179,8 +179,8 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     private function setHasManyValue(string $key, mixed $value, bool $fromDB): void {
-        if (is_array($value) || is_null($value)) {
-            $value = new Collection(is_null($value) ? [] : $value);
+        if (is_array($value) || $value === null) {
+            $value = new Collection($value === null ? [] : $value);
         }
 
         if (!$value instanceof Collection) {
@@ -260,7 +260,7 @@ abstract class Entity implements DatabaseResultInterface {
             $this->setHasOneValue($key, $value, $fromDB);
         }
         else if ($type === "string") {
-            if (!is_string($value) && !is_null($value) && !$value instanceof Stringable) {
+            if (!is_string($value) && $value !== null && !$value instanceof Stringable) {
                 throw new InvalidValueException("`$key` must be a string or null.");
             }
 
@@ -421,7 +421,7 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public function isLoaded(): bool {
-        return !is_null($this->getId());
+        return $this->getId() !== null;
     }
 
     public function isDeleted(): bool {
