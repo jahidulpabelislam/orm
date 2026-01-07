@@ -649,11 +649,15 @@ abstract class Entity implements DatabaseResultInterface {
 
     /**
      * Only returns values that were loaded.
+     *
+     * @param Entity|null $parentEntity Parent entity to detect circular references
      */
-    public function toArray(): array {
+    public function toArray(?Entity $parentEntity = null): array {
         $array = [
             "id" => $this->getId(),
         ];
+
+        $mapping = static::getDataMapping();
 
         foreach ($this->data as $key => $data) {
             if (!array_key_exists("value", $data)) {
@@ -662,8 +666,19 @@ abstract class Entity implements DatabaseResultInterface {
 
             $value = $data["value"];
 
-            if ($value instanceof self || $value instanceof Collection) {
-                $value = $value->toArray();
+            if ($value instanceof self) {
+                if ($parentEntity === $value) {
+                    continue;
+                }
+
+                $value = $value->toArray($this);
+            }
+            else if ($value instanceof Collection) {
+                if ($parentEntity && $mapping[$key]["entity"] === $parentEntity::class) {
+                    continue;
+                }
+
+                $value = $value->toArray($this);
             }
 
             $array[$key] = $value;
