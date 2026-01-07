@@ -159,7 +159,7 @@ You can get and set entity values using simple property access, these are the ke
 
 **`isDeleted(): bool`** - Check if the entity has been deleted.
 
-**`toArray(int $depth = 1): array`** - Convert the entity to an array.
+**`toArray(): array`** - Convert the entity to an array.
 
 **`reload(): void`** - Reload the entity from the database.
 

@@ -9,11 +9,11 @@ use JPI\Utils\Collection as BaseCollection;
 
 class Collection extends BaseCollection implements CollectionInterface {
 
-    public function toArray(int $depth = 1): array {
+    public function toArray(): array {
         $array = [];
 
         foreach ($this->items as $key => $item) {
-            $array[$key] = $item->toArray($depth);
+            $array[$key] = $item->toArray();
         }
 
         return $array;

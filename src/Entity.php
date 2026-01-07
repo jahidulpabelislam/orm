@@ -650,7 +650,7 @@ abstract class Entity implements DatabaseResultInterface {
     /**
      * Only returns values that were loaded.
      */
-    public function toArray(int $depth = 1): array {
+    public function toArray(): array {
         $array = [
             "id" => $this->getId(),
         ];
@@ -663,11 +663,7 @@ abstract class Entity implements DatabaseResultInterface {
             $value = $data["value"];
 
             if ($value instanceof self || $value instanceof Collection) {
-                if ($depth > 2) {
-                    continue;
-                }
-
-                $value = $value->toArray($depth + 1);
+                $value = $value->toArray();
             }
 
             $array[$key] = $value;
