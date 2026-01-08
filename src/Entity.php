@@ -693,22 +693,33 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public function __clone() {
+        $mappings = static::getDataMapping();
+
+        foreach ($mappings as $key => $mapping) {
+            $type = $mapping["type"];
+
+            if (!in_array($type, ["has_many", "has_one"]) || !($mapping["cascade_clone"] ?? false)) {
+                continue;
+            }
+
+            $this->{$key}; // Load using old id
+        }
+
         $this->setId(null);
 
-        $mappings = static::getDataMapping();
         foreach ($mappings as $key => $mapping) {
             $type = $mapping["type"];
             if (!in_array($type, ["has_many", "has_one"])) {
                 continue;
             }
 
-            $value = $this->{$key};
-            if (!$value) {
-                continue;
-            }
+            $value = $this->data[$key]["value"] ?? null;
 
-            if (!($mapping["cascade_clone"] ?? false)) {
-                $this->{$key} = null;
+            if (!$value || !($mapping["cascade_clone"] ?? false)) {
+                if ($value) {
+                    $this->{$key} = null;
+                }
+
                 continue;
             }
 
