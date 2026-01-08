@@ -698,8 +698,12 @@ abstract class Entity implements DatabaseResultInterface {
         $mappings = static::getDataMapping();
         foreach ($mappings as $key => $mapping) {
             $type = $mapping["type"];
+            if (!in_array($type, ["has_many", "has_one"])) {
+                continue;
+            }
+
             $value = $this->{$key};
-            if (!$value || !in_array($type, ["has_many", "has_one"])) {
+            if (!$value) {
                 continue;
             }
 
