@@ -691,4 +691,49 @@ abstract class Entity implements DatabaseResultInterface {
     public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->toArray());
     }
+
+    public function __clone() {
+        $mappings = static::getDataMapping();
+
+        foreach ($mappings as $key => $mapping) {
+            $type = $mapping["type"];
+
+            if (!in_array($type, ["has_many", "has_one"]) || !($mapping["cascade_clone"] ?? false)) {
+                continue;
+            }
+
+            $this->{$key}; // Load using old id
+        }
+
+        $this->setId(null);
+
+        foreach ($mappings as $key => $mapping) {
+            $type = $mapping["type"];
+            if (!in_array($type, ["has_many", "has_one"])) {
+                continue;
+            }
+
+            $value = $this->data[$key]["value"] ?? null;
+
+            if (!$value || !($mapping["cascade_clone"] ?? false)) {
+                if ($value) {
+                    $this->{$key} = null;
+                }
+
+                continue;
+            }
+
+            if ($type === "has_many") {
+                $newValue = new Collection();
+                foreach ($value as $linkedEntity) {
+                    $newValue[] = clone $linkedEntity;
+                }
+            }
+            else if ($type === "has_one") {
+                $newValue = clone $value;
+            }
+
+            $this->{$key} = $newValue;
+        }
+    }
 }
