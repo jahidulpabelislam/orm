@@ -58,7 +58,7 @@ This array defines the structure of your entity and maps to your database column
     - The database column behind this for `belongs_to` type (defaults to `{key}_id`)
     - The key in related entity for `has_many` & `has_one` types that links back to this
 - `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
-- `cascade_clone`: Whether to clone related entities when this entity is cloned via `clone`, else it sets to null/empty - essentially creates new records with same data (for `has_one` and `has_many` types)
+- `cascade_clone`: Whether to clone related entities when this entity is cloned via `clone` - essentially creates new records with same data, else it sets to null/empty (for `has_one` and `has_many` types)
 
 ```php
 protected static array $dataMapping = [
