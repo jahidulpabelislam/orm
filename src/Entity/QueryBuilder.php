@@ -9,6 +9,8 @@ use JPI\Database\Query\Builder as CoreQueryBuilder;
 use JPI\Database\Query\Result\CollectionInterface;
 use JPI\Database\Query\Result\PaginatedCollectionInterface;
 use JPI\ORM\Entity;
+use JPI\ORM\Entity\QueryBuilder\Clause\Where\AndCondition;
+use JPI\ORM\Entity\QueryBuilder\Clause\Where\OrCondition;
 
 class QueryBuilder extends CoreQueryBuilder {
 
@@ -45,6 +47,14 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         return parent::orderBy($column, $ascDirection);
+    }
+
+    public function newAndCondition(): AndCondition {
+        return new AndCondition($this);
+    }
+
+    public function newOrCondition(): OrCondition {
+        return new OrCondition($this);
     }
 
     public function getResultClass(): string {

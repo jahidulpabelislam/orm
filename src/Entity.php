@@ -179,13 +179,16 @@ abstract class Entity implements DatabaseResultInterface {
             throw new InvalidValueException("`$key` must be a \\" . $mapping["entity"] . " instance, integer or null.");
         }
 
-        unset($this->data[$key]["value"]);
+        if (isset($this->data[$key]["value"]) && $this->data[$key]["value"]->getId() !== $value) {
+            unset($this->data[$key]["value"]);
+        }
+
         $this->data[$key]["database_value"] = $value;
     }
 
     private function setHasManyValue(string $key, mixed $value, bool $fromDB): void {
-        if (is_array($value) || is_null($value)) {
-            $value = new EntityCollection(is_null($value) ? [] : $value);
+        if (is_array($value) || $value === null) {
+            $value = new EntityCollection($value === null ? [] : $value);
         }
 
         if (!$value instanceof EntityCollection) {
@@ -265,7 +268,7 @@ abstract class Entity implements DatabaseResultInterface {
             $this->setHasOneValue($key, $value, $fromDB);
         }
         else if ($type === "string") {
-            if (!is_string($value) && !is_null($value) && !$value instanceof Stringable) {
+            if (!is_string($value) && $value !== null && !$value instanceof Stringable) {
                 throw new InvalidValueException("`$key` must be a string or null.");
             }
 
@@ -346,11 +349,15 @@ abstract class Entity implements DatabaseResultInterface {
             && $this->data[$key]["database_value"]
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->setValue(
-                $key,
-                $mapping["entity"]::getById($this->data[$key]["database_value"]),
-                true
-            );
+            if (!$refresh) {
+                $this->setValue(
+                    $key,
+                    $mapping["entity"]::getById($this->data[$key]["database_value"]),
+                    true
+                );
+            } else {
+                $this->data[$key]["value"]->reload();
+            }
         }
     }
 
@@ -426,7 +433,7 @@ abstract class Entity implements DatabaseResultInterface {
     }
 
     public function isLoaded(): bool {
-        return !is_null($this->getId());
+        return $this->getId() !== null;
     }
 
     public function isDeleted(): bool {
@@ -654,11 +661,15 @@ abstract class Entity implements DatabaseResultInterface {
 
     /**
      * Only returns values that were loaded.
+     *
+     * @param Entity|null $parentEntity Parent entity to detect circular references
      */
-    public function toArray(int $depth = 1): array {
+    public function toArray(?Entity $parentEntity = null): array {
         $array = [
             "id" => $this->getId(),
         ];
+
+        $mapping = static::getDataMapping();
 
         foreach ($this->data as $key => $data) {
             if (!array_key_exists("value", $data)) {
@@ -667,12 +678,19 @@ abstract class Entity implements DatabaseResultInterface {
 
             $value = $data["value"];
 
-            if ($value instanceof self || $value instanceof EntityCollection) {
-                if ($depth > 2) {
+            if ($value instanceof self) {
+                if ($parentEntity === $value) {
                     continue;
                 }
 
-                $value = $value->toArray($depth + 1);
+                $value = $value->toArray($this);
+            }
+            else if ($value instanceof EntityCollection) {
+                if ($parentEntity && $mapping[$key]["entity"] === $parentEntity::class) {
+                    continue;
+                }
+
+                $value = $value->toArray($this);
             }
 
             $array[$key] = $value;
@@ -684,5 +702,50 @@ abstract class Entity implements DatabaseResultInterface {
     /** Iterate over the data */
     public function getIterator(): ArrayIterator {
         return new ArrayIterator($this->toArray());
+    }
+
+    public function __clone() {
+        $mappings = static::getDataMapping();
+
+        foreach ($mappings as $key => $mapping) {
+            $type = $mapping["type"];
+
+            if (!in_array($type, ["has_many", "has_one"]) || !($mapping["cascade_clone"] ?? false)) {
+                continue;
+            }
+
+            $this->{$key}; // Load using old id
+        }
+
+        $this->setId(null);
+
+        foreach ($mappings as $key => $mapping) {
+            $type = $mapping["type"];
+            if (!in_array($type, ["has_many", "has_one"])) {
+                continue;
+            }
+
+            $value = $this->data[$key]["value"] ?? null;
+
+            if (!$value || !($mapping["cascade_clone"] ?? false)) {
+                if ($value) {
+                    $this->{$key} = null;
+                }
+
+                continue;
+            }
+
+            if ($type === "has_many") {
+                $newValue = new Collection();
+                foreach ($value as $linkedEntity) {
+                    $newValue[] = clone $linkedEntity;
+                }
+            }
+            else if ($type === "has_one") {
+                $newValue = clone $value;
+            }
+
+            $this->{$key} = $newValue;
+        }
     }
 }

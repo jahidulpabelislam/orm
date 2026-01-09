@@ -58,6 +58,7 @@ This array defines the structure of your entity and maps to your database column
     - The database column behind this for `belongs_to` type (defaults to `{key}_id`)
     - The key in related entity for `has_many` & `has_one` types that links back to this
 - `cascade_delete`: Whether to delete related entities when this entity is deleted (for `has_one` and `has_many` types)
+- `cascade_clone`: Whether to clone related entities when this entity is cloned via `clone` - essentially creates new records with same data, else it sets to null/empty (for `has_one` and `has_many` types)
 
 ```php
 protected static array $dataMapping = [
@@ -159,7 +160,7 @@ You can get and set entity values using simple property access, these are the ke
 
 **`isDeleted(): bool`** - Check if the entity has been deleted.
 
-**`toArray(int $depth = 1): array`** - Convert the entity to an array.
+**`toArray(): array`** - Convert the entity to an array.
 
 **`reload(): void`** - Reload the entity from the database.
 
@@ -248,4 +249,4 @@ If you find any issues or have any feature requests, you can open a [issue](http
 
 ## Licence
 
-This module is licensed under the General Public Licence - see the [licence](LICENSE.md) file for details
+This module is licensed under the General Public Licence - see the [licence](LICENSE.md) file for details.
