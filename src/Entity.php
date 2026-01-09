@@ -136,7 +136,7 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!is_array($value) && !$value instanceof Collection && $value !== null) {
-            throw new InvalidValueException("`$key` must be an array or null.");
+            throw new InvalidValueException("`$key` must be an array, Collection or null.");
         }
 
         if (is_array($value)) {
