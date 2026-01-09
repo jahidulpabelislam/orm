@@ -136,7 +136,7 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!is_array($value) && !$value instanceof Collection && $value !== null) {
-            throw new InvalidValueException("`$key` must be an array, Collection or null.");
+            throw new InvalidValueException("`$key` must be an Collection, array or null.");
         }
 
         if (is_array($value)) {
@@ -192,7 +192,7 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!$value instanceof EntityCollection) {
-            throw new InvalidValueException("`$key` must be an array, EntityCollection or null.");
+            throw new InvalidValueException("`$key` must be an EntityCollection, array or null.");
         }
 
         $mapping = static::getDataMapping()[$key];
