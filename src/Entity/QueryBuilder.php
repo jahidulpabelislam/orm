@@ -122,9 +122,9 @@ class QueryBuilder extends CoreQueryBuilder {
 
         if ($type === 'belongs_to') {
             $this->eagerLoadBelongsTo($entities, $relationName, $mapping);
-        } else if ($type === 'has_many') {
+        } elseif ($type === 'has_many') {
             $this->eagerLoadHasMany($entities, $relationName, $mapping);
-        } else if ($type === 'has_one') {
+        } elseif ($type === 'has_one') {
             $this->eagerLoadHasOne($entities, $relationName, $mapping);
         }
 
@@ -137,7 +137,7 @@ class QueryBuilder extends CoreQueryBuilder {
                 $related = $entity->$relationName;
                 if ($related instanceof Entity) {
                     $relatedEntities[] = $related;
-                } else if ($related instanceof Collection) {
+                } elseif ($related instanceof Collection) {
                     foreach ($related as $item) {
                         $relatedEntities[] = $item;
                     }
@@ -218,7 +218,13 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         $relatedEntityClass = $mapping['entity'];
-        $relatedEntityMap = $relatedEntityClass::getDataMapping()[$mapping['column']];
+        $relatedDataMapping = $relatedEntityClass::getDataMapping();
+        
+        if (!isset($relatedDataMapping[$mapping['column']])) {
+            return;
+        }
+        
+        $relatedEntityMap = $relatedDataMapping[$mapping['column']];
         $foreignKey = $relatedEntityMap['column'];
 
         $relatedEntities = $relatedEntityClass::newQuery()
