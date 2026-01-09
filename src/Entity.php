@@ -322,11 +322,7 @@ abstract class Entity implements DatabaseResultInterface {
      * @return int|null
      */
     public function getForeignKeyValue(string $relationName): ?int {
-        if (isset($this->data[$relationName]["database_value"])) {
-            return $this->data[$relationName]["database_value"];
-        }
-
-        return null;
+        return $this->data[$relationName]["database_value"] ?? null;
     }
 
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
