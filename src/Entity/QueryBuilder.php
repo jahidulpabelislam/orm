@@ -219,11 +219,11 @@ class QueryBuilder extends CoreQueryBuilder {
 
         $relatedEntityClass = $mapping['entity'];
         $relatedDataMapping = $relatedEntityClass::getDataMapping();
-        
+
         if (!isset($relatedDataMapping[$mapping['column']])) {
             return;
         }
-        
+
         $relatedEntityMap = $relatedDataMapping[$mapping['column']];
         $foreignKey = $relatedEntityMap['column'];
 
