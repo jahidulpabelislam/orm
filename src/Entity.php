@@ -692,6 +692,9 @@ abstract class Entity implements DatabaseResultInterface {
 
                 $value = $value->toArray($this);
             }
+            else if ($value instanceof Collection) {
+                $value = $value->getItems();
+            }
 
             $array[$key] = $value;
         }
