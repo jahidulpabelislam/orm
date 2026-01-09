@@ -174,7 +174,10 @@ abstract class Entity implements DatabaseResultInterface {
             throw new InvalidValueException("`$key` must be a \\" . $mapping["entity"] . " instance, integer or null.");
         }
 
-        unset($this->data[$key]["value"]);
+        if (isset($this->data[$key]["value"]) && $this->data[$key]["value"]->getId() !== $value) {
+            unset($this->data[$key]["value"]);
+        }
+
         $this->data[$key]["database_value"] = $value;
     }
 
@@ -341,11 +344,15 @@ abstract class Entity implements DatabaseResultInterface {
             && $this->data[$key]["database_value"]
             && (!array_key_exists("value", $this->data[$key]) || $refresh)
         ) {
-            $this->setValue(
-                $key,
-                $mapping["entity"]::getById($this->data[$key]["database_value"]),
-                true
-            );
+            if (!$refresh) {
+                $this->setValue(
+                    $key,
+                    $mapping["entity"]::getById($this->data[$key]["database_value"]),
+                    true
+                );
+            } else {
+                $this->data[$key]["value"]->reload();
+            }
         }
     }
 
