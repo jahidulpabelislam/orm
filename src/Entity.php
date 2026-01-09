@@ -9,9 +9,10 @@ use DateTime;
 use Exception;
 use JPI\Database;
 use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
-use JPI\ORM\Entity\Collection;
+use JPI\ORM\Entity\Collection as EntityCollection;
 use JPI\ORM\Entity\InvalidValueException;
 use JPI\ORM\Entity\QueryBuilder;
+use JPI\Utils\Collection;
 use LogicException;
 use OutOfBoundsException;
 use Stringable;
@@ -134,8 +135,12 @@ abstract class Entity implements DatabaseResultInterface {
             $value = explode($mapping["separator"], $value);
         }
 
-        if (!is_array($value) && $value !== null) {
-            throw new InvalidValueException("`$key` must be an array or null.");
+        if (!is_array($value) && !$value instanceof Collection && $value !== null) {
+            throw new InvalidValueException("`$key` must be an Collection, array or null.");
+        }
+
+        if (is_array($value)) {
+            $value = new Collection($value);
         }
 
         $this->data[$key]["value"] = $value;
@@ -183,11 +188,11 @@ abstract class Entity implements DatabaseResultInterface {
 
     private function setHasManyValue(string $key, mixed $value, bool $fromDB): void {
         if (is_array($value) || $value === null) {
-            $value = new Collection($value === null ? [] : $value);
+            $value = new EntityCollection($value === null ? [] : $value);
         }
 
-        if (!$value instanceof Collection) {
-            throw new InvalidValueException("`$key` must be an array, EntityCollection or null.");
+        if (!$value instanceof EntityCollection) {
+            throw new InvalidValueException("`$key` must be an EntityCollection, array or null.");
         }
 
         $mapping = static::getDataMapping()[$key];
@@ -536,7 +541,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "array" && $value !== null) {
-                $value = implode($mapping[$key]["separator"], $value);
+                $value = implode($mapping[$key]["separator"], $value->getItems());
             }
             else if ($value instanceof DateTime) {
                 $value = $value->format($type === "date_time" ? "Y-m-d H:i:s" : "Y-m-d");
@@ -680,12 +685,15 @@ abstract class Entity implements DatabaseResultInterface {
 
                 $value = $value->toArray($this);
             }
-            else if ($value instanceof Collection) {
+            else if ($value instanceof EntityCollection) {
                 if ($parentEntity && $mapping[$key]["entity"] === $parentEntity::class) {
                     continue;
                 }
 
                 $value = $value->toArray($this);
+            }
+            else if ($value instanceof Collection) {
+                $value = $value->getItems();
             }
 
             $array[$key] = $value;
@@ -717,6 +725,10 @@ abstract class Entity implements DatabaseResultInterface {
         foreach ($mappings as $key => $mapping) {
             $type = $mapping["type"];
             if (!in_array($type, ["has_many", "has_one"])) {
+                if ($type === "array" && $this->{$key}) {
+                    $this->{$key} = clone $this->{$key};
+                }
+
                 continue;
             }
 
@@ -731,7 +743,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "has_many") {
-                $newValue = new Collection();
+                $newValue = new EntityCollection();
                 foreach ($value as $linkedEntity) {
                     $newValue[] = clone $linkedEntity;
                 }
