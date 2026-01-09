@@ -100,61 +100,6 @@ class QueryBuilder extends CoreQueryBuilder {
     }
 
     /**
-     * Eager load a single relationship on the given entities.
-     *
-     * @param array<Entity> $entities
-     * @param string $relation
-     * @return void
-     */
-    protected function eagerLoadRelation(array $entities, string $relation): void {
-        // Handle nested relationships (e.g., 'customer.address')
-        $nestedRelations = explode('.', $relation);
-        $relationName = array_shift($nestedRelations);
-
-        $dataMapping = $this->entityInstance::getDataMapping();
-
-        if (!isset($dataMapping[$relationName])) {
-            return;
-        }
-
-        $mapping = $dataMapping[$relationName];
-        $type = $mapping['type'];
-
-        if ($type === 'belongs_to') {
-            $this->eagerLoadBelongsTo($entities, $relationName, $mapping);
-        } elseif ($type === 'has_many') {
-            $this->eagerLoadHasMany($entities, $relationName, $mapping);
-        } elseif ($type === 'has_one') {
-            $this->eagerLoadHasOne($entities, $relationName, $mapping);
-        }
-
-        // Handle nested relationships
-        if (!empty($nestedRelations)) {
-            $nestedRelation = implode('.', $nestedRelations);
-            $relatedEntities = [];
-
-            foreach ($entities as $entity) {
-                $related = $entity->$relationName;
-                if ($related instanceof Entity) {
-                    $relatedEntities[] = $related;
-                } elseif ($related instanceof Collection) {
-                    foreach ($related as $item) {
-                        $relatedEntities[] = $item;
-                    }
-                }
-            }
-
-            if (!empty($relatedEntities)) {
-                $relatedEntityClass = $mapping['entity'];
-                $relatedInstance = new $relatedEntityClass();
-                $relatedQuery = new self($this->database, $relatedInstance);
-                $relatedQuery->with($nestedRelation);
-                $relatedQuery->eagerLoadRelation($relatedEntities, $nestedRelation);
-            }
-        }
-    }
-
-    /**
      * Eager load a belongs_to relationship.
      *
      * @param array<Entity> $entities
@@ -284,6 +229,61 @@ class QueryBuilder extends CoreQueryBuilder {
             $entityId = $entity->getId();
             $related = $relatedEntitiesByParentId[$entityId] ?? null;
             $entity->setEagerLoadedRelationship($relationName, $related);
+        }
+    }
+
+    /**
+     * Eager load a single relationship on the given entities.
+     *
+     * @param array<Entity> $entities
+     * @param string $relation
+     * @return void
+     */
+    protected function eagerLoadRelation(array $entities, string $relation): void {
+        // Handle nested relationships (e.g., 'customer.address')
+        $nestedRelations = explode('.', $relation);
+        $relationName = array_shift($nestedRelations);
+
+        $dataMapping = $this->entityInstance::getDataMapping();
+
+        if (!isset($dataMapping[$relationName])) {
+            return;
+        }
+
+        $mapping = $dataMapping[$relationName];
+        $type = $mapping['type'];
+
+        if ($type === 'belongs_to') {
+            $this->eagerLoadBelongsTo($entities, $relationName, $mapping);
+        } elseif ($type === 'has_many') {
+            $this->eagerLoadHasMany($entities, $relationName, $mapping);
+        } elseif ($type === 'has_one') {
+            $this->eagerLoadHasOne($entities, $relationName, $mapping);
+        }
+
+        // Handle nested relationships
+        if (!empty($nestedRelations)) {
+            $nestedRelation = implode('.', $nestedRelations);
+            $relatedEntities = [];
+
+            foreach ($entities as $entity) {
+                $related = $entity->$relationName;
+                if ($related instanceof Entity) {
+                    $relatedEntities[] = $related;
+                } elseif ($related instanceof Collection) {
+                    foreach ($related as $item) {
+                        $relatedEntities[] = $item;
+                    }
+                }
+            }
+
+            if (!empty($relatedEntities)) {
+                $relatedEntityClass = $mapping['entity'];
+                $relatedInstance = new $relatedEntityClass();
+                $relatedQuery = new self($this->database, $relatedInstance);
+                $relatedQuery->with($nestedRelation);
+                $relatedQuery->eagerLoadRelation($relatedEntities, $nestedRelation);
+            }
         }
     }
 
