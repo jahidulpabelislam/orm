@@ -166,7 +166,7 @@ class QueryBuilder extends CoreQueryBuilder {
         $foreignKeys = [];
 
         foreach ($entities as $entity) {
-            $foreignKey = $entity->getValue($mapping['column']);
+            $foreignKey = $entity->getForeignKeyValue($relationName);
             if ($foreignKey !== null) {
                 $foreignKeys[] = $foreignKey;
             }
@@ -189,7 +189,7 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         foreach ($entities as $entity) {
-            $foreignKey = $entity->getValue($mapping['column']);
+            $foreignKey = $entity->getForeignKeyValue($relationName);
             if ($foreignKey !== null && isset($relatedEntitiesById[$foreignKey])) {
                 $entity->setEagerLoadedRelationship($relationName, $relatedEntitiesById[$foreignKey]);
             }

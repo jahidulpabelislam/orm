@@ -315,6 +315,20 @@ abstract class Entity implements DatabaseResultInterface {
         $this->setValue($key, $value, true);
     }
 
+    /**
+     * Get the foreign key value for a belongs_to relationship without triggering lazy loading.
+     * This method is used by the QueryBuilder during eager loading.
+     *
+     * @return int|null
+     */
+    public function getForeignKeyValue(string $relationName): ?int {
+        if (isset($this->data[$relationName]["database_value"])) {
+            return $this->data[$relationName]["database_value"];
+        }
+
+        return null;
+    }
+
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
         $mapping = static::getDataMapping()[$key];
 
