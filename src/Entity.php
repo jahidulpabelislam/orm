@@ -300,6 +300,16 @@ abstract class Entity implements DatabaseResultInterface {
         $this->setValue($key, $value);
     }
 
+    /**
+     * Set eager-loaded relationship data.
+     * This method is used by the QueryBuilder to set relationship data during eager loading.
+     *
+     * @throws \JPI\ORM\Entity\InvalidValueException
+     */
+    public function setEagerLoadedRelationship(string $key, mixed $value): void {
+        $this->setValue($key, $value, true);
+    }
+
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {
         $mapping = static::getDataMapping()[$key];
 

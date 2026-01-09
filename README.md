@@ -168,6 +168,30 @@ You can get and set entity values using simple property access, these are the ke
 
 The query builder (accessed via `newQuery()`) provides a fluent interface for building database queries. It uses `\JPI\Database\Query\Builder` from [jpi/query](https://packagist.org/packages/jpi/query), see documentation there for full details on available query methods.
 
+### Eager Loading
+
+To avoid N+1 query problems, you can eager load relationships using the `with()` method:
+
+```php
+// Eager load a single relationship
+$orders = Order::newQuery()->with('customer')->select();
+
+// Eager load multiple relationships
+$orders = Order::newQuery()->with(['customer', 'items'])->select();
+
+// Eager load nested relationships
+$orders = Order::newQuery()->with('customer.address')->select();
+
+// Combine with other query methods
+$orders = Order::newQuery()
+    ->where('status', '=', 'completed')
+    ->with(['customer', 'items'])
+    ->orderBy('created_at', false)
+    ->select();
+```
+
+Without eager loading, accessing relationships causes a separate query for each entity (N+1 problem). With eager loading, all related entities are fetched in a single optimized query.
+
 ## Relationships
 
 The ORM supports three types of relationships:
