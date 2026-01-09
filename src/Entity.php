@@ -725,7 +725,7 @@ abstract class Entity implements DatabaseResultInterface {
         foreach ($mappings as $key => $mapping) {
             $type = $mapping["type"];
             if (!in_array($type, ["has_many", "has_one"])) {
-                if ($type === "array") {
+                if ($type === "array" && $this->{$key}) {
                     $this->{$key} = clone $this->{$key};
                 }
 
