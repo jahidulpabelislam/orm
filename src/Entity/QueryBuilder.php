@@ -22,7 +22,7 @@ class QueryBuilder extends CoreQueryBuilder {
     /** @var class-string<PaginatedCollectionInterface> */
     protected static string $paginatedCollectionClass = PaginatedCollection::class;
 
-    /** @var array<string> Relationships to eager load */
+    /** @var string[] Relationships to eager load */
     protected array $eagerLoad = [];
 
     public function __construct(
