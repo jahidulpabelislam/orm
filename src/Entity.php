@@ -739,7 +739,7 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             if ($type === "has_many") {
-                $newValue = new Collection();
+                $newValue = new EntityCollection();
                 foreach ($value as $linkedEntity) {
                     $newValue[] = clone $linkedEntity;
                 }
