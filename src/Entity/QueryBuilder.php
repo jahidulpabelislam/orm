@@ -128,6 +128,8 @@ class QueryBuilder extends CoreQueryBuilder {
             ->where('id', 'IN', $foreignKeys)
             ->select();
 
+        $relatedEntities = $relatedEntities instanceof Entity ? [$relatedEntities] : $relatedEntities;
+
         $relatedEntitiesById = [];
         foreach ($relatedEntities as $relatedEntity) {
             $relatedEntitiesById[$relatedEntity->getId()] = $relatedEntity;
