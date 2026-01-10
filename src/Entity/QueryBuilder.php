@@ -171,6 +171,7 @@ class QueryBuilder extends CoreQueryBuilder {
 
         $relatedEntityMap = $relatedDataMapping[$mapping['column']];
         $foreignKey = $relatedEntityMap['column'];
+        $foreignKeyRelationName = $mapping['column'];
 
         $relatedEntities = $relatedEntityClass::newQuery()
             ->where($foreignKey, 'IN', $ids)
@@ -178,7 +179,7 @@ class QueryBuilder extends CoreQueryBuilder {
 
         $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
-            $parentId = $relatedEntity->getValue($foreignKey);
+            $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
             if (!isset($relatedEntitiesByParentId[$parentId])) {
                 $relatedEntitiesByParentId[$parentId] = [];
             }
@@ -214,14 +215,23 @@ class QueryBuilder extends CoreQueryBuilder {
         }
 
         $relatedEntityClass = $mapping['entity'];
+        $relatedDataMapping = $relatedEntityClass::getDataMapping();
+        $foreignKeyRelationName = $mapping['column'];
+
+        if (!isset($relatedDataMapping[$foreignKeyRelationName])) {
+            return;
+        }
+
+        $relatedEntityMap = $relatedDataMapping[$foreignKeyRelationName];
+        $foreignKey = $relatedEntityMap['column'];
 
         $relatedEntities = $relatedEntityClass::newQuery()
-            ->where($mapping['column'], 'IN', $ids)
+            ->where($foreignKey, 'IN', $ids)
             ->select();
 
         $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
-            $parentId = $relatedEntity->getValue($mapping['column']);
+            $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
             $relatedEntitiesByParentId[$parentId] = $relatedEntity;
         }
 
