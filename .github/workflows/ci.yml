@@ -29,3 +29,6 @@ jobs:
     - name: Run PHP_CodeSniffer
       shell: bash
       run: phpcs
+    - name: Run PHPUnit tests
+      shell: bash
+      run: composer test

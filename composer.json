@@ -27,11 +27,20 @@
         "jpi/query": "^2.2.2"
     },
     "require-dev": {
-        "jpi/codestyles": "^1.0.1"
+        "jpi/codestyles": "^1.0.1",
+        "phpunit/phpunit": "^10.5"
     },
     "autoload": {
         "psr-4": {
             "JPI\\ORM\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JPI\\ORM\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit"
     }
 }
