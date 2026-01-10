@@ -94,7 +94,7 @@ class EntityTest extends TestCase {
         $entity = new TestEntity();
         
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage("`age` must be a integer or null.");
+        $this->expectExceptionMessage("`age` must be an integer or null.");
         
         $entity->age = "not a number";
     }
@@ -167,7 +167,7 @@ class EntityTest extends TestCase {
         $entity = new TestEntity();
         
         $this->expectException(InvalidValueException::class);
-        $this->expectExceptionMessage("`tags` must be an Collection, array or null.");
+        $this->expectExceptionMessage("`tags` must be a Collection, array or null.");
         
         $entity->tags = "not an array";
     }
