@@ -110,7 +110,7 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!is_int($value) && $value !== null) {
-            throw new InvalidValueException("`$key` must be a integer or null.");
+            throw new InvalidValueException("`$key` must be an integer or null.");
         }
 
         $this->data[$key]["value"] = $value;
@@ -136,7 +136,7 @@ abstract class Entity implements DatabaseResultInterface {
         }
 
         if (!is_array($value) && !$value instanceof Collection && $value !== null) {
-            throw new InvalidValueException("`$key` must be an Collection, array or null.");
+            throw new InvalidValueException("`$key` must be a Collection, array or null.");
         }
 
         if (is_array($value)) {
