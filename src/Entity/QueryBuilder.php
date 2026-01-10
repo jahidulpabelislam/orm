@@ -15,6 +15,7 @@ use JPI\ORM\Entity\QueryBuilder\Clause\Where\OrCondition;
 class QueryBuilder extends CoreQueryBuilder {
 
     use Entity\QueryBuilder\WhereableTrait;
+    use EagerLoadable;
 
     /** @var class-string<CollectionInterface> */
     protected static string $collectionClass = Collection::class;
@@ -80,225 +81,6 @@ class QueryBuilder extends CoreQueryBuilder {
         return $this;
     }
 
-    /**
-     * Eager load relationships on the given results.
-     *
-     * @param CollectionInterface|PaginatedCollectionInterface|Entity $results
-     * @return void
-     */
-    protected function eagerLoadRelationships(CollectionInterface|PaginatedCollectionInterface|Entity &$results): void {
-        // Convert single entity to array for uniform processing
-        $entities = $results instanceof Entity ? [$results] : iterator_to_array($results);
-
-        if (empty($entities)) {
-            return;
-        }
-
-        foreach ($this->eagerLoad as $relation) {
-            $this->eagerLoadRelation($entities, $relation);
-        }
-    }
-
-    /**
-     * Eager load a belongs_to relationship.
-     *
-     * @param array<Entity> $entities
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
-    protected function eagerLoadBelongsTo(array $entities, string $relationName, array $mapping): void {
-        $foreignKeys = [];
-
-        foreach ($entities as $entity) {
-            $foreignKey = $entity->getForeignKeyValue($relationName);
-            if ($foreignKey !== null) {
-                $foreignKeys[] = $foreignKey;
-            }
-        }
-
-        if (empty($foreignKeys)) {
-            return;
-        }
-
-        $foreignKeys = array_unique($foreignKeys);
-        $relatedEntityClass = $mapping['entity'];
-
-        $relatedEntities = $relatedEntityClass::newQuery()
-            ->where('id', 'IN', $foreignKeys)
-            ->select();
-
-        $relatedEntities = $relatedEntities instanceof Entity ? [$relatedEntities] : $relatedEntities;
-
-        $relatedEntitiesById = [];
-        foreach ($relatedEntities as $relatedEntity) {
-            $relatedEntitiesById[$relatedEntity->getId()] = $relatedEntity;
-        }
-
-        foreach ($entities as $entity) {
-            $foreignKey = $entity->getForeignKeyValue($relationName);
-            if ($foreignKey !== null && isset($relatedEntitiesById[$foreignKey])) {
-                $entity->setEagerLoadedRelationship($relationName, $relatedEntitiesById[$foreignKey]);
-            }
-        }
-    }
-
-    /**
-     * Eager load a has_many relationship.
-     *
-     * @param array<Entity> $entities
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
-    protected function eagerLoadHasMany(array $entities, string $relationName, array $mapping): void {
-        $ids = [];
-
-        foreach ($entities as $entity) {
-            if ($entity->getId() !== null) {
-                $ids[] = $entity->getId();
-            }
-        }
-
-        if (empty($ids)) {
-            return;
-        }
-
-        $relatedEntityClass = $mapping['entity'];
-        $relatedDataMapping = $relatedEntityClass::getDataMapping();
-
-        if (!isset($relatedDataMapping[$mapping['column']])) {
-            return;
-        }
-
-        $relatedEntityMap = $relatedDataMapping[$mapping['column']];
-        $foreignKey = $relatedEntityMap['column'];
-        $foreignKeyRelationName = $mapping['column'];
-
-        $relatedEntities = $relatedEntityClass::newQuery()
-            ->where($foreignKey, 'IN', $ids)
-            ->select();
-
-        $relatedEntitiesByParentId = [];
-        foreach ($relatedEntities as $relatedEntity) {
-            $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
-            if (!isset($relatedEntitiesByParentId[$parentId])) {
-                $relatedEntitiesByParentId[$parentId] = [];
-            }
-            $relatedEntitiesByParentId[$parentId][] = $relatedEntity;
-        }
-
-        foreach ($entities as $entity) {
-            $entityId = $entity->getId();
-            $related = $relatedEntitiesByParentId[$entityId] ?? [];
-            $entity->setEagerLoadedRelationship($relationName, $related);
-        }
-    }
-
-    /**
-     * Eager load a has_one relationship.
-     *
-     * @param array<Entity> $entities
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
-    protected function eagerLoadHasOne(array $entities, string $relationName, array $mapping): void {
-        $ids = [];
-
-        foreach ($entities as $entity) {
-            if ($entity->getId() !== null) {
-                $ids[] = $entity->getId();
-            }
-        }
-
-        if (empty($ids)) {
-            return;
-        }
-
-        $relatedEntityClass = $mapping['entity'];
-        $relatedDataMapping = $relatedEntityClass::getDataMapping();
-        $foreignKeyRelationName = $mapping['column'];
-
-        if (!isset($relatedDataMapping[$foreignKeyRelationName])) {
-            return;
-        }
-
-        $relatedEntityMap = $relatedDataMapping[$foreignKeyRelationName];
-        $foreignKey = $relatedEntityMap['column'];
-
-        $relatedEntities = $relatedEntityClass::newQuery()
-            ->where($foreignKey, 'IN', $ids)
-            ->select();
-
-        $relatedEntitiesByParentId = [];
-        foreach ($relatedEntities as $relatedEntity) {
-            $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
-            $relatedEntitiesByParentId[$parentId] = $relatedEntity;
-        }
-
-        foreach ($entities as $entity) {
-            $entityId = $entity->getId();
-            $related = $relatedEntitiesByParentId[$entityId] ?? null;
-            $entity->setEagerLoadedRelationship($relationName, $related);
-        }
-    }
-
-    /**
-     * Eager load a single relationship on the given entities.
-     *
-     * @param array<Entity> $entities
-     * @param string $relation
-     * @return void
-     */
-    protected function eagerLoadRelation(array $entities, string $relation): void {
-        // Handle nested relationships (e.g., 'customer.address')
-        $nestedRelations = explode('.', $relation);
-        $relationName = array_shift($nestedRelations);
-
-        $dataMapping = $this->entityInstance::getDataMapping();
-
-        if (!isset($dataMapping[$relationName])) {
-            return;
-        }
-
-        $mapping = $dataMapping[$relationName];
-        $type = $mapping['type'];
-
-        if ($type === 'belongs_to') {
-            $this->eagerLoadBelongsTo($entities, $relationName, $mapping);
-        } elseif ($type === 'has_many') {
-            $this->eagerLoadHasMany($entities, $relationName, $mapping);
-        } elseif ($type === 'has_one') {
-            $this->eagerLoadHasOne($entities, $relationName, $mapping);
-        }
-
-        // Handle nested relationships
-        if (!empty($nestedRelations)) {
-            $nestedRelation = implode('.', $nestedRelations);
-            $relatedEntities = [];
-
-            foreach ($entities as $entity) {
-                $related = $entity->$relationName;
-                if ($related instanceof Entity) {
-                    $relatedEntities[] = $related;
-                } elseif ($related instanceof Collection) {
-                    foreach ($related as $item) {
-                        $relatedEntities[] = $item;
-                    }
-                }
-            }
-
-            if (!empty($relatedEntities)) {
-                $relatedEntityClass = $mapping['entity'];
-                $relatedInstance = new $relatedEntityClass();
-                $relatedQuery = new self($this->database, $relatedInstance);
-                $relatedQuery->with($nestedRelation);
-                $relatedQuery->eagerLoadRelation($relatedEntities, $nestedRelation);
-            }
-        }
-    }
-
     public function select(bool $withPagination = true): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Force limit of 1 when selecting a single record by ID
         $idColumn = $this->entityInstance::getFullColumnName("id");
@@ -317,7 +99,14 @@ class QueryBuilder extends CoreQueryBuilder {
 
         // Eager load relationships if specified
         if (!empty($this->eagerLoad) && $results !== null) {
-            $this->eagerLoadRelationships($results);
+            if ($results instanceof Entity) {
+                static::eagerLoadRelationships([$results], $this->eagerLoad, $this->entityInstance::class);
+            } else {
+                $entities = iterator_to_array($results);
+                if (!empty($entities)) {
+                    static::eagerLoadRelationships($entities, $this->eagerLoad, $this->entityInstance::class);
+                }
+            }
         }
 
         return $results;

@@ -192,6 +192,26 @@ $orders = Order::newQuery()
 
 Without eager loading, accessing relationships causes a separate query for each entity (N+1 problem). With eager loading, all related entities are fetched in a single optimized query.
 
+### Lazy Eager Loading
+
+If you already have a collection of entities and later need to load relationships, use the `load()` method:
+
+```php
+// Get orders without relationships
+$orders = Order::newQuery()->where('status', '=', 'completed')->select();
+
+// Later, load relationships on the collection
+$orders->load('customer');
+
+// Or load multiple relationships
+$orders->load(['customer', 'items']);
+
+// Nested relationships work too
+$orders->load('customer.address');
+```
+
+This is useful when you receive a collection from another part of your application and need to load relationships without re-querying the database for the main entities.
+
 ## Relationships
 
 The ORM supports three types of relationships:
