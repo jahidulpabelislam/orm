@@ -14,12 +14,12 @@ class QueryBuilderTest extends TestCase {
 
     public function testWhereWithEntityInstanceConvertsToId(): void {
         $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
-        
+
         $queryBuilder = TestEntity::newQuery();
         $queryBuilder->where("related_id", "=", $entity);
-        
+
         $parameters = $queryBuilder->getParams();
-        
+
         $this->assertArrayHasKey("related_id", $parameters);
         $this->assertEquals(123, $parameters["related_id"]);
     }
@@ -28,14 +28,14 @@ class QueryBuilderTest extends TestCase {
         $entity1 = RelatedEntity::loadFromDatabaseRow(["id" => 10]);
         $entity2 = RelatedEntity::loadFromDatabaseRow(["id" => 20]);
         $entity3 = RelatedEntity::loadFromDatabaseRow(["id" => 30]);
-        
+
         $collection = new EntityCollection([$entity1, $entity2, $entity3]);
-        
+
         $queryBuilder = TestEntity::newQuery();
         $queryBuilder->where("related_id", "IN", $collection);
-        
+
         $parameters = $queryBuilder->getParams();
-        
+
         // When using IN with an array, parameters are stored with indexed keys
         $this->assertArrayHasKey("related_id_1", $parameters);
         $this->assertArrayHasKey("related_id_2", $parameters);
@@ -48,30 +48,30 @@ class QueryBuilderTest extends TestCase {
     public function testWhereAppliesColumnPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->where("name", "=", "Test");
-        
+
         $selectQuery = $queryBuilder->getSelectQuery();
-        
+
         // The query should contain the prefixed column name
         $this->assertStringContainsString("prefix_name", $selectQuery);
     }
 
     public function testWhereWithNonColumnNameDoesNotApplyPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
-        
+
         // When using a full SQL expression, prefix should not be applied
         $queryBuilder->where("custom_expression = :value");
-        
+
         $selectQuery = $queryBuilder->getSelectQuery();
-        
+
         $this->assertStringContainsString("custom_expression", $selectQuery);
     }
 
     public function testColumnMethodAppliesPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->column("name");
-        
+
         $selectQuery = $queryBuilder->getSelectQuery();
-        
+
         // The column should be prefixed
         $this->assertStringContainsString("prefix_name", $selectQuery);
     }
@@ -79,9 +79,9 @@ class QueryBuilderTest extends TestCase {
     public function testOrderByAppliesPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->orderBy("name");
-        
+
         $selectQuery = $queryBuilder->getSelectQuery();
-        
+
         // The order by clause should contain the prefixed column name
         $this->assertStringContainsString("prefix_name", $selectQuery);
     }
