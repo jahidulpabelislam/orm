@@ -9,7 +9,6 @@ use JPI\ORM\Tests\Fixtures\RelatedEntity;
 use JPI\ORM\Tests\Fixtures\TestEntity;
 use JPI\ORM\Tests\Fixtures\TestEntityWithPrefix;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 class QueryBuilderTest extends TestCase {
 
@@ -19,20 +18,7 @@ class QueryBuilderTest extends TestCase {
         $queryBuilder = TestEntity::newQuery();
         $queryBuilder->where("related_id", "=", $entity);
         
-        // Build the SQL to trigger parameter binding
-        $reflection = new ReflectionClass($queryBuilder);
-        
-        // Check the where clauses contain the entity ID
-        $whereProperty = $reflection->getProperty('where');
-        $whereProperty->setAccessible(true);
-        $whereClauses = $whereProperty->getValue($queryBuilder);
-        
-        $this->assertCount(1, $whereClauses);
-        
-        // Get parameters - they're in the params property
-        $parametersProperty = $reflection->getProperty('params');
-        $parametersProperty->setAccessible(true);
-        $parameters = $parametersProperty->getValue($queryBuilder);
+        $parameters = $queryBuilder->getParams();
         
         $this->assertArrayHasKey("related_id", $parameters);
         $this->assertEquals(123, $parameters["related_id"]);
@@ -48,11 +34,7 @@ class QueryBuilderTest extends TestCase {
         $queryBuilder = TestEntity::newQuery();
         $queryBuilder->where("related_id", "IN", $collection);
         
-        // Get parameters from params property
-        $reflection = new ReflectionClass($queryBuilder);
-        $parametersProperty = $reflection->getProperty('params');
-        $parametersProperty->setAccessible(true);
-        $parameters = $parametersProperty->getValue($queryBuilder);
+        $parameters = $queryBuilder->getParams();
         
         // When using IN with an array, parameters are stored with indexed keys
         $this->assertArrayHasKey("related_id_1", $parameters);
@@ -67,16 +49,10 @@ class QueryBuilderTest extends TestCase {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->where("name", "=", "Test");
         
-        // Get the where clauses to check if prefix was applied
-        $reflection = new ReflectionClass($queryBuilder);
-        $property = $reflection->getProperty('where');
-        $property->setAccessible(true);
-        $whereClauses = $property->getValue($queryBuilder);
+        $selectQuery = $queryBuilder->getSelectQuery();
         
-        // The where clause should contain the prefixed column name
-        $this->assertCount(1, $whereClauses);
-        $whereString = (string)$whereClauses[0];
-        $this->assertStringContainsString("prefix_name", $whereString);
+        // The query should contain the prefixed column name
+        $this->assertStringContainsString("prefix_name", $selectQuery);
     }
 
     public function testWhereWithNonColumnNameDoesNotApplyPrefix(): void {
@@ -85,40 +61,28 @@ class QueryBuilderTest extends TestCase {
         // When using a full SQL expression, prefix should not be applied
         $queryBuilder->where("custom_expression = :value");
         
-        $reflection = new ReflectionClass($queryBuilder);
-        $property = $reflection->getProperty('where');
-        $property->setAccessible(true);
-        $whereClauses = $property->getValue($queryBuilder);
+        $selectQuery = $queryBuilder->getSelectQuery();
         
-        $this->assertCount(1, $whereClauses);
-        $whereString = (string)$whereClauses[0];
-        $this->assertStringContainsString("custom_expression", $whereString);
+        $this->assertStringContainsString("custom_expression", $selectQuery);
     }
 
     public function testColumnMethodAppliesPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->column("name");
         
-        $reflection = new ReflectionClass($queryBuilder);
-        $property = $reflection->getProperty('columns');
-        $property->setAccessible(true);
-        $columns = $property->getValue($queryBuilder);
+        $selectQuery = $queryBuilder->getSelectQuery();
         
         // The column should be prefixed
-        $this->assertContains("prefix_name", $columns);
+        $this->assertStringContainsString("prefix_name", $selectQuery);
     }
 
     public function testOrderByAppliesPrefix(): void {
         $queryBuilder = TestEntityWithPrefix::newQuery();
         $queryBuilder->orderBy("name");
         
-        $reflection = new ReflectionClass($queryBuilder);
-        $property = $reflection->getProperty('orderBy');
-        $property->setAccessible(true);
-        $orderBy = $property->getValue($queryBuilder);
+        $selectQuery = $queryBuilder->getSelectQuery();
         
-        // The order by is an object, convert to string to check
-        $orderByString = (string)$orderBy;
-        $this->assertStringContainsString("prefix_name", $orderByString);
+        // The order by clause should contain the prefixed column name
+        $this->assertStringContainsString("prefix_name", $selectQuery);
     }
 }
