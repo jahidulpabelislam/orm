@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class ChildEntity extends Entity {
+class ChildEntity extends AbstractEntity {
 
     protected static string $table = "child_table";
 
@@ -21,8 +18,4 @@ class ChildEntity extends Entity {
             "column" => "parent_id",
         ],
     ];
-
-    public static function getDatabase(): Database {
-        return new Database("sqlite::memory:");
-    }
 }

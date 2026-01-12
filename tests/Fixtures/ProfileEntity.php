@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class ProfileEntity extends Entity {
+class ProfileEntity extends AbstractEntity {
 
     protected static string $table = "profile_table";
 
@@ -21,8 +18,4 @@ class ProfileEntity extends Entity {
             "column" => "owner_id",
         ],
     ];
-
-    public static function getDatabase(): Database {
-        return new Database("sqlite::memory:");
-    }
 }

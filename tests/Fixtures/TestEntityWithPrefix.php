@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class TestEntityWithPrefix extends Entity {
+class TestEntityWithPrefix extends AbstractEntity {
 
     protected static string $table = "prefixed_table";
 
@@ -21,8 +18,4 @@ class TestEntityWithPrefix extends Entity {
             "type" => "int",
         ],
     ];
-
-    public static function getDatabase(): Database {
-        return new Database("sqlite::memory:");
-    }
 }

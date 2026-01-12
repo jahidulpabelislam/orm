@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class TestEntity extends Entity {
+class TestEntity extends AbstractEntity {
 
     protected static string $table = "test_table";
 
@@ -32,9 +29,4 @@ class TestEntity extends Entity {
             "type" => "date",
         ],
     ];
-
-    public static function getDatabase(): Database {
-        // Return a mock database for testing
-        return new Database("sqlite::memory:");
-    }
 }

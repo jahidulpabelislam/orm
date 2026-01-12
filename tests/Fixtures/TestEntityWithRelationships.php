@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-use JPI\Database;
-use JPI\ORM\Entity;
-
-class TestEntityWithRelationships extends Entity {
+class TestEntityWithRelationships extends AbstractEntity {
 
     protected static string $table = "main_table";
 
@@ -31,8 +28,4 @@ class TestEntityWithRelationships extends Entity {
             "column" => "owner",
         ],
     ];
-
-    public static function getDatabase(): Database {
-        return new Database("sqlite::memory:");
-    }
 }
