@@ -10,6 +10,14 @@ use JPI\ORM\Tests\Fixtures\TestEntity;
 use JPI\ORM\Tests\Fixtures\TestEntityWithPrefix;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Tests for Entity QueryBuilder functionality.
+ *
+ * This test class validates ORM-specific QueryBuilder behavior:
+ * - Entity and EntityCollection conversion to IDs in WHERE clauses
+ * - Automatic column prefix application to queries (WHERE, SELECT, ORDER BY)
+ * - Custom SQL expressions passed through without prefix modification
+ */
 class QueryBuilderTest extends TestCase {
 
     public function testWhereWithEntityInstanceConvertsToId(): void {
