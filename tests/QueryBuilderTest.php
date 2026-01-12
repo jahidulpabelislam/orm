@@ -47,8 +47,8 @@ class QueryBuilderTest extends TestCase {
 
         $selectQuery = $queryBuilder->getSelectQuery();
 
-        // The query should contain the prefixed column name
-        $this->assertStringContainsString("prefix_name", $selectQuery);
+        // The query should use the prefixed column name in WHERE clause
+        $this->assertMatchesRegularExpression('/WHERE\s+prefix_name\s*=\s*:prefix_name/', $selectQuery);
     }
 
     public function testWhereWithNonColumnNameDoesNotApplyPrefix(): void {
@@ -59,7 +59,8 @@ class QueryBuilderTest extends TestCase {
 
         $selectQuery = $queryBuilder->getSelectQuery();
 
-        $this->assertStringContainsString("custom_expression", $selectQuery);
+        // The custom expression should be used as-is without prefix
+        $this->assertMatchesRegularExpression('/WHERE\s+custom_expression\s*=\s*:value/', $selectQuery);
     }
 
     public function testColumnMethodAppliesPrefix(): void {
@@ -68,8 +69,8 @@ class QueryBuilderTest extends TestCase {
 
         $selectQuery = $queryBuilder->getSelectQuery();
 
-        // The column should be prefixed
-        $this->assertStringContainsString("prefix_name", $selectQuery);
+        // The SELECT clause should use the prefixed column name
+        $this->assertMatchesRegularExpression('/SELECT\s+prefix_name\s+FROM/', $selectQuery);
     }
 
     public function testOrderByAppliesPrefix(): void {
@@ -78,7 +79,7 @@ class QueryBuilderTest extends TestCase {
 
         $selectQuery = $queryBuilder->getSelectQuery();
 
-        // The order by clause should contain the prefixed column name
-        $this->assertStringContainsString("prefix_name", $selectQuery);
+        // The ORDER BY clause should use the prefixed column name
+        $this->assertMatchesRegularExpression('/ORDER BY\s+prefix_name(\s+ASC|\s+DESC)?/', $selectQuery);
     }
 }
