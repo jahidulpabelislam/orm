@@ -22,25 +22,18 @@ class QueryBuilderTest extends TestCase {
 
     public function testWhereWithEntityInstanceConvertsToId(): void {
         $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
+        $queryBuilder = TestEntity::newQuery()->where("related_id", "=", $entity);
 
-        $queryBuilder = TestEntity::newQuery();
-        $queryBuilder->where("related_id", "=", $entity);
-
-        $parameters = $queryBuilder->getParams();
-
-        $this->assertEquals(123, $parameters["related_id"]);
+        $this->assertEquals(123, $queryBuilder->getParams()["related_id"]);
     }
 
     public function testWhereWithEntityCollectionConvertsToArrayOfIds(): void {
         $entity1 = RelatedEntity::loadFromDatabaseRow(["id" => 10]);
         $entity2 = RelatedEntity::loadFromDatabaseRow(["id" => 20]);
         $entity3 = RelatedEntity::loadFromDatabaseRow(["id" => 30]);
-
         $collection = new EntityCollection([$entity1, $entity2, $entity3]);
 
-        $queryBuilder = TestEntity::newQuery();
-        $queryBuilder->where("related_id", "IN", $collection);
-
+        $queryBuilder = TestEntity::newQuery()->where("related_id", "IN", $collection);
         $parameters = $queryBuilder->getParams();
 
         // When using IN with an array, parameters are stored with indexed keys
@@ -50,62 +43,49 @@ class QueryBuilderTest extends TestCase {
     }
 
     public function testWhereAppliesColumnPrefix(): void {
-        $queryBuilder = TestEntityWithPrefix::newQuery();
-        $queryBuilder->where("name", "=", "Test");
-
-        $selectQuery = $queryBuilder->getSelectQuery();
+        $queryBuilder = TestEntityWithPrefix::newQuery()->where("name", "=", "Test");
 
         $this->assertSame(
             "SELECT *
 FROM prefixed_table
 WHERE prefix_name = :prefix_name
 ORDER BY prefix_id ASC;",
-            $selectQuery
+            $queryBuilder->getSelectQuery()
         );
     }
 
     public function testWhereWithNonColumnNameDoesNotApplyPrefix(): void {
-        $queryBuilder = TestEntityWithPrefix::newQuery();
-
         // When using a full SQL expression, prefix should not be applied
-        $queryBuilder->where("custom_expression = :value");
-
-        $selectQuery = $queryBuilder->getSelectQuery();
+        $queryBuilder = TestEntityWithPrefix::newQuery()->where("custom_expression = :value");
 
         $this->assertSame(
             "SELECT *
 FROM prefixed_table
 WHERE custom_expression = :value
 ORDER BY prefix_id ASC;",
-            $selectQuery
+            $queryBuilder->getSelectQuery()
         );
     }
 
     public function testColumnMethodAppliesPrefix(): void {
-        $queryBuilder = TestEntityWithPrefix::newQuery();
-        $queryBuilder->column("name");
-
-        $selectQuery = $queryBuilder->getSelectQuery();
+        $queryBuilder = TestEntityWithPrefix::newQuery()->column("name");
 
         $this->assertSame(
             "SELECT prefix_name
 FROM prefixed_table
 ORDER BY prefix_id ASC;",
-            $selectQuery
+            $queryBuilder->getSelectQuery()
         );
     }
 
     public function testOrderByAppliesPrefix(): void {
-        $queryBuilder = TestEntityWithPrefix::newQuery();
-        $queryBuilder->orderBy("name");
-
-        $selectQuery = $queryBuilder->getSelectQuery();
+        $queryBuilder = TestEntityWithPrefix::newQuery()->orderBy("name");
 
         $this->assertSame(
             "SELECT *
 FROM prefixed_table
 ORDER BY prefix_name ASC;",
-            $selectQuery
+            $queryBuilder->getSelectQuery()
         );
     }
 }
