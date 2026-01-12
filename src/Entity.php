@@ -355,7 +355,8 @@ abstract class Entity implements DatabaseResultInterface {
                     $mapping["entity"]::getById($this->data[$key]["database_value"]),
                     true
                 );
-            } else {
+            }
+            else {
                 $this->data[$key]["value"]->reload();
             }
         }
