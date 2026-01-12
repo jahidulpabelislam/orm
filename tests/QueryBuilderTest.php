@@ -14,13 +14,7 @@ use ReflectionClass;
 class QueryBuilderTest extends TestCase {
 
     public function testWhereWithEntityInstanceConvertsToId(): void {
-        $entity = new RelatedEntity();
-        
-        // Use reflection to set the ID since we can't save to a real database
-        $reflection = new ReflectionClass($entity);
-        $method = $reflection->getMethod('setId');
-        $method->setAccessible(true);
-        $method->invoke($entity, 123);
+        $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
         
         $queryBuilder = TestEntity::newQuery();
         $queryBuilder->where("related_id", "=", $entity);
@@ -45,17 +39,9 @@ class QueryBuilderTest extends TestCase {
     }
 
     public function testWhereWithEntityCollectionConvertsToArrayOfIds(): void {
-        $entity1 = new RelatedEntity();
-        $entity2 = new RelatedEntity();
-        $entity3 = new RelatedEntity();
-        
-        // Use reflection to set IDs
-        $reflection = new ReflectionClass($entity1);
-        $method = $reflection->getMethod('setId');
-        $method->setAccessible(true);
-        $method->invoke($entity1, 10);
-        $method->invoke($entity2, 20);
-        $method->invoke($entity3, 30);
+        $entity1 = RelatedEntity::loadFromDatabaseRow(["id" => 10]);
+        $entity2 = RelatedEntity::loadFromDatabaseRow(["id" => 20]);
+        $entity3 = RelatedEntity::loadFromDatabaseRow(["id" => 30]);
         
         $collection = new EntityCollection([$entity1, $entity2, $entity3]);
         
