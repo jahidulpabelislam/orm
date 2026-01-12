@@ -20,7 +20,6 @@ class QueryBuilderTest extends TestCase {
 
         $parameters = $queryBuilder->getParams();
 
-        $this->assertArrayHasKey("related_id", $parameters);
         $this->assertEquals(123, $parameters["related_id"]);
     }
 
@@ -37,9 +36,6 @@ class QueryBuilderTest extends TestCase {
         $parameters = $queryBuilder->getParams();
 
         // When using IN with an array, parameters are stored with indexed keys
-        $this->assertArrayHasKey("related_id_1", $parameters);
-        $this->assertArrayHasKey("related_id_2", $parameters);
-        $this->assertArrayHasKey("related_id_3", $parameters);
         $this->assertEquals(10, $parameters["related_id_1"]);
         $this->assertEquals(20, $parameters["related_id_2"]);
         $this->assertEquals(30, $parameters["related_id_3"]);
