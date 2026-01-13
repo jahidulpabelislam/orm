@@ -79,7 +79,7 @@ class QueryBuilder extends CoreQueryBuilder {
     }
 
     public function count(string $column = "*"): int {
-        if ($this->entityInstance::hasColumn($column)) {
+        if ($column !== "*" && $this->entityInstance::hasColumn($column)) {
             $column = $this->entityInstance::getFullColumnName($column);
         }
 
