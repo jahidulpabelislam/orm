@@ -12,7 +12,9 @@ use JPI\Database\Query\ResultInterface as DatabaseResultInterface;
 use JPI\ORM\Entity\Collection as EntityCollection;
 use JPI\ORM\Entity\InvalidValueException;
 use JPI\ORM\Entity\QueryBuilder;
+use JPI\Utils\Arrayable;
 use JPI\Utils\Collection;
+use JsonSerializable;
 use LogicException;
 use OutOfBoundsException;
 use Stringable;
@@ -20,7 +22,7 @@ use Stringable;
 /**
  * The base Entity class for database tables with the core ORM logic.
  */
-abstract class Entity implements DatabaseResultInterface {
+abstract class Entity implements DatabaseResultInterface, JsonSerializable {
 
     private ?int $identifier = null;
 
@@ -698,6 +700,42 @@ abstract class Entity implements DatabaseResultInterface {
             }
 
             $array[$key] = $value;
+        }
+
+        return $array;
+    }
+
+    /**
+     * Convert the entity to an array suitable for JSON serialization.
+     * 
+     * This method processes object values according to their interfaces:
+     * - JsonSerializable objects are left as-is for PHP to handle
+     * - Arrayable objects (that don't implement JsonSerializable) are converted using their toArray() method
+     */
+    public function jsonSerialize(): array {
+        $array = [
+            "id" => $this->getId(),
+        ];
+
+        foreach ($this->data as $key => $data) {
+            if (!array_key_exists("value", $data)) {
+                continue;
+            }
+
+            $value = $data["value"];
+
+            // Handle objects implementing JsonSerializable - leave as-is
+            // PHP's json_encode will automatically call jsonSerialize() on these objects
+            if ($value instanceof JsonSerializable) {
+                $array[$key] = $value;
+            }
+            // Handle objects implementing Arrayable but not JsonSerializable - convert to array
+            else if ($value instanceof Arrayable) {
+                $array[$key] = $value->toArray();
+            }
+            else {
+                $array[$key] = $value;
+            }
         }
 
         return $array;
