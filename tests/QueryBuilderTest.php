@@ -139,4 +139,94 @@ LIMIT 1;"),
         TestEntityWithPrefix::setDatabase($database);
         TestEntityWithPrefix::newQuery()->count("status");
     }
+
+    public function testAndConditionAppliesPrefix(): void {
+        $database = $this->createDatabase();
+        $database->expects($this->once())
+            ->method("selectAll")
+            ->with(
+                $this->equalTo("SELECT *
+FROM prefixed_table
+WHERE (prefix_name = :prefix_name AND prefix_status = :prefix_status)
+ORDER BY prefix_id ASC;"),
+                $this->equalTo([
+                    "prefix_name" => "Test",
+                    "prefix_status" => 1,
+                ])
+            )
+            ->willReturn([])
+        ;
+
+        TestEntityWithPrefix::setDatabase($database);
+        $condition = TestEntityWithPrefix::newQuery()->newAndCondition();
+        $condition->where("name", "=", "Test");
+        $condition->where("status", "=", 1);
+        TestEntityWithPrefix::newQuery()->where($condition)->select();
+    }
+
+    public function testOrConditionAppliesPrefix(): void {
+        $database = $this->createDatabase();
+        $database->expects($this->once())
+            ->method("selectAll")
+            ->with(
+                $this->equalTo("SELECT *
+FROM prefixed_table
+WHERE (prefix_name = :prefix_name OR prefix_status = :prefix_status)
+ORDER BY prefix_id ASC;"),
+                $this->equalTo([
+                    "prefix_name" => "Test",
+                    "prefix_status" => 1,
+                ])
+            )
+            ->willReturn([])
+        ;
+
+        TestEntityWithPrefix::setDatabase($database);
+        $condition = TestEntityWithPrefix::newQuery()->newOrCondition();
+        $condition->where("name", "=", "Test");
+        $condition->where("status", "=", 1);
+        TestEntityWithPrefix::newQuery()->where($condition)->select();
+    }
+
+    public function testInsertAppliesPrefix(): void {
+        $database = $this->createDatabase();
+        $database->expects($this->once())
+            ->method("insert")
+            ->with(
+                $this->equalTo("INSERT INTO prefixed_table (prefix_name, prefix_status) VALUES (:prefix_name, :prefix_status);"),
+                $this->equalTo([
+                    "prefix_name" => "Test",
+                    "prefix_status" => 1,
+                ])
+            )
+            ->willReturn(1)
+        ;
+
+        TestEntityWithPrefix::setDatabase($database);
+        TestEntityWithPrefix::newQuery()->insert([
+            "name" => "Test",
+            "status" => 1,
+        ]);
+    }
+
+    public function testUpdateAppliesPrefix(): void {
+        $database = $this->createDatabase();
+        $database->expects($this->once())
+            ->method("update")
+            ->with(
+                $this->equalTo("UPDATE prefixed_table SET prefix_name = :prefix_name, prefix_status = :prefix_status;"),
+                $this->equalTo([
+                    "prefix_name" => "Updated",
+                    "prefix_status" => 2,
+                ])
+            )
+            ->willReturn(1)
+        ;
+
+        TestEntityWithPrefix::setDatabase($database);
+        TestEntityWithPrefix::newQuery()->update([
+            "name" => "Updated",
+            "status" => 2,
+        ]);
+    }
 }
