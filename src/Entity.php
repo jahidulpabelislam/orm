@@ -711,6 +711,10 @@ abstract class Entity implements DatabaseResultInterface, JsonSerializable {
      * This method processes object values according to their interfaces:
      * - JsonSerializable objects are left as-is for PHP to handle
      * - Arrayable objects (that don't implement JsonSerializable) are converted using their toArray() method
+     * 
+     * Note: Unlike toArray(), this method does not include circular reference protection for nested entities.
+     * PHP's json_encode() will detect circular references and throw a JsonException if they occur.
+     * For cases requiring circular reference handling, use toArray() instead.
      */
     public function jsonSerialize(): array {
         $array = [
