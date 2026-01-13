@@ -128,7 +128,7 @@ ORDER BY prefix_name ASC;"),
         $database->expects($this->once())
             ->method("selectFirst")
             ->with(
-                $this->equalTo("SELECT count(prefix_status) as count
+                $this->equalTo("SELECT COUNT(prefix_status) as count
 FROM prefixed_table
 LIMIT 1;"),
                 $this->equalTo([])
