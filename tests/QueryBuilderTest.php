@@ -122,4 +122,21 @@ ORDER BY prefix_name ASC;"),
         TestEntityWithPrefix::setDatabase($database);
         TestEntityWithPrefix::newQuery()->orderBy("name")->select();
     }
+
+    public function testCountAppliesPrefix(): void {
+        $database = $this->createDatabase();
+        $database->expects($this->once())
+            ->method("selectFirst")
+            ->with(
+                $this->equalTo("SELECT count(prefix_status) as count
+FROM prefixed_table
+LIMIT 1;"),
+                $this->equalTo([])
+            )
+            ->willReturn([])
+        ;
+
+        TestEntityWithPrefix::setDatabase($database);
+        TestEntityWithPrefix::newQuery()->count("status");
+    }
 }
