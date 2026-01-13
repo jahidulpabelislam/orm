@@ -26,14 +26,14 @@ class QueryBuilderTest extends TestCase {
         return $this->createMock(Database::class);
     }
 
-    public function testWhereWithEntityInstanceConvertsToId(): void {
+    public function testWhereWithEntity(): void {
         $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
         $queryBuilder = TestEntity::newQuery()->where("related_id", "=", $entity);
 
         $this->assertEquals(["related_id" => 123], $queryBuilder->getParams());
     }
 
-    public function testWhereWithEntityCollectionConvertsToArrayOfIds(): void {
+    public function testWhereWithEntityCollection(): void {
         $entity1 = RelatedEntity::loadFromDatabaseRow(["id" => 10]);
         $entity2 = RelatedEntity::loadFromDatabaseRow(["id" => 20]);
         $entity3 = RelatedEntity::loadFromDatabaseRow(["id" => 30]);
@@ -51,7 +51,7 @@ class QueryBuilderTest extends TestCase {
         );
     }
 
-    public function testWhereAppliesColumnPrefix(): void {
+    public function testWhereAppliesPrefix(): void {
         $database = $this->createDatabase();
         $database->expects($this->once())
             ->method("selectAll")
