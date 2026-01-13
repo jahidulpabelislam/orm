@@ -733,7 +733,6 @@ abstract class Entity implements DatabaseResultInterface, JsonSerializable {
             if ($value instanceof JsonSerializable) {
                 $array[$key] = $value;
             }
-            // Handle objects implementing Arrayable but not JsonSerializable - convert to array
             else if ($value instanceof Arrayable) {
                 $array[$key] = $value->toArray();
             }
