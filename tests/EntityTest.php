@@ -19,55 +19,52 @@ use LogicException;
 use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
 
-class EntityTest extends TestCase {
+/**
+ * @covers \JPI\ORM\Entity
+ */
+final class EntityTest extends TestCase {
 
-    public function testBadDataMappingThrowsLogicException(): void {
+    public function testInvalidDataMapping(): void {
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage("Invalid type `invalid_type` for `name`.");
-
         new InvalidTypeEntity();
     }
 
-    public function testColumnPrefixIsAppliedToColumnNames(): void {
-        $entity = new TestEntityWithPrefix();
-
-        $this->assertEquals("prefix_name", TestEntityWithPrefix::getFullColumnName("name"));
-        $this->assertEquals("prefix_status", TestEntityWithPrefix::getFullColumnName("status"));
-        $this->assertEquals("prefix_id", TestEntityWithPrefix::getFullColumnName("id"));
-    }
-
-    public function testEntityWithoutPrefixReturnsColumnNameUnchanged(): void {
-        $entity = new TestEntity();
-
+    public function testGetFullColumnName(): void {
         $this->assertEquals("name", TestEntity::getFullColumnName("name"));
         $this->assertEquals("age", TestEntity::getFullColumnName("age"));
         $this->assertEquals("id", TestEntity::getFullColumnName("id"));
     }
 
-    public function testSetStringValueSuccess(): void {
+    public function testGetFullColumnNameWithPrefix(): void {
+        $this->assertEquals("prefix_name", TestEntityWithPrefix::getFullColumnName("name"));
+        $this->assertEquals("prefix_status", TestEntityWithPrefix::getFullColumnName("status"));
+        $this->assertEquals("prefix_id", TestEntityWithPrefix::getFullColumnName("id"));
+    }
+
+    public function testSetStringValue(): void {
         $entity = new TestEntity();
         $entity->name = "Test Name";
 
         $this->assertEquals("Test Name", $entity->name);
     }
 
-    public function testSetStringValueNull(): void {
+    public function testSetStringNullValue(): void {
         $entity = new TestEntity();
         $entity->name = null;
 
         $this->assertNull($entity->name);
     }
 
-    public function testSetStringValueInvalidThrowsException(): void {
-        $entity = new TestEntity();
-
+    public function testSetStringInvalidValue(): void {
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`name` must be a string or null.");
 
+        $entity = new TestEntity();
         $entity->name = 123;
     }
 
-    public function testSetIntValueSuccess(): void {
+    public function testSetIntValue(): void {
         $entity = new TestEntity();
         $entity->age = 25;
 
@@ -75,7 +72,7 @@ class EntityTest extends TestCase {
         $this->assertIsInt($entity->age);
     }
 
-    public function testSetIntValueFromNumericString(): void {
+    public function testSetIntValueFromString(): void {
         $entity = new TestEntity();
         $entity->age = "42";
 
@@ -83,14 +80,14 @@ class EntityTest extends TestCase {
         $this->assertIsInt($entity->age);
     }
 
-    public function testSetIntValueNull(): void {
+    public function testSetIntNullValue(): void {
         $entity = new TestEntity();
         $entity->age = null;
 
         $this->assertNull($entity->age);
     }
 
-    public function testSetIntValueInvalidThrowsException(): void {
+    public function testSetIntInvalidValue(): void {
         $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
@@ -99,7 +96,7 @@ class EntityTest extends TestCase {
         $entity->age = "not a number";
     }
 
-    public function testSetFloatValueSuccess(): void {
+    public function testSetFloatValidValue(): void {
         $entity = new TestEntity();
         $entity->price = 19.99;
 
@@ -107,7 +104,7 @@ class EntityTest extends TestCase {
         $this->assertIsFloat($entity->price);
     }
 
-    public function testSetFloatValueFromNumericString(): void {
+    public function testSetFloatValueFromString(): void {
         $entity = new TestEntity();
         $entity->price = "29.99";
 
@@ -122,7 +119,7 @@ class EntityTest extends TestCase {
         $this->assertNull($entity->price);
     }
 
-    public function testSetFloatValueInvalidThrowsException(): void {
+    public function testSetFloatInvalidValue(): void {
         $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
@@ -131,7 +128,7 @@ class EntityTest extends TestCase {
         $entity->price = "not a number";
     }
 
-    public function testSetArrayValueSuccess(): void {
+    public function testSetArrayValidValue(): void {
         $entity = new TestEntity();
         $entity->tags = ["tag1", "tag2", "tag3"];
 
@@ -139,7 +136,7 @@ class EntityTest extends TestCase {
         $this->assertEquals(["tag1", "tag2", "tag3"], $entity->tags->getItems());
     }
 
-    public function testSetArrayValueWithCollection(): void {
+    public function testSetArrayCollectionValue(): void {
         $entity = new TestEntity();
         $collection = new Collection(["a", "b", "c"]);
         $entity->tags = $collection;
@@ -148,7 +145,7 @@ class EntityTest extends TestCase {
         $this->assertEquals(["a", "b", "c"], $entity->tags->getItems());
     }
 
-    public function testSetArrayValueNull(): void {
+    public function testSetArrayNullValue(): void {
         $entity = new TestEntity();
         $entity->tags = null;
 
@@ -163,7 +160,7 @@ class EntityTest extends TestCase {
         $this->assertEquals(["tag1", "tag2", "tag3"], $entity->tags->getItems());
     }
 
-    public function testSetArrayValueInvalidThrowsException(): void {
+    public function testSetArrayInvalidValue(): void {
         $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
@@ -172,7 +169,7 @@ class EntityTest extends TestCase {
         $entity->tags = "not an array";
     }
 
-    public function testSetDateTimeValueSuccess(): void {
+    public function testSetDateTimeValidValue(): void {
         $entity = new TestEntity();
         $date = new DateTime("2024-01-15 10:30:00");
         $entity->created_at = $date;
@@ -189,14 +186,14 @@ class EntityTest extends TestCase {
         $this->assertEquals("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
     }
 
-    public function testSetDateTimeValueNull(): void {
+    public function testSetDateTimeNullValue(): void {
         $entity = new TestEntity();
         $entity->created_at = null;
 
         $this->assertNull($entity->created_at);
     }
 
-    public function testSetDateTimeValueInvalidThrowsException(): void {
+    public function testSetDateTimeInvalidValue(): void {
         $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
@@ -237,14 +234,14 @@ class EntityTest extends TestCase {
         $this->assertEquals(5, $data['related']['database_value']);
     }
 
-    public function testSetBelongsToValueNull(): void {
+    public function testSetBelongsToNullValue(): void {
         $entity = new TestEntityWithRelationships();
         $entity->related = null;
 
         $this->assertNull($entity->related);
     }
 
-    public function testSetBelongsToValueInvalidThrowsException(): void {
+    public function testSetBelongsToInvalidValue(): void {
         $entity = new TestEntityWithRelationships();
 
         $this->expectException(InvalidValueException::class);
@@ -276,7 +273,7 @@ class EntityTest extends TestCase {
         $this->assertCount(1, $entity->children);
     }
 
-    public function testSetHasManyValueNull(): void {
+    public function testSetHasManyNullValue(): void {
         $entity = new TestEntityWithRelationships();
         $entity->children = null;
 
@@ -284,14 +281,14 @@ class EntityTest extends TestCase {
         $this->assertCount(0, $entity->children);
     }
 
-    public function testSetHasManyValueInvalidThrowsException(): void {
+    public function testSetHasManyInvalidValue(): void {
         $entity = new TestEntityWithRelationships();
 
         $this->expectException(InvalidValueException::class);
         $entity->children = "invalid";
     }
 
-    public function testSetHasOneValueWithEntity(): void {
+    public function testSetHasOneValidValue(): void {
         $profile = new ProfileEntity();
         $profile->bio = "Bio text";
 
@@ -302,14 +299,14 @@ class EntityTest extends TestCase {
         $this->assertEquals("Bio text", $entity->profile->bio);
     }
 
-    public function testSetHasOneValueNull(): void {
+    public function testSetHasOneNullValue(): void {
         $entity = new TestEntityWithRelationships();
         $entity->profile = null;
 
         $this->assertNull($entity->profile);
     }
 
-    public function testSetHasOneValueInvalidThrowsException(): void {
+    public function testSetHasOneInvalidValue(): void {
         $entity = new TestEntityWithRelationships();
 
         $this->expectException(InvalidValueException::class);
