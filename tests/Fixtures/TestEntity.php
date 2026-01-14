@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-class TestEntity extends AbstractEntity {
+final class TestEntity extends AbstractEntity {
 
     protected static string $table = "test_table";
 

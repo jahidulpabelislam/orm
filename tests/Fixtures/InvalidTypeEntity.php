@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-class InvalidTypeEntity extends AbstractEntity {
+final class InvalidTypeEntity extends AbstractEntity {
 
     protected static string $table = "invalid_table";
 

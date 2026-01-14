@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-class ProfileEntity extends AbstractEntity {
+final class ProfileEntity extends AbstractEntity {
 
     protected static string $table = "profile_table";
 
