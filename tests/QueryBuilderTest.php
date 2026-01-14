@@ -158,10 +158,11 @@ ORDER BY prefix_id ASC;"),
         ;
 
         TestEntityWithPrefix::setDatabase($database);
-        $condition = TestEntityWithPrefix::newQuery()->newAndCondition();
+        $query = TestEntityWithPrefix::newQuery();
+        $condition = $query->newAndCondition();
         $condition->where("name", "=", "Test");
         $condition->where("status", "=", 1);
-        TestEntityWithPrefix::newQuery()->where($condition)->select();
+        $query->where($condition)->select();
     }
 
     public function testOrConditionAppliesPrefix(): void {
@@ -182,21 +183,24 @@ ORDER BY prefix_id ASC;"),
         ;
 
         TestEntityWithPrefix::setDatabase($database);
-        $condition = TestEntityWithPrefix::newQuery()->newOrCondition();
+        $query = TestEntityWithPrefix::newQuery();
+        $condition = $query->newOrCondition();
         $condition->where("name", "=", "Test");
         $condition->where("status", "=", 1);
-        TestEntityWithPrefix::newQuery()->where($condition)->select();
+        $query->where($condition)->select();
     }
 
     public function testInsertAppliesPrefix(): void {
         $database = $this->createDatabase();
         $database->expects($this->once())
-            ->method("insert")
+            ->method("exec")
             ->with(
-                $this->equalTo("INSERT INTO prefixed_table (prefix_name, prefix_status) VALUES (:prefix_name, :prefix_status);"),
+                $this->equalTo("INSERT INTO prefixed_table
+(prefix_name,prefix_status)
+VALUES (:prefix_name__row1,:prefix_status__row1);"),
                 $this->equalTo([
-                    "prefix_name" => "Test",
-                    "prefix_status" => 1,
+                    "prefix_name__row1" => "Test",
+                    "prefix_status__row1" => 1,
                 ])
             )
             ->willReturn(1)
@@ -212,9 +216,10 @@ ORDER BY prefix_id ASC;"),
     public function testUpdateAppliesPrefix(): void {
         $database = $this->createDatabase();
         $database->expects($this->once())
-            ->method("update")
+            ->method("exec")
             ->with(
-                $this->equalTo("UPDATE prefixed_table SET prefix_name = :prefix_name, prefix_status = :prefix_status;"),
+                $this->equalTo("UPDATE prefixed_table
+SET prefix_name = :prefix_name,prefix_status = :prefix_status;"),
                 $this->equalTo([
                     "prefix_name" => "Updated",
                     "prefix_status" => 2,
