@@ -510,4 +510,70 @@ final class EntityTest extends TestCase {
         $this->assertNull($values["created_at"]);
         $this->assertNull($values["birth_date"]);
     }
+
+    public function testGetColumnsReturnsAllNonRelationshipColumns(): void {
+        $columns = TestEntity::getColumns();
+
+        $this->assertContains("name", $columns);
+        $this->assertContains("age", $columns);
+        $this->assertContains("price", $columns);
+        $this->assertContains("tags", $columns);
+        $this->assertContains("created_at", $columns);
+        $this->assertContains("birth_date", $columns);
+        $this->assertCount(6, $columns);
+    }
+
+    public function testGetColumnsExcludesHasManyAndHasOneRelationships(): void {
+        $columns = TestEntityWithRelationships::getColumns();
+
+        // Should include regular column
+        $this->assertContains("name", $columns);
+
+        // Should include belongs_to column (the foreign key column)
+        $this->assertContains("related_id", $columns);
+
+        // Should NOT include has_many relationship key
+        $this->assertNotContains("children", $columns);
+
+        // Should NOT include has_one relationship key
+        $this->assertNotContains("profile", $columns);
+
+        // Should NOT include the relationship key itself
+        $this->assertNotContains("related", $columns);
+
+        $this->assertCount(2, $columns);
+    }
+
+    public function testGetColumnsWithBelongsToDefaultColumn(): void {
+        // Create a test entity with belongs_to but no explicit column
+        $entity = new class extends AbstractEntity {
+            protected static string $table = "test";
+            protected static array $dataMapping = [
+                "title" => ["type" => "string"],
+                "author" => [
+                    "type" => "belongs_to",
+                    "entity" => RelatedEntity::class,
+                    // No explicit column - should default to "author_id"
+                ],
+            ];
+        };
+
+        $columns = $entity::getColumns();
+
+        $this->assertContains("title", $columns);
+        $this->assertContains("author_id", $columns);
+        $this->assertNotContains("author", $columns);
+        $this->assertCount(2, $columns);
+    }
+
+    public function testGetColumnsDoesNotIncludePrefix(): void {
+        $columns = TestEntityWithPrefix::getColumns();
+
+        // Columns should be returned WITHOUT prefix
+        $this->assertContains("name", $columns);
+        $this->assertContains("status", $columns);
+        $this->assertNotContains("prefix_name", $columns);
+        $this->assertNotContains("prefix_status", $columns);
+        $this->assertCount(2, $columns);
+    }
 }
