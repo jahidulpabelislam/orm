@@ -19,8 +19,14 @@ use PHPUnit\Framework\TestCase;
  * - Entity and EntityCollection conversion to IDs in WHERE clauses
  * - Automatic column prefix application to queries (WHERE, SELECT, ORDER BY)
  * - Custom SQL expressions passed through without prefix modification
+ *
+ * @covers \JPI\ORM\Entity\QueryBuilder
+ * @covers \JPI\ORM\Entity\QueryBuilder\WhereableTrait
+ * @covers \JPI\ORM\Entity\QueryBuilder\Clause\Where
+ * @covers \JPI\ORM\Entity\QueryBuilder\Clause\Where\AndCondition
+ * @covers \JPI\ORM\Entity\QueryBuilder\Clause\Where\OrCondition
  */
-class QueryBuilderTest extends TestCase {
+final class QueryBuilderTest extends TestCase {
 
     private function createDatabase(): Database&MockObject {
         return $this->createMock(Database::class);
