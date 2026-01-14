@@ -576,4 +576,46 @@ final class EntityTest extends TestCase {
         $this->assertNotContains("prefix_status", $columns);
         $this->assertCount(2, $columns);
     }
+
+    public function testGetValueReturnsDatabaseValueForBelongsToColumn(): void {
+        $entity = new TestEntityWithRelationships();
+        
+        // Set a belongs_to relationship using an integer ID
+        $entity->related = 123;
+
+        // Access the foreign key column directly (related_id) should return the database_value
+        $this->assertEquals(123, $entity->getValue("related_id"));
+    }
+
+    public function testMagicGetReturnsDatabaseValueForBelongsToColumn(): void {
+        $entity = new TestEntityWithRelationships();
+        
+        // Set a belongs_to relationship using an integer ID
+        $entity->related = 456;
+
+        // Access the foreign key column directly via magic __get (related_id) should return the database_value
+        $this->assertEquals(456, $entity->related_id);
+    }
+
+    public function testGetValueReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
+        $entity = new TestEntityWithRelationships();
+        $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 789]);
+        
+        // Set a belongs_to relationship using an Entity instance
+        $entity->related = $relatedEntity;
+
+        // Access the foreign key column directly should return the database_value (the entity's ID)
+        $this->assertEquals(789, $entity->getValue("related_id"));
+    }
+
+    public function testMagicGetReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
+        $entity = new TestEntityWithRelationships();
+        $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 999]);
+        
+        // Set a belongs_to relationship using an Entity instance
+        $entity->related = $relatedEntity;
+
+        // Access the foreign key column directly via magic __get should return the database_value (the entity's ID)
+        $this->assertEquals(999, $entity->related_id);
+    }
 }
