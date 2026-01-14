@@ -133,7 +133,7 @@ FROM prefixed_table
 LIMIT 1;"),
                 $this->equalTo([])
             )
-            ->willReturn([])
+            ->willReturn(["count" => 2])
         ;
 
         TestEntityWithPrefix::setDatabase($database);
