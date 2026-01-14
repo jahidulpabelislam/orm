@@ -546,7 +546,7 @@ final class EntityTest extends TestCase {
 
     public function testGetColumnsWithBelongsToDefaultColumn(): void {
         // Create a test entity with belongs_to but no explicit column
-        $entity = new class extends AbstractEntity {
+        $entity = new class extends Fixtures\AbstractEntity {
             protected static string $table = "test";
             protected static array $dataMapping = [
                 "title" => ["type" => "string"],
@@ -579,7 +579,7 @@ final class EntityTest extends TestCase {
 
     public function testGetValueReturnsDatabaseValueForBelongsToColumn(): void {
         $entity = new TestEntityWithRelationships();
-        
+
         // Set a belongs_to relationship using an integer ID
         $entity->related = 123;
 
@@ -589,7 +589,7 @@ final class EntityTest extends TestCase {
 
     public function testMagicGetReturnsDatabaseValueForBelongsToColumn(): void {
         $entity = new TestEntityWithRelationships();
-        
+
         // Set a belongs_to relationship using an integer ID
         $entity->related = 456;
 
@@ -600,7 +600,7 @@ final class EntityTest extends TestCase {
     public function testGetValueReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
         $entity = new TestEntityWithRelationships();
         $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 789]);
-        
+
         // Set a belongs_to relationship using an Entity instance
         $entity->related = $relatedEntity;
 
@@ -611,7 +611,7 @@ final class EntityTest extends TestCase {
     public function testMagicGetReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
         $entity = new TestEntityWithRelationships();
         $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 999]);
-        
+
         // Set a belongs_to relationship using an Entity instance
         $entity->related = $relatedEntity;
 
