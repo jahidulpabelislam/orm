@@ -127,13 +127,13 @@ final class EntityTest extends TestCase {
     public function testSetDateTimeValue(): void {
         $entity = new TestEntity();
 
-        $entity->created_at = new DateTime("2024-01-15 10:30:00");
+        $entity->created_at = new DateTime("2024-01-15 18:45:00");
         $this->assertInstanceOf(DateTime::class, $entity->created_at);
-        $this->assertSame("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
+        $this->assertSame("January 15, 2024, 6:45 pm", $entity->created_at->format("F j, Y, g:i a"));
 
-        $entity->created_at = "2024-01-15 10:30:00";
+        $entity->created_at = "2024-06-21 10:30:00";
         $this->assertInstanceOf(DateTime::class, $entity->created_at);
-        $this->assertSame("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
+        $this->assertSame("June 21, 2024, 10:30 am", $entity->created_at->format("F j, Y, g:i a"));
 
         $entity->created_at = null;
         $this->assertNull($entity->created_at);
@@ -147,7 +147,7 @@ final class EntityTest extends TestCase {
         $entity->birth_date = "2000-05-20";
 
         $this->assertInstanceOf(DateTime::class, $entity->birth_date);
-        $this->assertSame("2000-05-20", $entity->birth_date->format("Y-m-d"));
+        $this->assertSame("May 20, 2000", $entity->birth_date->format("F j, Y"));
     }
 
     public function testSetBelongsToValue(): void {
