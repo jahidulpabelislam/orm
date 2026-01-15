@@ -70,11 +70,9 @@ final class EntityTest extends TestCase {
 
         $entity->age = 25;
         $this->assertSame(25, $entity->age);
-        $this->assertIsInt($entity->age);
 
         $entity->age = "42";
         $this->assertSame(42, $entity->age);
-        $this->assertIsInt($entity->age);
 
         $entity->age = null;
         $this->assertNull($entity->age);
@@ -90,11 +88,9 @@ final class EntityTest extends TestCase {
 
         $entity->price = 19.99;
         $this->assertSame(19.99, $entity->price);
-        $this->assertIsFloat($entity->price);
 
         $entity->price = "29.99";
-        $this->assertSame(29.99, $entity->price);
-        $this->assertIsFloat($entity->price);
+        $this->assertSame(29.99, $entity->price);;
 
         $entity->price = null;
         $this->assertNull($entity->price);
