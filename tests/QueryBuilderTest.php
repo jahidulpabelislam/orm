@@ -95,7 +95,7 @@ ORDER BY prefix_id ASC;"),
         TestEntityWithPrefix::newQuery()->where("custom_expression = :value")->select();
     }
 
-    public function testColumnMethodAppliesPrefix(): void {
+    public function testColumnAppliesPrefix(): void {
         $database = $this->createDatabase();
         $database->expects($this->once())
             ->method("selectAll")
