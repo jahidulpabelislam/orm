@@ -388,7 +388,11 @@ final class EntityTest extends TestCase {
     public function testGetValuesToSaveConvertsArrayToString(): void {
         $entity = new TestEntity();
         $entity->name = "Test";
+        $entity->age = 25;
+        $entity->price = 99.99;
         $entity->tags = ["tag1", "tag2", "tag3"];
+        $entity->created_at = new DateTime("2024-01-15 10:30:00");
+        $entity->birth_date = new DateTime("2000-05-20");
 
         // Use reflection to call protected method
         $reflection = new \ReflectionClass($entity);
@@ -396,24 +400,47 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertIsArray($values);
-        $this->assertEquals("tag1,tag2,tag3", $values["tags"]);
+        $this->assertEquals([
+            "name" => "Test",
+            "age" => 25,
+            "price" => 99.99,
+            "tags" => "tag1,tag2,tag3",
+            "created_at" => "2024-01-15 10:30:00",
+            "birth_date" => "2000-05-20",
+        ], $values);
     }
 
     public function testGetValuesToSaveConvertsDateTimeToString(): void {
         $entity = new TestEntity();
+        $entity->name = "Test";
+        $entity->age = 30;
+        $entity->price = 49.99;
+        $entity->tags = ["php", "orm"];
         $entity->created_at = new DateTime("2024-01-15 10:30:00");
+        $entity->birth_date = new DateTime("1990-03-10");
 
         $reflection = new \ReflectionClass($entity);
         $method = $reflection->getMethod('getValuesToSave');
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertEquals("2024-01-15 10:30:00", $values["created_at"]);
+        $this->assertEquals([
+            "name" => "Test",
+            "age" => 30,
+            "price" => 49.99,
+            "tags" => "php,orm",
+            "created_at" => "2024-01-15 10:30:00",
+            "birth_date" => "1990-03-10",
+        ], $values);
     }
 
     public function testGetValuesToSaveConvertsDateToString(): void {
         $entity = new TestEntity();
+        $entity->name = "Test";
+        $entity->age = 24;
+        $entity->price = 19.99;
+        $entity->tags = ["test"];
+        $entity->created_at = new DateTime("2023-12-01 08:00:00");
         $entity->birth_date = new DateTime("2000-05-20");
 
         $reflection = new \ReflectionClass($entity);
@@ -421,7 +448,14 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertEquals("2000-05-20", $values["birth_date"]);
+        $this->assertEquals([
+            "name" => "Test",
+            "age" => 24,
+            "price" => 19.99,
+            "tags" => "test",
+            "created_at" => "2023-12-01 08:00:00",
+            "birth_date" => "2000-05-20",
+        ], $values);
     }
 
     public function testGetValuesToSaveAppliesColumnPrefix(): void {
@@ -434,15 +468,14 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertArrayHasKey("prefix_name", $values);
-        $this->assertArrayHasKey("prefix_status", $values);
-        $this->assertEquals("Test", $values["prefix_name"]);
-        $this->assertEquals(1, $values["prefix_status"]);
+        $this->assertEquals([
+            "prefix_name" => "Test",
+            "prefix_status" => 1,
+        ], $values);
     }
 
     public function testGetValuesToSaveHandlesBelongsToRelationship(): void {
-        $related = new RelatedEntity();
-        $related->title = "Related";
+        $related = RelatedEntity::loadFromDatabaseRow(["id" => 42]);
 
         $entity = new TestEntityWithRelationships();
         $entity->name = "Main";
@@ -453,8 +486,10 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertArrayHasKey("related_id", $values);
-        $this->assertArrayNotHasKey("related", $values);
+        $this->assertEquals([
+            "name" => "Main",
+            "related_id" => 42,
+        ], $values);
     }
 
     public function testGetValuesToSaveSkipsHasManyRelationships(): void {
@@ -469,8 +504,10 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertArrayNotHasKey("children", $values);
-        $this->assertArrayHasKey("name", $values);
+        $this->assertEquals([
+            "name" => "Main",
+            "related_id" => null,
+        ], $values);
     }
 
     public function testGetValuesToSaveSkipsHasOneRelationships(): void {
@@ -485,8 +522,10 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertArrayNotHasKey("profile", $values);
-        $this->assertArrayHasKey("name", $values);
+        $this->assertEquals([
+            "name" => "Main",
+            "related_id" => null,
+        ], $values);
     }
 
     public function testGetValuesToSaveHandlesNullValues(): void {
@@ -503,12 +542,14 @@ final class EntityTest extends TestCase {
         $method->setAccessible(true);
         $values = $method->invoke($entity);
 
-        $this->assertNull($values["name"]);
-        $this->assertNull($values["age"]);
-        $this->assertNull($values["price"]);
-        $this->assertNull($values["tags"]);
-        $this->assertNull($values["created_at"]);
-        $this->assertNull($values["birth_date"]);
+        $this->assertEquals([
+            "name" => null,
+            "age" => null,
+            "price" => null,
+            "tags" => null,
+            "created_at" => null,
+            "birth_date" => null,
+        ], $values);
     }
 
     public function testGetColumnsReturnsAllNonRelationshipColumns(): void {
