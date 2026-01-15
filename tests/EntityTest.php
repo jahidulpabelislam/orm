@@ -107,8 +107,7 @@ final class EntityTest extends TestCase {
         $this->assertSame(["tag1", "tag2", "tag3"], $entity->tags->getItems());
         $this->assertSame("tag2", $entity->tags[1]);
 
-        $collection = new Collection(["a", "b", "c"]);
-        $entity->tags = $collection;
+        $entity->tags = new Collection(["a", "b", "c"]);
         $this->assertInstanceOf(Collection::class, $entity->tags);
         $this->assertSame(["a", "b", "c"], $entity->tags->getItems());
         $this->assertSame("c", $entity->tags[2]);
