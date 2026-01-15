@@ -15,7 +15,6 @@ final class ChildEntity extends AbstractEntity {
         "parent" => [
             "type" => "belongs_to",
             "entity" => TestEntityWithRelationships::class,
-            "column" => "parent_id",
         ],
     ];
 }

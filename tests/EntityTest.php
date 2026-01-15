@@ -9,7 +9,6 @@ use JPI\ORM\Entity\Collection as EntityCollection;
 use JPI\ORM\Entity\InvalidValueException;
 use JPI\ORM\Tests\Fixtures\ChildEntity;
 use JPI\ORM\Tests\Fixtures\InvalidTypeEntity;
-use JPI\ORM\Tests\Fixtures\ProfileEntity;
 use JPI\ORM\Tests\Fixtures\RelatedEntity;
 use JPI\ORM\Tests\Fixtures\TestEntity;
 use JPI\ORM\Tests\Fixtures\TestEntityWithPrefix;
@@ -30,65 +29,55 @@ final class EntityTest extends TestCase {
         new InvalidTypeEntity();
     }
 
-    public function testGetFullColumnName(): void {
-        $this->assertEquals("name", TestEntity::getFullColumnName("name"));
-        $this->assertEquals("age", TestEntity::getFullColumnName("age"));
-        $this->assertEquals("id", TestEntity::getFullColumnName("id"));
+    public function testGetColumns(): void {
+        $this->assertSame(["name", "age", "price", "tags", "birth_date", "created_at"], TestEntity::getColumns());
+
+        // With prefix
+        $this->assertSame(["name", "age", "price", "tags", "birth_date", "created_at"], TestEntityWithPrefix::getColumns());
+
+        // With relationships
+        $this->assertSame(["name", "age", "price", "tags", "birth_date", "other_related_id", "created_at"], TestEntityWithRelationships::getColumns());
+
+        // With belongs_to but no explicit column
+        $this->assertSame(["title", "parent_id"], ChildEntity::getColumns());
     }
 
-    public function testGetFullColumnNameWithPrefix(): void {
-        $this->assertEquals("prefix_name", TestEntityWithPrefix::getFullColumnName("name"));
-        $this->assertEquals("prefix_status", TestEntityWithPrefix::getFullColumnName("status"));
-        $this->assertEquals("prefix_id", TestEntityWithPrefix::getFullColumnName("id"));
+    public function testGetFullColumnName(): void {
+        $this->assertSame("name", TestEntity::getFullColumnName("name"));
+        $this->assertSame("id", TestEntity::getFullColumnName("id"));
+
+        // With prefix
+        $this->assertSame("prefix_name", TestEntityWithPrefix::getFullColumnName("name"));
+        $this->assertSame("prefix_id", TestEntityWithPrefix::getFullColumnName("id"));
     }
 
     public function testSetStringValue(): void {
         $entity = new TestEntity();
+
         $entity->name = "Test Name";
+        $this->assertSame("Test Name", $entity->name);
 
-        $this->assertEquals("Test Name", $entity->name);
-    }
-
-    public function testSetStringNullValue(): void {
-        $entity = new TestEntity();
         $entity->name = null;
-
         $this->assertNull($entity->name);
-    }
 
-    public function testSetStringInvalidValue(): void {
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`name` must be a string or null.");
-
-        $entity = new TestEntity();
         $entity->name = 123;
     }
 
     public function testSetIntValue(): void {
         $entity = new TestEntity();
+
         $entity->age = 25;
-
-        $this->assertEquals(25, $entity->age);
+        $this->assertSame(25, $entity->age);
         $this->assertIsInt($entity->age);
-    }
 
-    public function testSetIntValueFromString(): void {
-        $entity = new TestEntity();
         $entity->age = "42";
-
-        $this->assertEquals(42, $entity->age);
+        $this->assertSame(42, $entity->age);
         $this->assertIsInt($entity->age);
-    }
 
-    public function testSetIntNullValue(): void {
-        $entity = new TestEntity();
         $entity->age = null;
-
         $this->assertNull($entity->age);
-    }
-
-    public function testSetIntInvalidValue(): void {
-        $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`age` must be an integer or null.");
@@ -98,536 +87,260 @@ final class EntityTest extends TestCase {
 
     public function testSetFloatValidValue(): void {
         $entity = new TestEntity();
+
         $entity->price = 19.99;
-
-        $this->assertEquals(19.99, $entity->price);
+        $this->assertSame(19.99, $entity->price);
         $this->assertIsFloat($entity->price);
-    }
 
-    public function testSetFloatValueFromString(): void {
-        $entity = new TestEntity();
         $entity->price = "29.99";
-
-        $this->assertEquals(29.99, $entity->price);
+        $this->assertSame(29.99, $entity->price);
         $this->assertIsFloat($entity->price);
-    }
 
-    public function testSetFloatValueNull(): void {
-        $entity = new TestEntity();
         $entity->price = null;
-
         $this->assertNull($entity->price);
-    }
-
-    public function testSetFloatInvalidValue(): void {
-        $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`price` must be a float or null.");
-
         $entity->price = "not a number";
     }
 
-    public function testSetArrayValidValue(): void {
+    public function testSetArrayValue(): void {
         $entity = new TestEntity();
+
         $entity->tags = ["tag1", "tag2", "tag3"];
-
         $this->assertInstanceOf(Collection::class, $entity->tags);
-        $this->assertEquals(["tag1", "tag2", "tag3"], $entity->tags->getItems());
-    }
+        $this->assertSame(["tag1", "tag2", "tag3"], $entity->tags->getItems());
+        $this->assertSame("tag2", $entity->tags[1]);
 
-    public function testSetArrayCollectionValue(): void {
-        $entity = new TestEntity();
         $collection = new Collection(["a", "b", "c"]);
         $entity->tags = $collection;
-
         $this->assertInstanceOf(Collection::class, $entity->tags);
-        $this->assertEquals(["a", "b", "c"], $entity->tags->getItems());
-    }
+        $this->assertSame(["a", "b", "c"], $entity->tags->getItems());
+        $this->assertSame("c", $entity->tags[2]);
 
-    public function testSetArrayNullValue(): void {
-        $entity = new TestEntity();
         $entity->tags = null;
-
         $this->assertNull($entity->tags);
-    }
 
-    public function testSetArrayValueFromDBString(): void {
-        $entity = new TestEntity();
         $entity->setValues(["tags" => "tag1,tag2,tag3"], true);
-
         $this->assertInstanceOf(Collection::class, $entity->tags);
-        $this->assertEquals(["tag1", "tag2", "tag3"], $entity->tags->getItems());
-    }
-
-    public function testSetArrayInvalidValue(): void {
-        $entity = new TestEntity();
+        $this->assertSame(["tag1", "tag2", "tag3"], $entity->tags->getItems());
 
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`tags` must be a Collection, array or null.");
-
         $entity->tags = "not an array";
     }
 
-    public function testSetDateTimeValidValue(): void {
+    public function testSetDateTimeValue(): void {
         $entity = new TestEntity();
-        $date = new DateTime("2024-01-15 10:30:00");
-        $entity->created_at = $date;
 
+        $entity->created_at = new DateTime("2024-01-15 10:30:00");
         $this->assertInstanceOf(DateTime::class, $entity->created_at);
-        $this->assertEquals("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
-    }
+        $this->assertSame("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
 
-    public function testSetDateTimeValueFromString(): void {
-        $entity = new TestEntity();
         $entity->created_at = "2024-01-15 10:30:00";
-
         $this->assertInstanceOf(DateTime::class, $entity->created_at);
-        $this->assertEquals("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
-    }
+        $this->assertSame("2024-01-15 10:30:00", $entity->created_at->format("Y-m-d H:i:s"));
 
-    public function testSetDateTimeNullValue(): void {
-        $entity = new TestEntity();
         $entity->created_at = null;
-
         $this->assertNull($entity->created_at);
-    }
-
-    public function testSetDateTimeInvalidValue(): void {
-        $entity = new TestEntity();
 
         $this->expectException(InvalidValueException::class);
-
-        $entity->created_at = [];
+        $entity->created_at = "invalid date time";
     }
 
-    public function testSetDateValueFromString(): void {
+    public function testSetDateValue(): void {
         $entity = new TestEntity();
         $entity->birth_date = "2000-05-20";
 
         $this->assertInstanceOf(DateTime::class, $entity->birth_date);
-        $this->assertEquals("2000-05-20", $entity->birth_date->format("Y-m-d"));
+        $this->assertSame("2000-05-20", $entity->birth_date->format("Y-m-d"));
     }
 
-    public function testSetBelongsToValueWithEntity(): void {
-        $related = new RelatedEntity();
-        $related->title = "Related Title";
-
+    public function testSetBelongsToValue(): void {
         $entity = new TestEntityWithRelationships();
-        $entity->related = $related;
 
-        $this->assertInstanceOf(RelatedEntity::class, $entity->related);
-        $this->assertEquals("Related Title", $entity->related->title);
-    }
-
-    public function testSetBelongsToValueWithInteger(): void {
-        $entity = new TestEntityWithRelationships();
+        // With id
         $entity->related = 5;
+        $this->assertSame(5, $entity->other_related_id);
 
-        // When setting an integer, the database_value is stored
-        // The actual entity is not loaded until accessed
-        $reflection = new \ReflectionClass($entity);
-        $property = $reflection->getProperty('data');
-        $property->setAccessible(true);
-        $data = $property->getValue($entity);
+        // With Entity instance
+        $related = RelatedEntity::loadFromDatabaseRow(["id" => 11]);
+        $related->title = "Related Title";
+        $entity->related = $related;
+        $this->assertInstanceOf(RelatedEntity::class, $entity->related);
+        $this->assertSame("Related Title", $entity->related->title);
+        $this->assertSame(11, $entity->other_related_id);
 
-        $this->assertEquals(5, $data['related']['database_value']);
-    }
-
-    public function testSetBelongsToNullValue(): void {
-        $entity = new TestEntityWithRelationships();
         $entity->related = null;
-
         $this->assertNull($entity->related);
-    }
-
-    public function testSetBelongsToInvalidValue(): void {
-        $entity = new TestEntityWithRelationships();
 
         $this->expectException(InvalidValueException::class);
         $entity->related = "invalid";
     }
 
-    public function testSetHasManyValueWithArray(): void {
+    public function testSetHasManyValue(): void {
         $entity = new TestEntityWithRelationships();
+
         $child1 = new ChildEntity();
         $child1->title = "Child 1";
         $child2 = new ChildEntity();
         $child2->title = "Child 2";
 
         $entity->children = [$child1, $child2];
-
         $this->assertInstanceOf(EntityCollection::class, $entity->children);
         $this->assertCount(2, $entity->children);
-    }
+        $this->assertSame("Child 2", $entity->children[1]->title);
 
-    public function testSetHasManyValueWithEntityCollection(): void {
-        $entity = new TestEntityWithRelationships();
-        $child = new ChildEntity();
-        $child->title = "Child";
-
-        $collection = new EntityCollection([$child]);
-        $entity->children = $collection;
-
+        $entity->children = new EntityCollection([$child2]);
         $this->assertInstanceOf(EntityCollection::class, $entity->children);
         $this->assertCount(1, $entity->children);
-    }
+        $this->assertSame("Child 2", $entity->children[0]->title);
 
-    public function testSetHasManyNullValue(): void {
-        $entity = new TestEntityWithRelationships();
         $entity->children = null;
-
         $this->assertInstanceOf(EntityCollection::class, $entity->children);
         $this->assertCount(0, $entity->children);
-    }
-
-    public function testSetHasManyInvalidValue(): void {
-        $entity = new TestEntityWithRelationships();
 
         $this->expectException(InvalidValueException::class);
         $entity->children = "invalid";
     }
 
     public function testSetHasOneValidValue(): void {
-        $profile = new ProfileEntity();
-        $profile->bio = "Bio text";
-
         $entity = new TestEntityWithRelationships();
-        $entity->profile = $profile;
 
-        $this->assertInstanceOf(ProfileEntity::class, $entity->profile);
-        $this->assertEquals("Bio text", $entity->profile->bio);
-    }
+        $child = new ChildEntity();
+        $child->title = "Title text";
 
-    public function testSetHasOneNullValue(): void {
-        $entity = new TestEntityWithRelationships();
-        $entity->profile = null;
+        $entity->child = $child;
+        $this->assertInstanceOf(ChildEntity::class, $entity->child);
+        $this->assertSame("Title text", $entity->child->title);
 
-        $this->assertNull($entity->profile);
-    }
-
-    public function testSetHasOneInvalidValue(): void {
-        $entity = new TestEntityWithRelationships();
+        $entity->child = null;
+        $this->assertNull($entity->child);
 
         $this->expectException(InvalidValueException::class);
-        $entity->profile = "invalid";
+        $entity->child = "invalid";
     }
 
-    public function testSetValuesPopulatesFromArray(): void {
-        $entity = new TestEntity();
+    public function testSetValues(): void {
+        $entity = new TestEntityWithRelationships();
         $entity->setValues([
             "name" => "Test",
             "age" => 30,
             "price" => 99.99,
+            "related" => 42, // Belongs to relationship (using key name)
         ]);
+        $this->assertSame("Test", $entity->name);
+        $this->assertSame(30, $entity->age);
+        $this->assertSame(99.99, $entity->price);
+        $this->assertSame(42, $entity->other_related_id);
 
-        $this->assertEquals("Test", $entity->name);
-        $this->assertEquals(30, $entity->age);
-        $this->assertEquals(99.99, $entity->price);
-    }
+        // Belongs to with id from db (Need to use the real column name)
+        $entity = new TestEntityWithRelationships();
+        $entity->setValues([
+            "other_related_id" => 44,
+        ], true);
+        $this->assertSame(44, $entity->other_related_id);
 
-    public function testSetValuesFromDBAppliesColumnPrefix(): void {
+        // From db with prefix
         $entity = new TestEntityWithPrefix();
         $entity->setValues([
             "prefix_name" => "Prefixed Name",
-            "prefix_status" => 1,
+            "prefix_age" => 66,
         ], true);
-
-        $this->assertEquals("Prefixed Name", $entity->name);
-        $this->assertEquals(1, $entity->status);
+        $this->assertSame("Prefixed Name", $entity->name);
+        $this->assertSame(66, $entity->age);
     }
 
-    public function testSetValuesFromDBHandlesBelongsToColumn(): void {
-        $entity = new TestEntityWithRelationships();
-        $entity->setValues([
-            "name" => "Main Entity",
-            "related_id" => 42,
-        ], true);
-
-        $this->assertEquals("Main Entity", $entity->name);
-    }
-
-    public function testGetValueReturnsCorrectValue(): void {
+    public function testGetId(): void {
         $entity = new TestEntity();
-        $entity->name = "Test Name";
+        $this->assertNull($entity->id);
 
-        $this->assertEquals("Test Name", $entity->getValue("name"));
+        $entity = TestEntity::loadFromDatabaseRow(["id" => 69]);
+        $this->assertSame(69, $entity->id);
     }
 
-    public function testGetValueForIdReturnsIdentifier(): void {
-        $entity = new TestEntity();
-
-        $this->assertNull($entity->getValue("id"));
-    }
-
-    public function testGetValueForInvalidKeyThrowsException(): void {
-        $entity = new TestEntity();
-
+    public function testMagicGetForInvalidKey(): void {
         $this->expectException(OutOfBoundsException::class);
         $this->expectExceptionMessage("`invalid_key` isn't valid.");
 
-        $entity->getValue("invalid_key");
+        $entity = new TestEntity();
+        $entity->invalid_key;
     }
 
-    public function testMagicGetReturnsCorrectValue(): void {
-        $entity = new TestEntity();
-        $entity->name = "Magic Test";
-
-        $this->assertEquals("Magic Test", $entity->name);
-    }
-
-    public function testMagicSetThrowsExceptionForInvalidKey(): void {
-        $entity = new TestEntity();
-
+    public function testMagicSetForInvalidKey(): void {
         $this->expectException(OutOfBoundsException::class);
         $this->expectExceptionMessage("`invalid` isn't valid.");
 
+        $entity = new TestEntity();
         $entity->invalid = "value";
     }
 
-    public function testGetValuesToSaveConvertsArrayToString(): void {
-        $entity = new TestEntity();
-        $entity->name = "Test";
+    public function testGetValuesToSave(): void {
+        // Should only include the foreign key for belongs_to relationships and ignore has_one/has_many
+        $entity = new TestEntityWithRelationships();
+        $reflection = new \ReflectionClass($entity);
+        $method = $reflection->getMethod('getValuesToSave');
+        $method->setAccessible(true);
+
+        // Initially all null
+        $this->assertSame(
+            [
+                "name" => null,
+                "age" => null,
+                "price" => null,
+                "tags" => null,
+                "birth_date" => null,
+                "other_related_id" => null,
+                "created_at" => null,
+            ],
+            $method->invoke($entity)
+        );
+
+        $child = ChildEntity::loadFromDatabaseRow(["id" => 10]);
+        $child->title = "Child";
+
+        $entity->name = "Main";
         $entity->age = 25;
         $entity->price = 99.99;
-        $entity->tags = ["tag1", "tag2", "tag3"];
-        $entity->created_at = new DateTime("2024-01-15 10:30:00");
+        $entity->tags = new Collection(["tag1", "tag2", "tag3"]);
         $entity->birth_date = new DateTime("2000-05-20");
-
-        // Use reflection to call protected method
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => "Test",
-            "age" => 25,
-            "price" => 99.99,
-            "tags" => "tag1,tag2,tag3",
-            "created_at" => "2024-01-15 10:30:00",
-            "birth_date" => "2000-05-20",
-        ], $values);
-    }
-
-    public function testGetValuesToSaveConvertsDateTimeToString(): void {
-        $entity = new TestEntity();
-        $entity->name = "Test";
-        $entity->age = 30;
-        $entity->price = 49.99;
-        $entity->tags = ["php", "orm"];
-        $entity->created_at = new DateTime("2024-01-15 10:30:00");
-        $entity->birth_date = new DateTime("1990-03-10");
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => "Test",
-            "age" => 30,
-            "price" => 49.99,
-            "tags" => "php,orm",
-            "created_at" => "2024-01-15 10:30:00",
-            "birth_date" => "1990-03-10",
-        ], $values);
-    }
-
-    public function testGetValuesToSaveConvertsDateToString(): void {
-        $entity = new TestEntity();
-        $entity->name = "Test";
-        $entity->age = 24;
-        $entity->price = 19.99;
-        $entity->tags = ["test"];
-        $entity->created_at = new DateTime("2023-12-01 08:00:00");
-        $entity->birth_date = new DateTime("2000-05-20");
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => "Test",
-            "age" => 24,
-            "price" => 19.99,
-            "tags" => "test",
-            "created_at" => "2023-12-01 08:00:00",
-            "birth_date" => "2000-05-20",
-        ], $values);
-    }
-
-    public function testGetValuesToSaveAppliesColumnPrefix(): void {
-        $entity = new TestEntityWithPrefix();
-        $entity->name = "Test";
-        $entity->status = 1;
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "prefix_name" => "Test",
-            "prefix_status" => 1,
-        ], $values);
-    }
-
-    public function testGetValuesToSaveHandlesBelongsToRelationship(): void {
-        $related = RelatedEntity::loadFromDatabaseRow(["id" => 42]);
-
-        $entity = new TestEntityWithRelationships();
-        $entity->name = "Main";
-        $entity->related = $related;
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => "Main",
-            "related_id" => 42,
-        ], $values);
-    }
-
-    public function testGetValuesToSaveSkipsHasManyRelationships(): void {
-        $entity = new TestEntityWithRelationships();
-        $entity->name = "Main";
-        $child = new ChildEntity();
-        $child->title = "Child";
+        $entity->related = RelatedEntity::loadFromDatabaseRow(["id" => 42]);
+        $entity->child = $child;
         $entity->children = [$child];
+        $entity->created_at = new DateTime("2024-01-15 10:30:00");
 
+        $this->assertSame(
+            [
+                "name" => "Main",
+                "age" => 25,
+                "price" => 99.99,
+                "tags" => "tag1,tag2,tag3",
+                "birth_date" => "2000-05-20",
+                "other_related_id" => 42,
+                "created_at" => "2024-01-15 10:30:00",
+            ],
+            $method->invoke($entity)
+        );
+    }
+
+    public function testGetValuesToSaveWithPrefix(): void {
+        $entity = new TestEntityWithPrefix();
         $reflection = new \ReflectionClass($entity);
         $method = $reflection->getMethod('getValuesToSave');
         $method->setAccessible(true);
-        $values = $method->invoke($entity);
 
-        $this->assertEquals([
-            "name" => "Main",
-            "related_id" => null,
-        ], $values);
-    }
-
-    public function testGetValuesToSaveSkipsHasOneRelationships(): void {
-        $entity = new TestEntityWithRelationships();
-        $entity->name = "Main";
-        $profile = new ProfileEntity();
-        $profile->bio = "Bio";
-        $entity->profile = $profile;
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => "Main",
-            "related_id" => null,
-        ], $values);
-    }
-
-    public function testGetValuesToSaveHandlesNullValues(): void {
-        $entity = new TestEntity();
-        $entity->name = null;
-        $entity->age = null;
-        $entity->price = null;
-        $entity->tags = null;
-        $entity->created_at = null;
-        $entity->birth_date = null;
-
-        $reflection = new \ReflectionClass($entity);
-        $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
-        $values = $method->invoke($entity);
-
-        $this->assertEquals([
-            "name" => null,
-            "age" => null,
-            "price" => null,
-            "tags" => null,
-            "created_at" => null,
-            "birth_date" => null,
-        ], $values);
-    }
-
-    public function testGetColumnsReturnsAllNonRelationshipColumns(): void {
-        $columns = TestEntity::getColumns();
-
-        $this->assertEquals(["name", "age", "price", "tags", "created_at", "birth_date"], $columns);
-    }
-
-    public function testGetColumnsExcludesHasManyAndHasOneRelationships(): void {
-        $columns = TestEntityWithRelationships::getColumns();
-
-        $this->assertEquals(["name", "related_id"], $columns);
-    }
-
-    public function testGetColumnsWithBelongsToDefaultColumn(): void {
-        // Create a test entity with belongs_to but no explicit column
-        $entity = new class extends \JPI\ORM\Tests\Fixtures\AbstractEntity {
-            protected static string $table = "test";
-            protected static array $dataMapping = [
-                "title" => ["type" => "string"],
-                "author" => [
-                    "type" => "belongs_to",
-                    "entity" => RelatedEntity::class,
-                    // No explicit column - should default to "author_id"
-                ],
-            ];
-        };
-
-        $columns = $entity::getColumns();
-
-        $this->assertEquals(["title", "author_id"], $columns);
-    }
-
-    public function testGetColumnsDoesNotIncludePrefix(): void {
-        $columns = TestEntityWithPrefix::getColumns();
-
-        $this->assertEquals(["name", "status"], $columns);
-    }
-
-    public function testGetValueReturnsDatabaseValueForBelongsToColumn(): void {
-        $entity = new TestEntityWithRelationships();
-
-        // Set a belongs_to relationship using an integer ID
-        $entity->related = 123;
-
-        // Access the foreign key column directly (related_id) should return the database_value
-        $this->assertEquals(123, $entity->getValue("related_id"));
-    }
-
-    public function testMagicGetReturnsDatabaseValueForBelongsToColumn(): void {
-        $entity = new TestEntityWithRelationships();
-
-        // Set a belongs_to relationship using an integer ID
-        $entity->related = 456;
-
-        // Access the foreign key column directly via magic __get (related_id) should return the database_value
-        $this->assertEquals(456, $entity->related_id);
-    }
-
-    public function testGetValueReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
-        $entity = new TestEntityWithRelationships();
-        $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 789]);
-
-        // Set a belongs_to relationship using an Entity instance
-        $entity->related = $relatedEntity;
-
-        // Access the foreign key column directly should return the database_value (the entity's ID)
-        $this->assertEquals(789, $entity->getValue("related_id"));
-    }
-
-    public function testMagicGetReturnsDatabaseValueForBelongsToColumnAfterSettingEntity(): void {
-        $entity = new TestEntityWithRelationships();
-        $relatedEntity = RelatedEntity::loadFromDatabaseRow(["id" => 999]);
-
-        // Set a belongs_to relationship using an Entity instance
-        $entity->related = $relatedEntity;
-
-        // Access the foreign key column directly via magic __get should return the database_value (the entity's ID)
-        $this->assertEquals(999, $entity->related_id);
+        $entity->name = "Test";
+        $entity->age = 1;
+        $this->assertSame(
+            [
+                "prefix_name" => "Test",
+                "prefix_age" => 1,
+                "prefix_price" => null,
+                "prefix_tags" => null,
+                "prefix_birth_date" => null,
+                "prefix_created_at" => null,
+            ],
+            $method->invoke($entity)
+        );
     }
 }

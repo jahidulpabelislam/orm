@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JPI\ORM\Tests\Fixtures;
 
-final class TestEntity extends AbstractEntity {
+class TestEntity extends AbstractEntity {
 
     protected static string $table = "test_table";
 
@@ -22,11 +22,11 @@ final class TestEntity extends AbstractEntity {
             "type" => "array",
             "separator" => ",",
         ],
-        "created_at" => [
-            "type" => "date_time",
-        ],
         "birth_date" => [
             "type" => "date",
+        ],
+        "created_at" => [
+            "type" => "date_time",
         ],
     ];
 }

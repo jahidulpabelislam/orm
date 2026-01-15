@@ -34,9 +34,9 @@ final class QueryBuilderTest extends TestCase {
 
     public function testWhereWithEntity(): void {
         $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
-        $queryBuilder = TestEntity::newQuery()->where("related_id", "=", $entity);
+        $queryBuilder = TestEntity::newQuery()->where("other_related_id", "=", $entity);
 
-        $this->assertEquals(["related_id" => 123], $queryBuilder->getParams());
+        $this->assertEquals(["other_related_id" => 123], $queryBuilder->getParams());
     }
 
     public function testWhereWithEntityCollection(): void {
@@ -45,13 +45,13 @@ final class QueryBuilderTest extends TestCase {
         $entity3 = RelatedEntity::loadFromDatabaseRow(["id" => 30]);
         $collection = new EntityCollection([$entity1, $entity2, $entity3]);
 
-        $queryBuilder = TestEntity::newQuery()->where("related_id", "IN", $collection);
+        $queryBuilder = TestEntity::newQuery()->where("other_related_id", "IN", $collection);
 
         $this->assertEquals(
             [
-                "related_id_1" => 10,
-                "related_id_2" => 20,
-                "related_id_3" => 30,
+                "other_related_id_1" => 10,
+                "other_related_id_2" => 20,
+                "other_related_id_3" => 30,
             ],
             $queryBuilder->getParams()
         );
@@ -134,7 +134,7 @@ ORDER BY prefix_name ASC;"),
         $database->expects($this->once())
             ->method("selectFirst")
             ->with(
-                $this->equalTo("SELECT COUNT(prefix_status) as count
+                $this->equalTo("SELECT COUNT(prefix_age) as count
 FROM prefixed_table
 LIMIT 1;"),
                 $this->equalTo([])
@@ -143,7 +143,7 @@ LIMIT 1;"),
         ;
 
         TestEntityWithPrefix::setDatabase($database);
-        TestEntityWithPrefix::newQuery()->count("status");
+        TestEntityWithPrefix::newQuery()->count("age");
     }
 
     public function testAndConditionAppliesPrefix(): void {
@@ -153,11 +153,11 @@ LIMIT 1;"),
             ->with(
                 $this->equalTo("SELECT *
 FROM prefixed_table
-WHERE (prefix_name = :prefix_name AND prefix_status = :prefix_status)
+WHERE (prefix_name = :prefix_name AND prefix_age = :prefix_age)
 ORDER BY prefix_id ASC;"),
                 $this->equalTo([
                     "prefix_name" => "Test",
-                    "prefix_status" => 1,
+                    "prefix_age" => 1,
                 ])
             )
             ->willReturn([])
@@ -167,7 +167,7 @@ ORDER BY prefix_id ASC;"),
         $query = TestEntityWithPrefix::newQuery();
         $condition = $query->newAndCondition();
         $condition->where("name", "=", "Test");
-        $condition->where("status", "=", 1);
+        $condition->where("age", "=", 1);
         $query->where($condition)->select();
     }
 
@@ -178,11 +178,11 @@ ORDER BY prefix_id ASC;"),
             ->with(
                 $this->equalTo("SELECT *
 FROM prefixed_table
-WHERE (prefix_name = :prefix_name OR prefix_status = :prefix_status)
+WHERE (prefix_name = :prefix_name OR prefix_age = :prefix_age)
 ORDER BY prefix_id ASC;"),
                 $this->equalTo([
                     "prefix_name" => "Test",
-                    "prefix_status" => 1,
+                    "prefix_age" => 1,
                 ])
             )
             ->willReturn([])
@@ -192,7 +192,7 @@ ORDER BY prefix_id ASC;"),
         $query = TestEntityWithPrefix::newQuery();
         $condition = $query->newOrCondition();
         $condition->where("name", "=", "Test");
-        $condition->where("status", "=", 1);
+        $condition->where("age", "=", 1);
         $query->where($condition)->select();
     }
 
@@ -202,11 +202,11 @@ ORDER BY prefix_id ASC;"),
             ->method("exec")
             ->with(
                 $this->equalTo("INSERT INTO prefixed_table
-(prefix_name,prefix_status)
-VALUES (:prefix_name__row1,:prefix_status__row1);"),
+(prefix_name,prefix_age)
+VALUES (:prefix_name__row1,:prefix_age__row1);"),
                 $this->equalTo([
                     "prefix_name__row1" => "Test",
-                    "prefix_status__row1" => 1,
+                    "prefix_age__row1" => 1,
                 ])
             )
             ->willReturn(1)
@@ -215,7 +215,7 @@ VALUES (:prefix_name__row1,:prefix_status__row1);"),
         TestEntityWithPrefix::setDatabase($database);
         TestEntityWithPrefix::newQuery()->insert([
             "name" => "Test",
-            "status" => 1,
+            "age" => 1,
         ]);
     }
 
@@ -225,10 +225,10 @@ VALUES (:prefix_name__row1,:prefix_status__row1);"),
             ->method("exec")
             ->with(
                 $this->equalTo("UPDATE prefixed_table
-SET prefix_name = :prefix_name,prefix_status = :prefix_status;"),
+SET prefix_name = :prefix_name,prefix_age = :prefix_age;"),
                 $this->equalTo([
                     "prefix_name" => "Updated",
-                    "prefix_status" => 2,
+                    "prefix_age" => 2,
                 ])
             )
             ->willReturn(1)
@@ -237,7 +237,7 @@ SET prefix_name = :prefix_name,prefix_status = :prefix_status;"),
         TestEntityWithPrefix::setDatabase($database);
         TestEntityWithPrefix::newQuery()->update([
             "name" => "Updated",
-            "status" => 2,
+            "age" => 2,
         ]);
     }
 }
