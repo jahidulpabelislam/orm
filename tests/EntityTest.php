@@ -79,7 +79,6 @@ final class EntityTest extends TestCase {
 
         $this->expectException(InvalidValueException::class);
         $this->expectExceptionMessage("`age` must be an integer or null.");
-
         $entity->age = "not a number";
     }
 
