@@ -165,10 +165,12 @@ ORDER BY prefix_id ASC;"),
 
         TestEntityWithPrefix::setDatabase($database);
         $query = TestEntityWithPrefix::newQuery();
-        $condition = $query->newAndCondition();
-        $condition->where("name", "=", "Test");
-        $condition->where("age", "=", 1);
-        $query->where($condition)->select();
+        $query->where(
+            $query->newAndCondition()
+                ->where("name", "=", "Test")
+                ->where("age", "=", 1)
+        )
+            ->select();
     }
 
     public function testOrConditionAppliesPrefix(): void {
@@ -190,10 +192,12 @@ ORDER BY prefix_id ASC;"),
 
         TestEntityWithPrefix::setDatabase($database);
         $query = TestEntityWithPrefix::newQuery();
-        $condition = $query->newOrCondition();
-        $condition->where("name", "=", "Test");
-        $condition->where("age", "=", 1);
-        $query->where($condition)->select();
+        $query->where(
+            $query->newOrCondition()
+                ->where("name", "=", "Test")
+                ->where("age", "=", 1)
+        )
+            ->select();
     }
 
     public function testInsertAppliesPrefix(): void {
