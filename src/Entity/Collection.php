@@ -12,11 +12,10 @@ class Collection extends BaseCollection implements CollectionInterface {
 
     protected static function eagerLoadBelongsTo(array $entities, string $relationName, array $mapping): void {
         $foreignKeys = [];
-
         foreach ($entities as $entity) {
             $foreignKey = $entity->getForeignKeyValue($relationName);
             if (!isset($entity->$relationName) && $foreignKey !== null) {
-                $foreignKeys[] = $foreignKey;
+                $foreignKeys[$foreignKey] = true;
             }
         }
 
@@ -24,11 +23,7 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        $foreignKeys = array_unique($foreignKeys);
-        $relatedEntityClass = $mapping['entity'];
-
-        $relatedEntities = $relatedEntityClass::newQuery()->where('id', 'IN', $foreignKeys)->select();
-
+        $relatedEntities = $mapping['entity']::newQuery()->where('id', 'IN', array_keys($foreignKeys))->select();
         $relatedEntities = $relatedEntities instanceof Entity ? [$relatedEntities] : $relatedEntities;
 
         $relatedEntitiesById = [];
@@ -46,10 +41,9 @@ class Collection extends BaseCollection implements CollectionInterface {
 
     protected static function eagerLoadHasMany(array $entities, string $relationName, array $mapping): void {
         $ids = [];
-
         foreach ($entities as $entity) {
             if (!isset($entity->$relationName) && $entity->getId() !== null) {
-                $ids[] = $entity->getId();
+                $ids[$entity->getId()] = true;
             }
         }
 
@@ -64,11 +58,10 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        $relatedEntityMap = $relatedDataMapping[$mapping['column']];
-        $foreignKey = $relatedEntityMap['column'];
+        $foreignKey = $relatedDataMapping[$mapping['column']]['column'];
         $foreignKeyRelationName = $mapping['column'];
 
-        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', $ids)->select();
+        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
 
         $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
@@ -80,18 +73,15 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
 
         foreach ($entities as $entity) {
-            $entityId = $entity->getId();
-            $related = $relatedEntitiesByParentId[$entityId] ?? [];
-            $entity->setValue($relationName, $related, true);
+            $entity->setValue($relationName, $relatedEntitiesByParentId[$entity->getId()] ?? [], true);
         }
     }
 
     protected static function eagerLoadHasOne(array $entities, string $relationName, array $mapping): void {
         $ids = [];
-
         foreach ($entities as $entity) {
             if (!isset($entity->$relationName) && $entity->getId() !== null) {
-                $ids[] = $entity->getId();
+                $ids[$entity->getId()] = true;
             }
         }
 
@@ -110,7 +100,7 @@ class Collection extends BaseCollection implements CollectionInterface {
         $relatedEntityMap = $relatedDataMapping[$foreignKeyRelationName];
         $foreignKey = $relatedEntityMap['column'];
 
-        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', $ids)->select();
+        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
 
         $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
@@ -119,9 +109,7 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
 
         foreach ($entities as $entity) {
-            $entityId = $entity->getId();
-            $related = $relatedEntitiesByParentId[$entityId] ?? null;
-            $entity->setValue($relationName, $related, true);
+            $entity->setValue($relationName, $relatedEntitiesByParentId[$entity->getId()] ?? null, true);
         }
     }
 
