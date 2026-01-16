@@ -10,13 +10,6 @@ use JPI\Utils\Collection as BaseCollection;
 
 class Collection extends BaseCollection implements CollectionInterface {
 
-    /**
-     * Eager load a belongs_to relationship.
-     *
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
     protected function eagerLoadBelongsTo(string $relationName, array $mapping): void {
         $foreignKeys = [];
 
@@ -48,18 +41,11 @@ class Collection extends BaseCollection implements CollectionInterface {
         foreach ($this as $entity) {
             $foreignKey = $entity->getForeignKeyValue($relationName);
             if ($foreignKey !== null && isset($relatedEntitiesById[$foreignKey])) {
-                $entity->setEagerLoadedRelationship($relationName, $relatedEntitiesById[$foreignKey]);
+                $entity->setValue($relationName, $relatedEntitiesById[$foreignKey], true);
             }
         }
     }
 
-    /**
-     * Eager load a has_many relationship.
-     *
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
     protected function eagerLoadHasMany(string $relationName, array $mapping): void {
         $ids = [];
 
@@ -100,17 +86,10 @@ class Collection extends BaseCollection implements CollectionInterface {
         foreach ($this as $entity) {
             $entityId = $entity->getId();
             $related = $relatedEntitiesByParentId[$entityId] ?? [];
-            $entity->setEagerLoadedRelationship($relationName, $related);
+            $entity->setValue($relationName, $related, true);
         }
     }
 
-    /**
-     * Eager load a has_one relationship.
-     *
-     * @param string $relationName
-     * @param array $mapping
-     * @return void
-     */
     protected function eagerLoadHasOne(string $relationName, array $mapping): void {
         $ids = [];
 
@@ -148,18 +127,18 @@ class Collection extends BaseCollection implements CollectionInterface {
         foreach ($this as $entity) {
             $entityId = $entity->getId();
             $related = $relatedEntitiesByParentId[$entityId] ?? null;
-            $entity->setEagerLoadedRelationship($relationName, $related);
+            $entity->setValue($relationName, $related, true);
         }
     }
 
     /**
      * Eager load a single relationship on the given entities.
-     *
-     * @param string $relation
-     * @param string $entityClass The entity class to get data mapping from
-     * @return void
      */
-    protected function eagerLoadRelation(string $relation, string $entityClass): void {
+    protected function eagerLoadRelation(string $relation): void {
+        // Get entity class from first item
+        $firstEntity = $this->items[array_key_first($this->items)];
+        $entityClass = $firstEntity::class;
+
         // Handle nested relationships (e.g., 'customer.address')
         $nestedRelations = explode('.', $relation);
         $relationName = array_shift($nestedRelations);
@@ -175,9 +154,11 @@ class Collection extends BaseCollection implements CollectionInterface {
 
         if ($type === 'belongs_to') {
             $this->eagerLoadBelongsTo($relationName, $mapping);
-        } elseif ($type === 'has_many') {
+        }
+        else if ($type === 'has_many') {
             $this->eagerLoadHasMany($relationName, $mapping);
-        } elseif ($type === 'has_one') {
+        }
+        else if ($type === 'has_one') {
             $this->eagerLoadHasOne($relationName, $mapping);
         }
 
@@ -190,7 +171,8 @@ class Collection extends BaseCollection implements CollectionInterface {
                 $related = $entity->$relationName;
                 if ($related instanceof Entity) {
                     $relatedEntities[] = $related;
-                } elseif ($related instanceof Collection) {
+                }
+                else if ($related instanceof Collection) {
                     foreach ($related as $item) {
                         $relatedEntities[] = $item;
                     }
@@ -205,38 +187,20 @@ class Collection extends BaseCollection implements CollectionInterface {
     }
 
     /**
-     * Eager load relationships on the given entities.
-     *
-     * @param string|array<string> $relations
-     * @param string $entityClass The entity class to get data mapping from
-     * @return void
-     */
-    public function eagerLoadRelationships(string|array $relations, string $entityClass): void {
-        if (is_string($relations)) {
-            $relations = [$relations];
-        }
-
-        foreach ($relations as $relation) {
-            $this->eagerLoadRelation( $relation, $entityClass);
-        }
-    }
-
-    /**
      * Eager load relationships on this collection.
-     *
-     * @param string|array<string> $relations
-     * @return static
      */
     public function load(string|array $relations): static {
         if (empty($this->items)) {
             return $this;
         }
 
-        // Get entity class from first item
-        $firstEntity = $this->items[array_key_first($this->items)];
-        $entityClass = $firstEntity::class;
+        if (is_string($relations)) {
+            $relations = [$relations];
+        }
 
-        $this->eagerLoadRelationships($relations, $entityClass);
+        foreach ($relations as $relation) {
+            $this->eagerLoadRelation($relation);
+        }
 
         return $this;
     }

@@ -103,7 +103,7 @@ class QueryBuilder extends CoreQueryBuilder {
                     $results->$key;
                 }
             } else {
-                $results->eagerLoadRelationships($this->eagerLoad, $this->entityInstance::class);
+                $results->load($this->eagerLoad);
             }
         }
 
