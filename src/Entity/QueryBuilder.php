@@ -15,7 +15,6 @@ use JPI\ORM\Entity\QueryBuilder\Clause\Where\OrCondition;
 class QueryBuilder extends CoreQueryBuilder {
 
     use Entity\QueryBuilder\WhereableTrait;
-    use EagerLoadable;
 
     /** @var class-string<CollectionInterface> */
     protected static string $collectionClass = Collection::class;
@@ -100,12 +99,11 @@ class QueryBuilder extends CoreQueryBuilder {
         // Eager load relationships if specified
         if (!empty($this->eagerLoad) && $results !== null) {
             if ($results instanceof Entity) {
-                static::eagerLoadRelationships([$results], $this->eagerLoad, $this->entityInstance::class);
-            } else {
-                $entities = iterator_to_array($results);
-                if (!empty($entities)) {
-                    static::eagerLoadRelationships($entities, $this->eagerLoad, $this->entityInstance::class);
+                foreach ($this->eagerLoad as $key) {
+                    $results->$key;
                 }
+            } else {
+                $results->eagerLoadRelationships($this->eagerLoad, $this->entityInstance::class);
             }
         }
 
