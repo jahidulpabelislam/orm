@@ -39,7 +39,11 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
     }
 
-    protected static function eagerLoadHasMany(array $entities, string $relationName, array $mapping): void {
+    /**
+     * Eager load hasOne or hasMany relationships.
+     * @param bool $isMany If true, loads hasMany; if false, loads hasOne.
+     */
+    protected static function eagerLoadHasOneOrMany(array $entities, string $relationName, array $mapping, bool $isMany): void {
         $ids = [];
         foreach ($entities as $entity) {
             if (!isset($entity->$relationName) && $entity->getId() !== null) {
@@ -55,11 +59,11 @@ class Collection extends BaseCollection implements CollectionInterface {
         $relatedDataMapping = $relatedEntityClass::getDataMapping();
         $foreignKeyRelationName = $mapping['column'];
 
-        if (!isset($relatedDataMapping[$relatedDataMapping])) {
+        if (!isset($relatedDataMapping[$foreignKeyRelationName])) {
             return;
         }
 
-        $foreignKey = $relatedDataMapping[$relatedDataMapping]['column'];
+        $foreignKey = $relatedDataMapping[$foreignKeyRelationName]['column'];
 
         $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
 
@@ -73,39 +77,8 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
 
         foreach ($entities as $entity) {
-            $entity->setValue($relationName, $relatedEntitiesByParentId[$entity->getId()] ?? [], true);
-        }
-    }
-
-    protected static function eagerLoadHasOne(array $entities, string $relationName, array $mapping): void {
-        $entitiesById = [];
-        foreach ($entities as $entity) {
-            if (!isset($entity->$relationName) && $entity->getId() !== null) {
-                $entitiesById[$entity->getId()] = $entity;
-                $entity->setValue($relationName, null, true);
-            }
-        }
-
-        if (empty($entitiesById)) {
-            return;
-        }
-
-        $relatedEntityClass = $mapping['entity'];
-        $relatedDataMapping = $relatedEntityClass::getDataMapping();
-        $foreignKeyRelationName = $mapping['column'];
-
-        if (!isset($relatedDataMapping[$foreignKeyRelationName])) {
-            return;
-        }
-
-        $foreignKey = $relatedDataMapping[$foreignKeyRelationName]['column'];
-
-        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($entitiesById))->select();
-
-        foreach ($relatedEntities as $relatedEntity) {
-            $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
-
-            $entitiesById[$parentId]->setValue($relationName, $relatedEntity, true);
+            $value = $isMany ? ($relatedEntitiesByParentId[$entity->getId()] ?? []) : ($relatedEntitiesByParentId[$entity->getId()][0] ?? null);
+            $entity->setValue($relationName, $value ?? [], true);
         }
     }
 
@@ -134,10 +107,10 @@ class Collection extends BaseCollection implements CollectionInterface {
             static::eagerLoadBelongsTo($entities, $relationName, $mapping);
         }
         else if ($type === 'has_many') {
-            static::eagerLoadHasMany($entities, $relationName, $mapping);
+            static::eagerLoadHasOneOrMany($entities, $relationName, $mapping, true);
         }
         else if ($type === 'has_one') {
-            static::eagerLoadHasOne($entities, $relationName, $mapping);
+            static::eagerLoadHasOneOrMany($entities, $relationName, $mapping, false);
         }
 
         // Handle nested relationships
