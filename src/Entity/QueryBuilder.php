@@ -67,10 +67,10 @@ class QueryBuilder extends CoreQueryBuilder {
     /**
      * Set the relationships that should be eager loaded.
      *
-     * @param string|array<string> $relations
+     * @param string[]|string $relations
      * @return static
      */
-    public function with(string|array $relations): static {
+    public function with(array|string $relations): static {
         if (is_string($relations)) {
             $relations = [$relations];
         }
