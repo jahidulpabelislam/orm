@@ -139,13 +139,9 @@ class Collection extends BaseCollection implements CollectionInterface {
     /**
      * Eager load relationships on this collection.
      */
-    public function load(array|string $relations): static {
+    public function load(string ...$relations): static {
         if (empty($this->items)) {
             return $this;
-        }
-
-        if (is_string($relations)) {
-            $relations = [$relations];
         }
 
         foreach ($relations as $relation) {
