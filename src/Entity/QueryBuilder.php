@@ -112,6 +112,14 @@ class QueryBuilder extends CoreQueryBuilder {
         return $results;
     }
 
+    public function count(string $column = "*"): int {
+        if ($column !== "*" && $this->entityInstance::hasColumn($column)) {
+            $column = $this->entityInstance::getFullColumnName($column);
+        }
+
+        return parent::count($column);
+    }
+
     public function insert(array $values): ?int {
         $updatedValues = [];
         foreach ($values as $column => $value) {
