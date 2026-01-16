@@ -99,10 +99,7 @@ class QueryBuilder extends CoreQueryBuilder {
         // Eager load relationships if specified
         if (!empty($this->eagerLoad) && $result !== null) {
             $this->eagerLoad = array_unique($this->eagerLoad);
-            $collection = $result;
-            if ($result instanceof Entity) {
-                $collection = new static::$collectionClass([$result]);
-            }
+            $collection = $result instanceof Entity ? new static::$collectionClass([$result]) : $result;
             $collection->load($this->eagerLoad);
         }
 
