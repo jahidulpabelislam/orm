@@ -53,13 +53,13 @@ class Collection extends BaseCollection implements CollectionInterface {
 
         $relatedEntityClass = $mapping['entity'];
         $relatedDataMapping = $relatedEntityClass::getDataMapping();
+        $foreignKeyRelationName = $mapping['column'];
 
-        if (!isset($relatedDataMapping[$mapping['column']])) {
+        if (!isset($relatedDataMapping[$relatedDataMapping])) {
             return;
         }
 
-        $foreignKey = $relatedDataMapping[$mapping['column']]['column'];
-        $foreignKeyRelationName = $mapping['column'];
+        $foreignKey = $relatedDataMapping[$relatedDataMapping]['column'];
 
         $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
 
@@ -78,14 +78,15 @@ class Collection extends BaseCollection implements CollectionInterface {
     }
 
     protected static function eagerLoadHasOne(array $entities, string $relationName, array $mapping): void {
-        $ids = [];
+        $entitiesById = [];
         foreach ($entities as $entity) {
             if (!isset($entity->$relationName) && $entity->getId() !== null) {
-                $ids[$entity->getId()] = true;
+                $entitiesById[$entity->getId()] = $entity;
+                $entity->setValue($relationName, null, true);
             }
         }
 
-        if (empty($ids)) {
+        if (empty($entitiesById)) {
             return;
         }
 
@@ -97,19 +98,14 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        $relatedEntityMap = $relatedDataMapping[$foreignKeyRelationName];
-        $foreignKey = $relatedEntityMap['column'];
+        $foreignKey = $relatedDataMapping[$foreignKeyRelationName]['column'];
 
-        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
+        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($entitiesById))->select();
 
-        $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
             $parentId = $relatedEntity->getForeignKeyValue($foreignKeyRelationName);
-            $relatedEntitiesByParentId[$parentId] = $relatedEntity;
-        }
 
-        foreach ($entities as $entity) {
-            $entity->setValue($relationName, $relatedEntitiesByParentId[$entity->getId()] ?? null, true);
+            $entitiesById[$parentId]->setValue($relationName, $relatedEntity, true);
         }
     }
 
