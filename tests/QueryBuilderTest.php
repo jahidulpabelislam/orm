@@ -36,7 +36,7 @@ final class QueryBuilderTest extends TestCase {
         $entity = RelatedEntity::loadFromDatabaseRow(["id" => 123]);
         $queryBuilder = TestEntity::newQuery()->where("other_related_id", "=", $entity);
 
-        $this->assertEquals(["other_related_id" => 123], $queryBuilder->getParams());
+        $this->assertSame(["other_related_id" => 123], $queryBuilder->getParams());
     }
 
     public function testWhereWithEntityCollection(): void {
@@ -47,7 +47,7 @@ final class QueryBuilderTest extends TestCase {
 
         $queryBuilder = TestEntity::newQuery()->where("other_related_id", "IN", $collection);
 
-        $this->assertEquals(
+        $this->assertSame(
             [
                 "other_related_id_1" => 10,
                 "other_related_id_2" => 20,
