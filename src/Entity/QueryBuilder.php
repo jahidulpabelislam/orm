@@ -94,22 +94,22 @@ class QueryBuilder extends CoreQueryBuilder {
             );
         }
 
-        $results = parent::select($withPagination);
+        $result = parent::select($withPagination);
 
         // Eager load relationships if specified
-        if (!empty($this->eagerLoad) && $results !== null) {
+        if (!empty($this->eagerLoad) && $result !== null) {
             $this->eagerLoad = array_unique($this->eagerLoad);
             // If single entity, load relationships directly
-            if ($results instanceof Entity) {
+            if ($result instanceof Entity) {
                 foreach ($this->eagerLoad as $key) {
-                    $results->$key;
+                    $result->$key;
                 }
             } else {
-                $results->load($this->eagerLoad);
+                $result->load($this->eagerLoad);
             }
         }
 
-        return $results;
+        return $result;
     }
 
     public function count(string $column = "*"): int {
