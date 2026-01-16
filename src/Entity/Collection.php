@@ -15,7 +15,7 @@ class Collection extends BaseCollection implements CollectionInterface {
 
         foreach ($entities as $entity) {
             $foreignKey = $entity->getForeignKeyValue($relationName);
-            if ($foreignKey !== null) {
+            if (!isset($entity->$relationName) && $foreignKey !== null) {
                 $foreignKeys[] = $foreignKey;
             }
         }
@@ -48,7 +48,7 @@ class Collection extends BaseCollection implements CollectionInterface {
         $ids = [];
 
         foreach ($entities as $entity) {
-            if ($entity->getId() !== null) {
+            if (!isset($entity->$relationName) && $entity->getId() !== null) {
                 $ids[] = $entity->getId();
             }
         }
@@ -90,7 +90,7 @@ class Collection extends BaseCollection implements CollectionInterface {
         $ids = [];
 
         foreach ($entities as $entity) {
-            if ($entity->getId() !== null) {
+            if (!isset($entity->$relationName) && $entity->getId() !== null) {
                 $ids[] = $entity->getId();
             }
         }
