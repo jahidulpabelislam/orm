@@ -86,15 +86,25 @@ class Collection extends BaseCollection implements CollectionInterface {
      * Eager load a single relationship on the given entities.
      */
     protected static function eagerLoadRelation(array $entities, string $relation): void {
+        if (empty($entities)) {
+            return;
+        }
+        
         // Get entity class from first item
         $firstEntity = $entities[array_key_first($entities)];
-        $entityClass = $firstEntity::class;
+        
+        // Skip if first item is not an Entity
+        if (!($firstEntity instanceof Entity)) {
+            return;
+        }
+        
+        $entityClass = get_class($firstEntity);
 
         // Handle nested relationships (e.g., 'customer.address')
         $nestedRelations = explode('.', $relation);
         $relationName = array_shift($nestedRelations);
 
-        $dataMapping = $entityClass::getDataMapping();
+        $dataMapping = call_user_func([$entityClass, 'getDataMapping']);
 
         if (!isset($dataMapping[$relationName])) {
             return;
