@@ -89,15 +89,15 @@ class Collection extends BaseCollection implements CollectionInterface {
         if (empty($entities)) {
             return;
         }
-        
+
         // Get entity class from first item
         $firstEntity = $entities[array_key_first($entities)];
-        
+
         // Skip if first item is not an Entity
         if (!($firstEntity instanceof Entity)) {
             return;
         }
-        
+
         $entityClass = get_class($firstEntity);
 
         // Handle nested relationships (e.g., 'customer.address')
