@@ -177,7 +177,7 @@ To avoid N+1 query problems, you can eager load relationships using the `with()`
 $orders = Order::newQuery()->with('customer')->select();
 
 // Eager load multiple relationships
-$orders = Order::newQuery()->with(['customer', 'items'])->select();
+$orders = Order::newQuery()->with('customer', 'items')->select();
 
 // Eager load nested relationships
 $orders = Order::newQuery()->with('customer.address')->select();
@@ -185,7 +185,7 @@ $orders = Order::newQuery()->with('customer.address')->select();
 // Combine with other query methods
 $orders = Order::newQuery()
     ->where('status', '=', 'completed')
-    ->with(['customer', 'items'])
+    ->with('customer', 'items')
     ->orderBy('created_at', false)
     ->select();
 ```
@@ -204,7 +204,7 @@ $orders = Order::newQuery()->where('status', '=', 'completed')->select();
 $orders->load('customer');
 
 // Or load multiple relationships
-$orders->load(['customer', 'items']);
+$orders->load('customer', 'items');
 
 // Nested relationships work too
 $orders->load('customer.address');
