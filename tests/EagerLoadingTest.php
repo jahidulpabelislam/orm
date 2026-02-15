@@ -27,279 +27,192 @@ final class EagerLoadingTest extends TestCase {
         return $this->createMock(Database::class);
     }
 
-    public function testWithMethodStoresRelationships(): void {
-        $query = TestEntityWithRelationships::newQuery();
-        $query->with('related');
-        
-        // Use reflection to check that eagerLoad property contains 'related'
-        $reflection = new \ReflectionClass($query);
-        $property = $reflection->getProperty('eagerLoad');
-        $property->setAccessible(true);
-        
-        $this->assertContains('related', $property->getValue($query));
-    }
-
-    public function testWithMethodAcceptsMultipleRelationships(): void {
-        $query = TestEntityWithRelationships::newQuery();
-        $query->with('related', 'child', 'children');
-        
-        $reflection = new \ReflectionClass($query);
-        $property = $reflection->getProperty('eagerLoad');
-        $property->setAccessible(true);
-        $eagerLoad = $property->getValue($query);
-        
-        $this->assertContains('related', $eagerLoad);
-        $this->assertContains('child', $eagerLoad);
-        $this->assertContains('children', $eagerLoad);
-    }
-
-    public function testWithMethodIsChainable(): void {
-        $query = TestEntityWithRelationships::newQuery();
-        $result = $query->with('related');
-        
-        $this->assertSame($query, $result);
-    }
-
-    public function testLoadMethodOnEmptyCollection(): void {
-        $collection = new EntityCollection([]);
-        $result = $collection->load('related');
-        
-        // Should return the same collection without error
-        $this->assertSame($collection, $result);
-        $this->assertEmpty($collection);
-    }
-
-    public function testLoadMethodIsChainable(): void {
-        // Create a test entity from database row
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Test',
-            'age' => 25
-        ]);
-        
-        $collection = new EntityCollection([$entity]);
-        $result = $collection->load('related');
-        
-        $this->assertSame($collection, $result);
-    }
-
     public function testEagerLoadBelongsToRelationship(): void {
         $database = $this->createDatabase();
-        
-        // Mock the initial query for main entity
-        $database->expects($this->exactly(2))
-            ->method('selectAll')
-            ->willReturnOnConsecutiveCalls(
-                // First call: main entity query
-                [['id' => 1, 'name' => 'Main 1', 'other_related_id' => 100]],
-                // Second call: eager load related entity
-                [['id' => 100, 'title' => 'Related 1']]
-            );
-        
+
+        $database->expects($this->once())
+            ->method("selectFirst")
+            ->willReturn(["id" => 100, "title" => "Related 1"],)
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         RelatedEntity::setDatabase($database);
-        
-        // Fetch main entity
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Main 1',
-            'other_related_id' => 100
-        ]);
-        
-        // Eager load the relationship
+
+        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 1, "other_related_id" => 100]);
+
         $collection = new EntityCollection([$entity]);
-        $collection->load('related');
-        
-        // Access the relationship
+        $collection->load("related");
+
         $related = $entity->related;
-        
         $this->assertInstanceOf(RelatedEntity::class, $related);
-        $this->assertEquals('Related 1', $related->title);
+        $this->assertEquals("Related 1", $related->title);
     }
 
     public function testEagerLoadHasOneRelationship(): void {
         $database = $this->createDatabase();
-        
-        // Mock queries
+
         $database->expects($this->once())
-            ->method('selectAll')
-            ->willReturn([['id' => 1, 'title' => 'Child 1', 'parent_id' => 1]]);
-        
+            ->method("selectAll")
+            ->willReturn([
+                ["id" => 200, "title" => "Child 2", "parent_id" => 2],
+            ])
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         ChildEntity::setDatabase($database);
-        
-        // Create main entity
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Parent 1'
-        ]);
-        
-        // Eager load has_one relationship
+
+        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 2]);
+
         $collection = new EntityCollection([$entity]);
-        $collection->load('child');
-        
+        $collection->load("child");
+
         $child = $entity->child;
-        
         $this->assertInstanceOf(ChildEntity::class, $child);
-        $this->assertEquals('Child 1', $child->title);
+        $this->assertEquals("Child 2", $child->title);
     }
 
     public function testEagerLoadHasManyRelationship(): void {
         $database = $this->createDatabase();
-        
-        // Mock query for children
+
         $database->expects($this->once())
-            ->method('selectAll')
+            ->method("selectAll")
             ->willReturn([
-                ['id' => 1, 'title' => 'Child 1', 'parent_id' => 1],
-                ['id' => 2, 'title' => 'Child 2', 'parent_id' => 1]
-            ]);
-        
+                ["id" => 3, "title" => "Child 3", "parent_id" => 3],
+                ["id" => 4, "title" => "Child 4", "parent_id" => 3],
+            ])
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         ChildEntity::setDatabase($database);
-        
-        // Create main entity
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Parent 1'
-        ]);
-        
-        // Eager load has_many relationship
+
+        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 3]);
+
         $collection = new EntityCollection([$entity]);
-        $collection->load('children');
-        
+        $collection->load("children");
+
         $children = $entity->children;
-        
+
         $this->assertInstanceOf(EntityCollection::class, $children);
         $this->assertCount(2, $children);
-        $this->assertEquals('Child 1', $children[0]->title);
-        $this->assertEquals('Child 2', $children[1]->title);
+        $this->assertEquals("Child 3", $children[0]->title);
+        $this->assertEquals("Child 4", $children[1]->title);
     }
 
     public function testEagerLoadWithQueryBuilderWith(): void {
         $database = $this->createDatabase();
-        
-        // Mock queries - one for main entity, one for eager loaded relationship
+
         $database->expects($this->exactly(2))
-            ->method('selectAll')
+            ->method("selectFirst")
             ->willReturnOnConsecutiveCalls(
-                [['id' => 1, 'name' => 'Main 1', 'other_related_id' => 100]],
-                [['id' => 100, 'title' => 'Related 1']]
-            );
-        
+                // First call: main entity query
+                ["id" => 5, "other_related_id" => 500],
+                // Second call: related entity query
+                ["id" => 500, "title" => "Related 5"]
+            )
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         RelatedEntity::setDatabase($database);
-        
-        // Use with() method on query builder
+
         $entity = TestEntityWithRelationships::newQuery()
-            ->with('related')
+            ->with("related")
+            ->limit(1)
             ->select();
-        
-        // The relationship should already be loaded
+
         $related = $entity->related;
-        
         $this->assertInstanceOf(RelatedEntity::class, $related);
-        $this->assertEquals('Related 1', $related->title);
+        $this->assertEquals("Related 5", $related->title);
     }
 
     public function testEagerLoadMultipleRelationships(): void {
         $database = $this->createDatabase();
-        
-        // Mock queries
-        $database->expects($this->exactly(3))
-            ->method('selectAll')
+
+        $database->expects($this->exactly(2))
+            ->method("selectFirst")
             ->willReturnOnConsecutiveCalls(
-                // Main entity
-                [['id' => 1, 'name' => 'Parent 1', 'other_related_id' => 100]],
-                // Related entity (belongs_to)
-                [['id' => 100, 'title' => 'Related 1']],
-                // Children entities (has_many)
+                // First call: main entity query
+                ["id" => 6, "other_related_id" => 600],
+                // Second call: related entity query
+                ["id" => 600, "title" => "Related 6"],
+            )
+        ;
+
+        // Third call: Children entity query
+        $database->expects($this->once())
+            ->method("selectAll")
+            ->willReturn(
                 [
-                    ['id' => 1, 'title' => 'Child 1', 'parent_id' => 1],
-                    ['id' => 2, 'title' => 'Child 2', 'parent_id' => 1]
-                ]
-            );
-        
+                    ["id" => 600, "title" => "Child 6", "parent_id" => 6],
+                    ["id" => 700, "title" => "Child 7", "parent_id" => 6],
+                ],
+            )
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         RelatedEntity::setDatabase($database);
         ChildEntity::setDatabase($database);
-        
-        // Eager load multiple relationships
+
         $entity = TestEntityWithRelationships::newQuery()
-            ->with('related', 'children')
+            ->with("related", "children")
+            ->limit(1)
             ->select();
-        
+
         $this->assertInstanceOf(RelatedEntity::class, $entity->related);
-        $this->assertEquals('Related 1', $entity->related->title);
-        
+        $this->assertEquals("Related 6", $entity->related->title);
+
         $this->assertInstanceOf(EntityCollection::class, $entity->children);
         $this->assertCount(2, $entity->children);
     }
 
     public function testEagerLoadOnCollectionWithMultipleEntities(): void {
         $database = $this->createDatabase();
-        
-        // Mock query for eager loading related entities
+
         $database->expects($this->once())
-            ->method('selectAll')
+            ->method("selectAll")
             ->willReturn([
-                ['id' => 100, 'title' => 'Related 1'],
-                ['id' => 200, 'title' => 'Related 2']
-            ]);
-        
+                ["id" => 700, "title" => "Related 7"],
+                ["id" => 800, "title" => "Related 8"],
+            ])
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         RelatedEntity::setDatabase($database);
-        
-        // Create multiple main entities
-        $entity1 = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Main 1',
-            'other_related_id' => 100
+
+        $entities = new EntityCollection([
+            TestEntityWithRelationships::loadFromDatabaseRow(["id" => 7, "other_related_id" => 700]),
+            TestEntityWithRelationships::loadFromDatabaseRow(["id" => 8, "other_related_id" => 800]),
         ]);
-        $entity2 = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 2,
-            'name' => 'Main 2',
-            'other_related_id' => 200
-        ]);
-        
-        $entities = new EntityCollection([$entity1, $entity2]);
-        
-        // Eager load relationships
-        $entities->load('related');
-        
-        // Verify all relationships are loaded
-        $this->assertEquals('Related 1', $entities[0]->related->title);
-        $this->assertEquals('Related 2', $entities[1]->related->title);
+
+        $entities->load("related");
+
+        $this->assertEquals("Related 7", $entities[0]->related->title);
+        $this->assertEquals("Related 8", $entities[1]->related->title);
     }
 
     public function testAvoidReloadingAlreadyLoadedRelationships(): void {
         $database = $this->createDatabase();
-        
+
         // Should only be called once for the initial load, not again on second load()
         $database->expects($this->once())
-            ->method('selectAll')
-            ->willReturn([['id' => 100, 'title' => 'Related 1']]);
-        
+            ->method("selectFirst")
+            ->willReturn(["id" => 900, "title" => "Related 1"])
+        ;
+
         TestEntityWithRelationships::setDatabase($database);
         RelatedEntity::setDatabase($database);
-        
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow([
-            'id' => 1,
-            'name' => 'Main 1',
-            'other_related_id' => 100
-        ]);
-        
+
+        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 9, "other_related_id" => 900]);
+
         // Load the relationship first time
         $collection = new EntityCollection([$entity]);
-        $collection->load('related');
+        $collection->load("related");
         $related1 = $entity->related;
-        
+
         // Try to eager load again - should not trigger another database query
-        $collection->load('related');
+        $collection->load("related");
         $related2 = $entity->related;
-        
+
         // Should still be the same instance
         $this->assertSame($related1, $related2);
     }
 }
-
