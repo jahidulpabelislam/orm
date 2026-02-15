@@ -253,8 +253,8 @@ $orders = Order::newQuery()->with('customer.address')->select();
 // Combine with other query methods
 $orders = Order::newQuery()
     ->where('status', '=', 'completed')
-    ->with('customer', 'items')
     ->orderBy('created_at', false)
+    ->with('customer', 'items')
     ->select();
 ```
 
