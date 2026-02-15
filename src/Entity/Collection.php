@@ -14,7 +14,7 @@ class Collection extends BaseCollection implements CollectionInterface {
         $foreignKeys = [];
         foreach ($entities as $entity) {
             $foreignKey = $entity->getForeignKeyValue($relationName);
-            if (!isset($entity->$relationName) && $foreignKey !== null) {
+            if ($foreignKey !== null && !isset($entity->$relationName)) {
                 $foreignKeys[$foreignKey] = true;
             }
         }
@@ -46,7 +46,7 @@ class Collection extends BaseCollection implements CollectionInterface {
     protected static function eagerLoadHasOneOrMany(array $entities, string $relationName, array $mapping, bool $isMany): void {
         $ids = [];
         foreach ($entities as $entity) {
-            if (!isset($entity->$relationName) && $entity->getId() !== null) {
+            if ($entity->getId() !== null && !isset($entity->$relationName)) {
                 $ids[$entity->getId()] = true;
             }
         }
