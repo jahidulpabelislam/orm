@@ -150,12 +150,10 @@ class Collection extends BaseCollection implements CollectionInterface {
      * Eager load relationships on this collection.
      */
     public function load(string ...$relations): static {
-        if (empty($this->items)) {
-            return $this;
-        }
-
-        foreach ($relations as $relation) {
-            static::eagerLoadRelation($this->items, $relation);
+        if (!empty($this->items)) {
+            foreach ($relations as $relation) {
+                static::eagerLoadRelation($this->items, $relation);
+            }
         }
 
         return $this;
