@@ -309,7 +309,7 @@ abstract class Entity implements DatabaseResultInterface, JsonSerializable {
 
     /**
      * Get the foreign key value for a belongs_to relationship without triggering lazy loading.
-     * Need during eager loading.
+     * Needed during eager loading.
      */
     public function getForeignKeyValue(string $relationName): ?int {
         return $this->data[$relationName]["database_value"] ?? null;
