@@ -78,7 +78,7 @@ class Collection extends BaseCollection implements CollectionInterface {
 
         foreach ($entities as $entity) {
             $value = $isMany ? ($relatedEntitiesByParentId[$entity->getId()] ?? []) : ($relatedEntitiesByParentId[$entity->getId()][0] ?? null);
-            $entity->setValue($relationName, $value ?? [], true);
+            $entity->setValue($relationName, $value ?? ($isMany ? [] : null), true);
         }
     }
 
