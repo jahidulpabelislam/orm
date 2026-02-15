@@ -39,10 +39,6 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
     }
 
-    /**
-     * Eager load hasOne or hasMany relationships.
-     * @param bool $isMany If true, loads hasMany; if false, loads hasOne.
-     */
     protected static function eagerLoadHasOneOrMany(array $entities, string $relationName, array $mapping, bool $isMany): void {
         $ids = [];
         foreach ($entities as $entity) {
@@ -82,9 +78,6 @@ class Collection extends BaseCollection implements CollectionInterface {
         }
     }
 
-    /**
-     * Eager load a single relationship on the given entities.
-     */
     protected static function eagerLoadRelation(array $entities, string $relation): void {
         if (empty($entities)) {
             return;
