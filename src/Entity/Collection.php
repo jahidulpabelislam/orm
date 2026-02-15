@@ -23,7 +23,7 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        $relatedEntities = $mapping['entity']::newQuery()->where('id', 'IN', array_keys($foreignKeys))->select();
+        $relatedEntities = $mapping["entity"]::newQuery()->where("id", "IN", array_keys($foreignKeys))->select();
         $relatedEntities = $relatedEntities instanceof Entity ? [$relatedEntities] : $relatedEntities;
 
         $relatedEntitiesById = [];
@@ -55,17 +55,17 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        $relatedEntityClass = $mapping['entity'];
+        $relatedEntityClass = $mapping["entity"];
         $relatedDataMapping = $relatedEntityClass::getDataMapping();
-        $foreignKeyRelationName = $mapping['column'];
+        $foreignKeyRelationName = $mapping["column"];
 
         if (!isset($relatedDataMapping[$foreignKeyRelationName])) {
             return;
         }
 
-        $foreignKey = $relatedDataMapping[$foreignKeyRelationName]['column'];
+        $foreignKey = $relatedDataMapping[$foreignKeyRelationName]["column"];
 
-        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, 'IN', array_keys($ids))->select();
+        $relatedEntities = $relatedEntityClass::newQuery()->where($foreignKey, "IN", array_keys($ids))->select();
 
         $relatedEntitiesByParentId = [];
         foreach ($relatedEntities as $relatedEntity) {
@@ -100,32 +100,32 @@ class Collection extends BaseCollection implements CollectionInterface {
 
         $entityClass = get_class($firstEntity);
 
-        // Handle nested relationships (e.g., 'customer.address')
-        $nestedRelations = explode('.', $relation);
+        // Handle nested relationships (e.g., "customer.address")
+        $nestedRelations = explode(".", $relation);
         $relationName = array_shift($nestedRelations);
 
-        $dataMapping = call_user_func([$entityClass, 'getDataMapping']);
+        $dataMapping = call_user_func([$entityClass, "getDataMapping"]);
 
         if (!isset($dataMapping[$relationName])) {
             return;
         }
 
         $mapping = $dataMapping[$relationName];
-        $type = $mapping['type'];
+        $type = $mapping["type"];
 
-        if ($type === 'belongs_to') {
+        if ($type === "belongs_to") {
             static::eagerLoadBelongsTo($entities, $relationName, $mapping);
         }
-        else if ($type === 'has_many') {
+        else if ($type === "has_many") {
             static::eagerLoadHasOneOrMany($entities, $relationName, $mapping, true);
         }
-        else if ($type === 'has_one') {
+        else if ($type === "has_one") {
             static::eagerLoadHasOneOrMany($entities, $relationName, $mapping, false);
         }
 
         // Handle nested relationships
         if (!empty($nestedRelations)) {
-            $nestedRelation = implode('.', $nestedRelations);
+            $nestedRelation = implode(".", $nestedRelations);
             $relatedEntities = [];
 
             foreach ($entities as $entity) {
