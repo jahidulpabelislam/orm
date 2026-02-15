@@ -210,7 +210,7 @@ $orders->load('customer', 'items');
 $orders->load('customer.address');
 ```
 
-This is useful when you receive a collection from another part of your application and need to load relationships without re-querying the database for the main entities.
+This is useful when you receive a collection from another part of your application and need to load relationships efficiently. Like `with()`, it prevents N+1 query problems by batching relationship queries instead of loading them one at a time.
 
 ## Relationships
 
