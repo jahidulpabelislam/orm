@@ -280,7 +280,6 @@ $orders->load('customer.address');
 
 This is useful when you receive a collection from another part of your application and need to load relationships efficiently. Like `with()`, it prevents N+1 query problems by batching relationship queries instead of loading them one at a time.
 
-
 ## Support
 
 If you found this library interesting or useful please spread the word about this library: share on your socials, star on GitHub, etc.
