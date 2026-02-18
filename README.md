@@ -242,19 +242,19 @@ To avoid N+1 query problems, you can eager load relationships using the `with()`
 
 ```php
 // Eager load a single relationship
-$orders = Order::newQuery()->with('customer')->select();
+$orders = Order::newQuery()->with("customer")->select();
 
 // Eager load multiple relationships
-$orders = Order::newQuery()->with('customer', 'items')->select();
+$orders = Order::newQuery()->with("customer", "items")->select();
 
 // Eager load nested relationships
-$orders = Order::newQuery()->with('customer.address')->select();
+$orders = Order::newQuery()->with("customer.address")->select();
 
 // Combine with other query methods
 $orders = Order::newQuery()
-    ->where('status', '=', 'completed')
-    ->orderBy('created_at', false)
-    ->with('customer', 'items')
+    ->where("status", "=", "completed")
+    ->orderBy("created_at", false)
+    ->with("customer", "items")
     ->select();
 ```
 
@@ -266,16 +266,16 @@ If you already have a collection of entities and later need to load relationship
 
 ```php
 // Get orders without relationships
-$orders = Order::newQuery()->where('status', '=', 'completed')->select();
+$orders = Order::newQuery()->where("status", "=", "completed")->select();
 
 // Later, load relationships on the collection
-$orders->load('customer');
+$orders->load("customer");
 
 // Or load multiple relationships
-$orders->load('customer', 'items');
+$orders->load("customer", "items");
 
 // Nested relationships work too
-$orders->load('customer.address');
+$orders->load("customer.address");
 ```
 
 This is useful when you receive a collection from another part of your application and need to load relationships efficiently. Like `with()`, it prevents N+1 query problems by batching relationship queries instead of loading them one at a time.
