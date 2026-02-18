@@ -244,7 +244,7 @@ abstract class Entity implements DatabaseResultInterface, JsonSerializable {
     /**
      * @throws \JPI\ORM\Entity\InvalidValueException
      */
-    protected function setValue(string $key, mixed $value, bool $fromDB = false): void {
+    public function setValue(string $key, mixed $value, bool $fromDB = false): void {
         $mapping = static::getDataMapping()[$key];
         $type = $mapping["type"];
 
@@ -305,6 +305,14 @@ abstract class Entity implements DatabaseResultInterface, JsonSerializable {
         }
 
         $this->setValue($key, $value);
+    }
+
+    /**
+     * Get the foreign key value for a belongs_to relationship without triggering lazy loading.
+     * Needed during eager loading.
+     */
+    public function getForeignKeyValue(string $relationName): ?int {
+        return $this->data[$relationName]["database_value"] ?? null;
     }
 
     protected function lazyLoadRelationshipData(string $key, bool $refresh = false): void {

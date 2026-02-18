@@ -22,6 +22,9 @@ class QueryBuilder extends CoreQueryBuilder {
     /** @var class-string<PaginatedCollectionInterface> */
     protected static string $paginatedCollectionClass = PaginatedCollection::class;
 
+    /** @var string[] Relationships to eager load */
+    protected array $eagerLoad = [];
+
     public function __construct(
         Database $database,
         protected Entity $entityInstance
@@ -61,6 +64,15 @@ class QueryBuilder extends CoreQueryBuilder {
         return $this->entityInstance::class;
     }
 
+    /**
+     * Set the relationships that should be eager loaded.
+     */
+    public function with(string ...$relations): static {
+        $this->eagerLoad = array_merge($this->eagerLoad, $relations);
+
+        return $this;
+    }
+
     public function select(bool $withPagination = true): CollectionInterface|PaginatedCollectionInterface|Entity|null {
         // Force limit of 1 when selecting a single record by ID
         $idColumn = $this->entityInstance::getFullColumnName("id");
@@ -75,7 +87,14 @@ class QueryBuilder extends CoreQueryBuilder {
             );
         }
 
-        return parent::select($withPagination);
+        $result = parent::select($withPagination);
+
+        if (!empty($this->eagerLoad) && $result !== null) {
+            $collection = $result instanceof Entity ? new static::$collectionClass([$result]) : $result;
+            $collection->load(...array_unique($this->eagerLoad));
+        }
+
+        return $result;
     }
 
     public function count(string $column = "*"): int {
