@@ -83,10 +83,8 @@ class Collection extends BaseCollection implements CollectionInterface {
             return;
         }
 
-        // Get entity class from first item
         $firstEntity = $entities[array_key_first($entities)];
 
-        // Skip if first item is not an Entity
         if (!($firstEntity instanceof Entity)) {
             return;
         }

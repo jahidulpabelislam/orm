@@ -89,7 +89,6 @@ class QueryBuilder extends CoreQueryBuilder {
 
         $result = parent::select($withPagination);
 
-        // Eager load relationships if specified
         if (!empty($this->eagerLoad) && $result !== null) {
             $collection = $result instanceof Entity ? new static::$collectionClass([$result]) : $result;
             $collection->load(...array_unique($this->eagerLoad));
