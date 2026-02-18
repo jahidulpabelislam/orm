@@ -32,7 +32,7 @@ final class EagerLoadingTest extends TestCase {
 
         $database->expects($this->once())
             ->method("selectFirst")
-            ->willReturn(["id" => 100, "title" => "Related 1"],)
+            ->willReturn(["id" => 100, "title" => "Related 1"])
         ;
 
         TestEntityWithRelationships::setDatabase($database);
