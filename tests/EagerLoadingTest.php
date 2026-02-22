@@ -43,6 +43,7 @@ final class EagerLoadingTest extends TestCase {
         $collection = new EntityCollection([$entity]);
         $collection->load("related");
 
+        $this->assertTrue(isset($entity->related));
         $related = $entity->related;
         $this->assertSame(RelatedEntity::class, $related::class);
         $this->assertSame("Related 1", $related->title);
@@ -66,6 +67,7 @@ final class EagerLoadingTest extends TestCase {
         $collection = new EntityCollection([$entity]);
         $collection->load("child");
 
+        $this->assertTrue(isset($entity->child));
         $child = $entity->child;
         $this->assertSame(ChildEntity::class, $child::class);
         $this->assertSame("Child 2", $child->title);
@@ -90,8 +92,9 @@ final class EagerLoadingTest extends TestCase {
         $collection = new EntityCollection([$entity]);
         $collection->load("children");
 
-        $children = $entity->children;
+        $this->assertTrue(isset($entity->children));
 
+        $children = $entity->children;
         $this->assertSame(EntityCollection::class, $children::class);
         $this->assertCount(2, $children);
         $this->assertSame("Child 3", $children[0]->title);
@@ -119,6 +122,7 @@ final class EagerLoadingTest extends TestCase {
             ->limit(1)
             ->select();
 
+        $this->assertTrue(isset($entity->related));
         $related = $entity->related;
         $this->assertSame(RelatedEntity::class, $related::class);
         $this->assertSame("Related 5", $related->title);
@@ -157,9 +161,11 @@ final class EagerLoadingTest extends TestCase {
             ->limit(1)
             ->select();
 
+        $this->assertTrue(isset($entity->related));
         $this->assertSame(RelatedEntity::class, $entity->related::class);
         $this->assertSame("Related 6", $entity->related->title);
 
+        $this->assertTrue(isset($entity->children));
         $this->assertSame(EntityCollection::class, $entity->children::class);
         $this->assertCount(2, $entity->children);
     }
@@ -185,6 +191,7 @@ final class EagerLoadingTest extends TestCase {
 
         $entities->load("related");
 
+        $this->assertTrue(isset($entities[0]->related));
         $this->assertSame("Related 7", $entities[0]->related->title);
         $this->assertSame("Related 8", $entities[1]->related->title);
     }
@@ -206,6 +213,7 @@ final class EagerLoadingTest extends TestCase {
         // Load the relationship first time
         $collection = new EntityCollection([$entity]);
         $collection->load("children");
+        $this->assertTrue(isset($entity->children));
         $children1 = $entity->children;
 
         // Try to eager load again - should not trigger another database query
