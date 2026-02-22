@@ -45,7 +45,7 @@ final class EagerLoadingTest extends TestCase {
 
         $related = $entity->related;
         $this->assertInstanceOf(RelatedEntity::class, $related);
-        $this->assertEquals("Related 1", $related->title);
+        $this->assertSame("Related 1", $related->title);
     }
 
     public function testEagerLoadHasOneRelationship(): void {
@@ -68,7 +68,7 @@ final class EagerLoadingTest extends TestCase {
 
         $child = $entity->child;
         $this->assertInstanceOf(ChildEntity::class, $child);
-        $this->assertEquals("Child 2", $child->title);
+        $this->assertSame("Child 2", $child->title);
     }
 
     public function testEagerLoadHasManyRelationship(): void {
@@ -94,8 +94,8 @@ final class EagerLoadingTest extends TestCase {
 
         $this->assertInstanceOf(EntityCollection::class, $children);
         $this->assertCount(2, $children);
-        $this->assertEquals("Child 3", $children[0]->title);
-        $this->assertEquals("Child 4", $children[1]->title);
+        $this->assertSame("Child 3", $children[0]->title);
+        $this->assertSame("Child 4", $children[1]->title);
     }
 
     public function testEagerLoadWithQueryBuilderWith(): void {
@@ -121,7 +121,7 @@ final class EagerLoadingTest extends TestCase {
 
         $related = $entity->related;
         $this->assertInstanceOf(RelatedEntity::class, $related);
-        $this->assertEquals("Related 5", $related->title);
+        $this->assertSame("Related 5", $related->title);
     }
 
     public function testEagerLoadMultipleRelationships(): void {
@@ -158,7 +158,7 @@ final class EagerLoadingTest extends TestCase {
             ->select();
 
         $this->assertInstanceOf(RelatedEntity::class, $entity->related);
-        $this->assertEquals("Related 6", $entity->related->title);
+        $this->assertSame("Related 6", $entity->related->title);
 
         $this->assertInstanceOf(EntityCollection::class, $entity->children);
         $this->assertCount(2, $entity->children);
@@ -185,8 +185,8 @@ final class EagerLoadingTest extends TestCase {
 
         $entities->load("related");
 
-        $this->assertEquals("Related 7", $entities[0]->related->title);
-        $this->assertEquals("Related 8", $entities[1]->related->title);
+        $this->assertSame("Related 7", $entities[0]->related->title);
+        $this->assertSame("Related 8", $entities[1]->related->title);
     }
 
     public function testAvoidReloadingAlreadyLoadedRelationships(): void {
