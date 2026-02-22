@@ -44,7 +44,7 @@ final class EagerLoadingTest extends TestCase {
         $collection->load("related");
 
         $related = $entity->related;
-        $this->assertInstanceOf(RelatedEntity::class, $related);
+        $this->assertSame(RelatedEntity::class, $related::class);
         $this->assertSame("Related 1", $related->title);
     }
 
@@ -67,7 +67,7 @@ final class EagerLoadingTest extends TestCase {
         $collection->load("child");
 
         $child = $entity->child;
-        $this->assertInstanceOf(ChildEntity::class, $child);
+        $this->assertSame(ChildEntity::class, $child::class);
         $this->assertSame("Child 2", $child->title);
     }
 
@@ -92,7 +92,7 @@ final class EagerLoadingTest extends TestCase {
 
         $children = $entity->children;
 
-        $this->assertInstanceOf(EntityCollection::class, $children);
+        $this->assertSame(EntityCollection::class, $children::class);
         $this->assertCount(2, $children);
         $this->assertSame("Child 3", $children[0]->title);
         $this->assertSame("Child 4", $children[1]->title);
@@ -120,7 +120,7 @@ final class EagerLoadingTest extends TestCase {
             ->select();
 
         $related = $entity->related;
-        $this->assertInstanceOf(RelatedEntity::class, $related);
+        $this->assertSame(RelatedEntity::class, $related::class);
         $this->assertSame("Related 5", $related->title);
     }
 
@@ -157,10 +157,10 @@ final class EagerLoadingTest extends TestCase {
             ->limit(1)
             ->select();
 
-        $this->assertInstanceOf(RelatedEntity::class, $entity->related);
+        $this->assertSame(RelatedEntity::class, $entity->related::class);
         $this->assertSame("Related 6", $entity->related->title);
 
-        $this->assertInstanceOf(EntityCollection::class, $entity->children);
+        $this->assertSame(EntityCollection::class, $entity->children::class);
         $this->assertCount(2, $entity->children);
     }
 

@@ -103,12 +103,12 @@ final class EntityTest extends TestCase {
         $entity = new TestEntity();
 
         $entity->tags = ["tag1", "tag2", "tag3"];
-        $this->assertInstanceOf(Collection::class, $entity->tags);
+        $this->assertSame(Collection::class, $entity->tags::class);
         $this->assertSame(["tag1", "tag2", "tag3"], $entity->tags->getItems());
         $this->assertSame("tag2", $entity->tags[1]);
 
         $entity->tags = new Collection(["a", "b", "c"]);
-        $this->assertInstanceOf(Collection::class, $entity->tags);
+        $this->assertSame(Collection::class, $entity->tags::class);
         $this->assertSame(["a", "b", "c"], $entity->tags->getItems());
         $this->assertSame("c", $entity->tags[2]);
 
@@ -116,7 +116,7 @@ final class EntityTest extends TestCase {
         $this->assertNull($entity->tags);
 
         $entity->setValues(["tags" => "tag1,tag2,tag3"], true);
-        $this->assertInstanceOf(Collection::class, $entity->tags);
+        $this->assertSame(Collection::class, $entity->tags::class);
         $this->assertSame(["tag1", "tag2", "tag3"], $entity->tags->getItems());
 
         $this->expectException(InvalidValueException::class);
@@ -128,11 +128,11 @@ final class EntityTest extends TestCase {
         $entity = new TestEntity();
 
         $entity->created_at = new DateTime("2024-01-15 18:45:00");
-        $this->assertInstanceOf(DateTime::class, $entity->created_at);
+        $this->assertSame(DateTime::class, $entity->created_at::class);
         $this->assertSame("January 15, 2024, 6:45 pm", $entity->created_at->format("F j, Y, g:i a"));
 
         $entity->created_at = "2024-06-21 10:30:00";
-        $this->assertInstanceOf(DateTime::class, $entity->created_at);
+        $this->assertSame(DateTime::class, $entity->created_at::class);
         $this->assertSame("June 21, 2024, 10:30 am", $entity->created_at->format("F j, Y, g:i a"));
 
         $entity->created_at = null;
@@ -146,7 +146,7 @@ final class EntityTest extends TestCase {
         $entity = new TestEntity();
         $entity->birth_date = "2000-05-20";
 
-        $this->assertInstanceOf(DateTime::class, $entity->birth_date);
+        $this->assertSame(DateTime::class, $entity->birth_date::class);
         $this->assertSame("May 20, 2000", $entity->birth_date->format("F j, Y"));
     }
 
@@ -161,7 +161,7 @@ final class EntityTest extends TestCase {
         $related = RelatedEntity::loadFromDatabaseRow(["id" => 11]);
         $related->title = "Related Title";
         $entity->related = $related;
-        $this->assertInstanceOf(RelatedEntity::class, $entity->related);
+        $this->assertSame(RelatedEntity::class, $entity->related::class);
         $this->assertSame("Related Title", $entity->related->title);
         $this->assertSame(11, $entity->other_related_id);
 
@@ -181,17 +181,17 @@ final class EntityTest extends TestCase {
         $child2->title = "Child 2";
 
         $entity->children = [$child1, $child2];
-        $this->assertInstanceOf(EntityCollection::class, $entity->children);
+        $this->assertSame(EntityCollection::class, $entity->children::class);
         $this->assertCount(2, $entity->children);
         $this->assertSame("Child 2", $entity->children[1]->title);
 
         $entity->children = new EntityCollection([$child2]);
-        $this->assertInstanceOf(EntityCollection::class, $entity->children);
+        $this->assertSame(EntityCollection::class, $entity->children::class);
         $this->assertCount(1, $entity->children);
         $this->assertSame("Child 2", $entity->children[0]->title);
 
         $entity->children = null;
-        $this->assertInstanceOf(EntityCollection::class, $entity->children);
+        $this->assertSame(EntityCollection::class, $entity->children::class);
         $this->assertCount(0, $entity->children);
 
         $this->expectException(InvalidValueException::class);
@@ -205,7 +205,7 @@ final class EntityTest extends TestCase {
         $child->title = "Title text";
 
         $entity->child = $child;
-        $this->assertInstanceOf(ChildEntity::class, $entity->child);
+        $this->assertSame(ChildEntity::class, $entity->child::class);
         $this->assertSame("Title text", $entity->child->title);
 
         $entity->child = null;
