@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests\Fixtures;
+namespace JPI\ORM\Tests\fixtures;
 
 class TestEntity extends AbstractEntity {
 

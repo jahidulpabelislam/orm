@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests;
+namespace JPI\ORM\Tests\Unit;
 
 use JPI\Database;
 use JPI\ORM\Entity\Collection as EntityCollection;
-use JPI\ORM\Tests\Fixtures\ChildEntity;
-use JPI\ORM\Tests\Fixtures\RelatedEntity;
-use JPI\ORM\Tests\Fixtures\TestEntityWithRelationships;
+use JPI\ORM\Tests\fixtures\ChildEntity;
+use JPI\ORM\Tests\fixtures\RelatedEntity;
+use JPI\ORM\Tests\fixtures\TestEntityWithRelationships;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

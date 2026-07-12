@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests\Fixtures;
+namespace JPI\ORM\Tests\fixtures;
 
 use JPI\Database;
 use JPI\ORM\Entity;
