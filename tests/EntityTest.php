@@ -274,7 +274,6 @@ final class EntityTest extends TestCase {
         $entity = new TestEntityWithRelationships();
         $reflection = new \ReflectionClass($entity);
         $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
 
         // Initially all null
         $this->assertSame(
@@ -321,7 +320,6 @@ final class EntityTest extends TestCase {
         $entity = new TestEntityWithPrefix();
         $reflection = new \ReflectionClass($entity);
         $method = $reflection->getMethod('getValuesToSave');
-        $method->setAccessible(true);
 
         $entity->name = "Test";
         $entity->age = 1;
