@@ -202,13 +202,13 @@ final class EagerLoadingTest extends TestCase {
         // Should only be called once for the initial load, not again on second load()
         $database->expects($this->once())
             ->method("selectAll")
-            ->willReturn([["id" => 900, "title" => "Related 1"]])
+            ->willReturn([["id" => 900, "title" => "Child 1", "parent_id" => 9]])
         ;
 
         TestEntityWithRelationships::setDatabase($database);
-        RelatedEntity::setDatabase($database);
+        ChildEntity::setDatabase($database);
 
-        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 9, "other_related_id" => 900]);
+        $entity = TestEntityWithRelationships::loadFromDatabaseRow(["id" => 9]);
 
         // Load the relationship first time
         $collection = new EntityCollection([$entity]);
