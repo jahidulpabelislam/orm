@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests;
+namespace JPI\ORM\Tests\Unit;
 
 use DateTime;
 use JPI\ORM\Entity\Collection as EntityCollection;
@@ -89,7 +89,7 @@ final class EntityTest extends TestCase {
         $this->assertSame(19.99, $entity->price);
 
         $entity->price = "29.99";
-        $this->assertSame(29.99, $entity->price);;
+        $this->assertSame(29.99, $entity->price);
 
         $entity->price = null;
         $this->assertNull($entity->price);

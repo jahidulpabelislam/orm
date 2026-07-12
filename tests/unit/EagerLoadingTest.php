@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests;
+namespace JPI\ORM\Tests\Unit;
 
 use JPI\Database;
 use JPI\ORM\Entity\Collection as EntityCollection;
