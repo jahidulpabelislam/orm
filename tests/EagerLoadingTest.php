@@ -215,6 +215,7 @@ final class EagerLoadingTest extends TestCase {
         $collection->load("children");
         $this->assertTrue(isset($entity->children));
         $children1 = $entity->children;
+        $this->assertCount(1, $children1);
 
         // Try to eager load again - should not trigger another database query
         $collection->load("children");
@@ -222,5 +223,6 @@ final class EagerLoadingTest extends TestCase {
 
         // Should still be the same instance
         $this->assertSame($children1, $children2);
+        $this->assertCount(1, $children2);
     }
 }
