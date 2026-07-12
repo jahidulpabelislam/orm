@@ -37,6 +37,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "JPI\\ORM\\Tests\\Fixtures\\": "tests/fixtures",
             "JPI\\ORM\\Tests\\Unit\\": "tests/unit"
         }
     },

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JPI\ORM\Tests\fixtures;
+namespace JPI\ORM\Tests\Fixtures;
 
 final class TestEntityWithPrefix extends TestEntity {
 
